@@ -45,6 +45,7 @@ next-env.d.ts
 !SOLUCAO-DEFINITIVA.md
 !VERIFICACAO-COMPLETA.md
 !CORRECAO-URGENTE.md
+!LIMITACAO-API-VERCEL.md
 
 # Scripts temporários
 dump-agenda-2025.json
