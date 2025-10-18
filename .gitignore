@@ -47,6 +47,7 @@ next-env.d.ts
 !CORRECAO-URGENTE.md
 !LIMITACAO-API-VERCEL.md
 !SETUP-VERCEL-KV.md
+!GUIA-URGENTE-KV-SETUP.md
 
 # Scripts temporários
 dump-agenda-2025.json
