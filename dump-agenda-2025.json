@@ -1,0 +1,614 @@
+[
+  {
+    "sheet": "Plan1",
+    "row": 1,
+    "values": [
+      "",
+      "ENCONTROS",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 4,
+    "values": [
+      "N┬║ ENCONTRO",
+      "2023",
+      "",
+      "",
+      "DESCRI├ç├âO",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 5,
+    "values": [
+      "1",
+      "MAIO",
+      "23",
+      "ROBERVAL E IARA",
+      "1┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 6,
+    "values": [
+      "2",
+      "JUNHO",
+      "7",
+      "JO├âO MAURICIO E FERNANDA",
+      "2┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 7,
+    "values": [
+      "3",
+      "JUNHO",
+      "18",
+      "RIBINHA E ROSANA",
+      "3┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 8,
+    "values": [
+      "4",
+      "JULHO",
+      "28",
+      "RAULINO E NAIR",
+      "4┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 9,
+    "values": [
+      "5",
+      "AGOSTO",
+      "23",
+      "RUBENS E FERNANDA",
+      "5┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 10,
+    "values": [
+      "6",
+      "SETEMBRO",
+      "15",
+      "RONALD E SARA",
+      "6┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 11,
+    "values": [
+      "7",
+      "SETEMBRO",
+      "28",
+      "HUGO E YANE",
+      "7┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 12,
+    "values": [
+      "8",
+      "OUTUBRO",
+      "21",
+      "RONALDO E SANDRA",
+      "8┬║ ENCONTRO 1┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 13,
+    "values": [
+      "9",
+      "NOVEMBRO",
+      "16",
+      "MARCIO E FERNANDA",
+      "9┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 14,
+    "values": [
+      "10",
+      "DEZEMBRO",
+      "8",
+      "ROBERVAL E IARA",
+      "10┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "MAURO E DALIANE INICIARAM",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 16,
+    "values": [
+      "11",
+      "JANEIRO",
+      "25",
+      "HUGO E YANE",
+      "11┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 17,
+    "values": [
+      "12",
+      "FEVEREIRO",
+      "17",
+      "JO├âO MAURICIO E FERNANDA",
+      "12┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 18,
+    "values": [
+      "13",
+      "MAR├çO",
+      "8",
+      "RONALD E SARA",
+      "13┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 19,
+    "values": [
+      "14",
+      "MAR├çO",
+      "15",
+      "RONALDO E SANDRA",
+      "14┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "ZERO ├üLCOOL",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 20,
+    "values": [
+      "15",
+      "ABRIL",
+      "5",
+      "RAULINO E NAIR",
+      "15┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "SEM FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 21,
+    "values": [
+      "16",
+      "ABRIL",
+      "19",
+      "MAURO E DALIANE",
+      "16┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 22,
+    "values": [
+      "17",
+      "MAIO",
+      "10",
+      "RIBINHA E ROSANA",
+      "1┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "RONALDO E SANDRA INICIAM COMO COORDENADORES",
+      "FOTO",
+      "",
+      "5/10/24",
+      "5/23/25",
+      "378"
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 23,
+    "values": [
+      "18",
+      "MAIO",
+      "30",
+      "RUBENS E FERNANDA",
+      "2┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 24,
+    "values": [
+      "19",
+      "JUNHO",
+      "20",
+      "MARCIO E FERNANDA",
+      "3┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 25,
+    "values": [
+      "20",
+      "AGOSTO",
+      "8",
+      "ROBERVAL E IARA",
+      "4┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 26,
+    "values": [
+      "21",
+      "AGOSTO",
+      "31",
+      "JO├âO MAURICIO E FERNANDA",
+      "5┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 27,
+    "values": [
+      "22",
+      "SETEMBRO",
+      "26",
+      "RIBINHA E ROSANA",
+      "6┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 28,
+    "values": [
+      "23",
+      "OUTUBRO",
+      "18",
+      "RAULINO E NAIR",
+      "7┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 29,
+    "values": [
+      "24",
+      "NOVEMBRO",
+      "14",
+      "HUGO E YANE",
+      "8┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 30,
+    "values": [
+      "",
+      "2025",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 31,
+    "values": [
+      "25",
+      "JANEIRO",
+      "17",
+      "RONALD E SARA",
+      "9┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 32,
+    "values": [
+      "26",
+      "FEVEREIRO",
+      "8",
+      "RONALDO E SANDRA",
+      "10┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 33,
+    "values": [
+      "27",
+      "MAR├çO",
+      "15",
+      "RUBENS E FERNANDA",
+      "11┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "274",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 34,
+    "values": [
+      "28",
+      "ABRIL",
+      "11",
+      "MAURO E DALIANE",
+      "12┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 35,
+    "values": [
+      "29",
+      "MAIO",
+      "23",
+      "MARCIO E FERNANDA",
+      "13┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "RIBINHA E ROSANA INICIAM COMO COORDENADORES",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 36,
+    "values": [
+      "30",
+      "JUNHO",
+      "12",
+      "ROBERVAL E IARA",
+      "14┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 37,
+    "values": [
+      "31",
+      "JULHO",
+      "2",
+      "JO├âO MAURICIO E FERNANDA",
+      "15┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "FOTO",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 38,
+    "values": [
+      "32",
+      "AGOSTO",
+      "29",
+      "RIBINHA E ROSANA",
+      "16┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "sheet": "Plan1",
+    "row": 39,
+    "values": [
+      "",
+      "SETEMBRO",
+      "3",
+      "RAULINO E NAIR",
+      "17┬║ ENCONTRO 2┬║ TEM├üRIO",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
+]
