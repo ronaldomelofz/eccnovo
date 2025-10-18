@@ -37,6 +37,8 @@ next-env.d.ts
 # Arquivos de documentação desnecessários
 *.md
 !README.md
+!CONFIGURACAO-NETLIFY.md
+!STATUS-IMPLEMENTACAO.md
 
 # Scripts temporários
 dump-agenda-2025.json
