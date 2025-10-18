@@ -157,25 +157,24 @@ export default function Home() {
                     57º / 2023 - 28, 29 e 30 de Abril de 2023
                   </p>
                 </div>
-
-                {/* Botão Admin (desktop) */}
-                <div className="mt-4">
-                  <a
-                    href="/admin"
-                    className="inline-block bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg border border-pink-400/40 shadow-md"
-                    title="Área administrativa"
-                  >
-                    Admin
-                  </a>
-                </div>
               </div>
               
-              {/* Player de música à direita */}
-              <div className="flex-shrink-0 text-right">
+              {/* Coluna direita - Player e Admin */}
+              <div className="flex-shrink-0 flex flex-col items-end gap-4">
+                {/* Player de música */}
                 <audio controls className="w-64 xl:w-72 h-12 rounded-lg shadow-lg">
                   <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
                   Seu navegador não suporta o elemento de áudio.
                 </audio>
+                
+                {/* Botão Admin (desktop) */}
+                <a
+                  href="/admin"
+                  className="bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg border border-pink-400/40 shadow-md transition-colors"
+                  title="Área administrativa"
+                >
+                  Admin
+                </a>
               </div>
             </div>
           </div>
