@@ -10,7 +10,7 @@
 
 # next.js
 /.next/
-# /out/ - Comentado para permitir deploy manual no Netlify
+/out/
 
 # production
 /build
@@ -34,14 +34,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# netlify
-.netlify
+# Arquivos de documentação desnecessários
+*.md
+!README.md
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# Scripts temporários
+dump-agenda-2025.json
+deploy-prep.ps1
+setup-deploy.sh
 
-# OS
-Thumbs.db 
+# Excel
+*.xlsx
+
+# Arquivos do Windows
+Thumbs.db
