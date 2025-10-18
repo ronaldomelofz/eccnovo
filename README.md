@@ -7,16 +7,18 @@ Site oficial do ECC Alimento do Amor - Encontros de Casais com Cristo.
 - Next.js 14
 - TypeScript
 - Tailwind CSS
-- Netlify (Deploy)
+- Vercel (Deploy Recomendado) ⭐
 
 ## 📋 Funcionalidades
 
-- Sistema de administração para gerenciar encontros
-- Salvamento automático sem necessidade de rebuild
-- Interface responsiva
-- Galeria de fotos com navegação
+- ✅ Sistema de administração para gerenciar encontros
+- ✅ Salvamento automático via API
+- ✅ Interface responsiva (desktop e mobile)
+- ✅ Galeria de fotos com navegação
+- ✅ Upload de imagens
+- ✅ Deploy automático
 
-## 🔧 Desenvolvimento
+## 🔧 Desenvolvimento Local
 
 ```bash
 # Instalar dependências
@@ -29,9 +31,57 @@ npm run dev
 npm run build
 ```
 
+Acesse: http://localhost:3000
+
+## 🚀 Deploy no Vercel (RECOMENDADO)
+
+O sistema funciona **100%** no Vercel com todas as funcionalidades:
+
+### Deploy Rápido (5 minutos):
+
+```bash
+# Via CLI
+npx vercel --prod
+```
+
+**OU via Interface Web:**
+1. Acesse: https://vercel.com/new
+2. Importe: `ronaldomelofz/eccnovo`
+3. Clique em Deploy ✅
+
+### Por que Vercel?
+- ✅ Suporta API Routes nativamente
+- ✅ Sistema admin funciona perfeitamente
+- ✅ Deploy automático
+- ✅ Grátis para projetos pessoais
+- ✅ Plataforma oficial do Next.js
+
 ## 🔐 Acesso Admin
 
-Acesse `/admin` com a senha fornecida para gerenciar encontros.
+Após o deploy, acesse:
+- URL: `https://[seu-site].vercel.app/admin`
+- Senha: `amoragape`
+
+Funcionalidades do Admin:
+- ✅ Adicionar novos encontros
+- ✅ Upload de fotos
+- ✅ Editar informações
+- ✅ Salvamento automático
+
+## 📖 Documentação Completa
+
+- `SOLUCAO-DEFINITIVA.md` - Solução completa e correções ⭐
+- `GUIA-PASSO-A-PASSO-NETLIFY.md` - Guia Netlify (limitações)
+- `IMPORTANTE-LEIA.md` - Informações importantes
+- `RESUMO-EXECUTIVO.md` - Visão geral do projeto
+
+## ⚠️ Importante
+
+O sistema requer servidor Node.js para funcionar completamente (API routes). 
+
+**Plataformas suportadas:**
+- ✅ **Vercel** - Totalmente funcional (RECOMENDADO)
+- ⚠️ **Netlify** - Apenas site estático (admin não salva)
 
 ## 📞 Contato
 
