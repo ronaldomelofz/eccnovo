@@ -97,11 +97,12 @@ export default function AdminPage() {
         setDescricao('')
         setFoto('')
         setSemFoto(false)
+        if (fileInputRef.current) fileInputRef.current.value = ''
         
-        alert('Encontro salvo com sucesso! Os dados foram atualizados automaticamente.')
+        alert('✅ Encontro salvo com sucesso! O site foi atualizado automaticamente.')
       } else {
         const error = await response.json()
-        alert(`Erro ao salvar: ${error.error}`)
+        alert(`❌ Erro ao salvar: ${error.error}`)
       }
     } catch (error) {
       console.error('Erro ao salvar encontro:', error)

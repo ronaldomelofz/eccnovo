@@ -10,9 +10,29 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [allImages, setAllImages] = useState<{src: string, caption: string, data: string, numero: string, anfitriao: string}[]>([])
   const [currentEncontroInfo, setCurrentEncontroInfo] = useState<{data: string, numero: string, anfitriao: string} | null>(null)
-  
-  // Usar encontros estáticos diretamente
-  const allEncontros = encontros
+  const [allEncontros, setAllEncontros] = useState(encontros)
+  const [loading, setLoading] = useState(true)
+
+  // Carregar encontros da API (com fallback para dados estáticos)
+  useEffect(() => {
+    const carregarEncontros = async () => {
+      try {
+        const response = await fetch('/api/encontros')
+        if (response.ok) {
+          const encontrosAPI = await response.json()
+          setAllEncontros(encontrosAPI)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar encontros:', error)
+        // Em caso de erro, usar os encontros estáticos
+        setAllEncontros(encontros)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    carregarEncontros()
+  }, [])
 
   // Criar lista de todas as imagens disponíveis
   const getAllImages = () => {
