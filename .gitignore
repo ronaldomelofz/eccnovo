@@ -39,6 +39,8 @@ next-env.d.ts
 !README.md
 !CONFIGURACAO-NETLIFY.md
 !STATUS-IMPLEMENTACAO.md
+!GUIA-PASSO-A-PASSO-NETLIFY.md
+!IMPORTANTE-LEIA.md
 
 # Scripts temporários
 dump-agenda-2025.json
