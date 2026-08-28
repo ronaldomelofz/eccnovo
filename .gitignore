@@ -30,6 +30,7 @@ next-env.d.ts
 # documentação local (somente README.md vai para o repositório)
 *.md
 !README.md
+!AGENTS.md
 
 # arquivos locais de apoio
 *.xlsx
@@ -40,6 +41,9 @@ setup-deploy.sh
 # fotos locais (fonte oficial — ver FOTOS/README.md)
 /FOTOS/*
 !/FOTOS/README.md
+
+# pasta legada — usar FOTOS/ na raiz
+/FOTOS E PLANILHA/
 
 # pastas locais de ferramentas
 .vercel
