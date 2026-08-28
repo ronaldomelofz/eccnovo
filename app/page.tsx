@@ -10,26 +10,8 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [allImages, setAllImages] = useState<{src: string, caption: string, data: string, numero: string, anfitriao: string}[]>([])
   const [currentEncontroInfo, setCurrentEncontroInfo] = useState<{data: string, numero: string, anfitriao: string} | null>(null)
-  const [allEncontros, setAllEncontros] = useState(encontros)
+  const [allEncontros] = useState(encontros)
   const [activeAno, setActiveAno] = useState<number | null>(null)
-
-  // Netlify usa dados estáticos; API opcional em ambientes com servidor
-  useEffect(() => {
-    const carregarEncontros = async () => {
-      try {
-        const response = await fetch('/api/encontros')
-        if (response.ok) {
-          const encontrosAPI = await response.json()
-          if (Array.isArray(encontrosAPI) && encontrosAPI.length > 0) {
-            setAllEncontros(encontrosAPI)
-          }
-        }
-      } catch {
-        // Dados estáticos já carregados — comportamento esperado no Netlify
-      }
-    }
-    carregarEncontros()
-  }, [])
 
   // Criar lista de todas as imagens disponíveis
   const getAllImages = () => {
@@ -238,22 +220,12 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Coluna direita - Player e Admin */}
+              {/* Coluna direita - Player */}
               <div className="flex-shrink-0 flex flex-col items-end gap-4">
-                {/* Player de música */}
                 <audio controls className="w-64 xl:w-72 h-12 rounded-lg shadow-lg">
                   <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
                   Seu navegador não suporta o elemento de áudio.
                 </audio>
-                
-                {/* Botão Admin (desktop) */}
-                <a
-                  href="/admin"
-                  className="bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg border border-pink-400/40 shadow-md transition-colors"
-                  title="Área administrativa"
-                >
-                  Admin
-                </a>
               </div>
             </div>
           </div>
@@ -282,24 +254,13 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Botão Admin (mobile/tablet) */}
-              <div className="mt-4">
-                <a
-                  href="/admin"
-                  className="inline-block bg-pink-600 hover:bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg border border-pink-400/40 shadow-md"
-                  title="Área administrativa"
-                >
-                  Admin
-                </a>
+              {/* Player de música centralizado */}
+              <div className="text-center mt-4">
+                <audio controls className="w-full max-w-sm h-12 rounded-lg shadow-lg">
+                  <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
               </div>
-            </div>
-            
-            {/* Player de música centralizado */}
-            <div className="text-center">
-              <audio controls className="w-full max-w-sm h-12 rounded-lg shadow-lg">
-                <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
-                Seu navegador não suporta o elemento de áudio.
-              </audio>
             </div>
           </div>
         </div>
