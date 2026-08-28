@@ -1,11 +1,8 @@
-const XLSX = require('xlsx')
 const fs = require('fs')
-const path = require('path')
+const { AGENDA_XLSX, ENCONTROS_TS } = require('./fontes')
+const { parseAgendaExcel } = require('./lib/agenda')
 
-const agendaPath = path.join(__dirname, '..', 'AGENDA ENCONTROS.xlsx')
-const encontrosPath = path.join(__dirname, '..', 'app', 'data', 'encontros.ts')
-
-if (!fs.existsSync(agendaPath)) {
+if (!fs.existsSync(AGENDA_XLSX)) {
   console.log(JSON.stringify({
     skipped: true,
     reason: 'AGENDA ENCONTROS.xlsx não encontrada — validação ignorada (CI/deploy).',
@@ -13,59 +10,8 @@ if (!fs.existsSync(agendaPath)) {
   process.exit(0)
 }
 
-const MESES = {
-  JANEIRO: 'Janeiro',
-  FEVEREIRO: 'Fevereiro',
-  'MARÇO': 'Março',
-  MARCO: 'Março',
-  ABRIL: 'Abril',
-  MAIO: 'Maio',
-  JUNHO: 'Junho',
-  JULHO: 'Julho',
-  AGOSTO: 'Agosto',
-  SETEMBRO: 'Setembro',
-  OUTUBRO: 'Outubro',
-  NOVEMBRO: 'Novembro',
-  DEZEMBRO: 'Dezembro',
-}
-
-function parseExcel() {
-  const wb = XLSX.readFile(agendaPath)
-  const rows = XLSX.utils.sheet_to_json(wb.Sheets.Plan1, { header: 1, defval: '' })
-  let ano = 2023
-  const items = []
-
-  for (const row of rows) {
-    if (row[1] === 2024 || row[1] === '2024') {
-      ano = 2024
-      continue
-    }
-    if (row[1] === 2025 || row[1] === '2025') {
-      ano = 2025
-    }
-    const num = row[0]
-    if (!num || Number.isNaN(Number(num))) continue
-
-    const mesRaw = String(row[1]).toUpperCase()
-    const mes = MESES[mesRaw]
-    if (!mes) continue
-
-    items.push({
-      num: Number(num),
-      ano: num >= 37 ? 2026 : ano,
-      mes,
-      dia: String(row[2]).padStart(2, '0'),
-      anfitriao: String(row[3]).trim(),
-      descricao: String(row[4]).trim(),
-      fotoStatus: String(row[6] || '').trim().toUpperCase(),
-    })
-  }
-
-  return items
-}
-
 function parseEncontrosTs() {
-  const content = fs.readFileSync(encontrosPath, 'utf8')
+  const content = fs.readFileSync(ENCONTROS_TS, 'utf8')
   const blocks = [...content.matchAll(/\{[^}]+\}/g)].map((m) => m[0])
   return blocks
     .filter((b) => b.includes('ano:'))
@@ -90,7 +36,7 @@ function parseEncontrosTs() {
     })
 }
 
-const excel = parseExcel()
+const excel = parseAgendaExcel()
 const site = parseEncontrosTs()
 const mismatches = []
 

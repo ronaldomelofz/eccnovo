@@ -37,8 +37,9 @@ dump-agenda-2025.json
 deploy-prep.ps1
 setup-deploy.sh
 
-# fotos locais (servidas de public/FOTOS)
-/FOTOS/
+# fotos locais (fonte oficial — ver FOTOS/README.md)
+/FOTOS/*
+!/FOTOS/README.md
 
 # pastas locais de ferramentas
 .vercel

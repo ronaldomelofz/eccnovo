@@ -1,0 +1,40 @@
+---
+description: Fontes oficiais do site ECC — FOTOS/ e planilha AGENDA ENCONTROS.xlsx
+alwaysApply: true
+---
+
+# Fontes oficiais do projeto ECC
+
+## Regra principal
+
+**Nunca editar manualmente** `public/FOTOS/` nem `app/data/encontros.ts`.
+
+Toda foto e todo dado de encontro vêm destas fontes na raiz do projeto:
+
+| Fonte | Caminho | Conteúdo |
+|-------|---------|----------|
+| Fotos | `FOTOS/` | Imagens ENCONTRO-XX-*.jpeg, logo.jpeg, áudio |
+| Planilha | `AGENDA ENCONTROS.xlsx` | Listagem oficial dos encontros |
+
+Configuração central: `scripts/fontes.js`
+
+## Fluxo obrigatório ao adicionar encontros
+
+1. Adicionar linha na planilha `AGENDA ENCONTROS.xlsx`
+2. Colocar foto em `FOTOS/` (nome: `ENCONTRO-{n}-{dd}-{mm}-{aaaa}.jpeg`)
+3. Executar `npm run sync`
+4. Commit de `public/FOTOS/` e `app/data/encontros.ts`
+5. Push para `main` (deploy Netlify automático)
+
+## Scripts
+
+- `npm run sync` — sincroniza fotos + gera encontros.ts da planilha
+- `npm run validate` — confere planilha vs encontros.ts
+- `npm run sync-fotos` — só fotos
+- `npm run sync-encontros` — só dados da planilha
+
+## Site em produção
+
+https://eccalimentodoamor.netlify.app
+
+Repositório: https://github.com/ronaldomelofz/eccnovo

@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "sync": "node scripts/sync-all.js",
     "sync-fotos": "node scripts/sync-fotos.js",
+    "sync-encontros": "node scripts/sync-encontros.js",
     "validate": "node scripts/validate-encontros.js",
-    "prebuild": "node scripts/sync-fotos.js",
+    "predev": "node scripts/sync-all.js",
+    "prebuild": "node scripts/sync-all.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

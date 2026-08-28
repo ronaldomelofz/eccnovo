@@ -29,6 +29,9 @@ jobs:
     - name: Validate encontros data
       run: npm run validate
 
+    - name: Sync from local sources
+      run: npm run sync
+
     - name: Build static site
       run: npm run build
 

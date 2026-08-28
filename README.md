@@ -2,72 +2,51 @@
 
 Site oficial do ECC Alimento do Amor — Encontros de Casais com Cristo.
 
-**Site em produção:** https://eccalimentodoamor.netlify.app
-
+**Site:** https://eccalimentodoamor.netlify.app  
 **Repositório:** https://github.com/ronaldomelofz/eccnovo
 
-## Tecnologias
+## Fontes oficiais (sempre usar estas pastas)
 
-- Next.js 14 (export estático)
-- TypeScript
-- Tailwind CSS
-- Netlify (deploy principal)
+| O quê | Onde colocar |
+|-------|--------------|
+| **Fotos e áudio** | `FOTOS/` (raiz do projeto) |
+| **Listagem dos encontros** | `AGENDA ENCONTROS.xlsx` (raiz do projeto) |
 
-## Funcionalidades
+> O sistema **nunca** deve ser atualizado manualmente em `public/FOTOS/` ou `app/data/encontros.ts`.  
+> Use sempre `npm run sync` após alterar a planilha ou adicionar fotos.
 
-- Galeria de fotos com navegação por teclado e setas
-- Abas por ano (2026, 2025, 2024, 2023)
-- Interface responsiva (desktop e mobile)
-- Player de áudio
-- 44 encontros catalogados com dados da agenda oficial
+Referência no código: `scripts/fontes.js` · Memória do agente: `AGENTS.md` · Regra Cursor: `.cursor/rules/fontes-projeto.mdc`
 
-## Desenvolvimento local
+## Adicionar novos encontros
 
-```bash
-npm install
-npm run dev
-```
-
-Build de produção (gera pasta `out/` para Netlify):
+1. Atualize a planilha `AGENDA ENCONTROS.xlsx`
+2. Coloque a foto em `FOTOS/` → `ENCONTRO-{n}-{dd}-{mm}-{aaaa}.jpeg`
+3. Execute:
 
 ```bash
-npm run build
+npm run sync
 ```
 
-Validar dados contra a planilha `AGENDA ENCONTROS.xlsx`:
+4. Commit e push para `main` → deploy automático no Netlify
+
+## Comandos
 
 ```bash
-npm run validate
+npm install          # instalar dependências
+npm run sync         # sincroniza FOTOS/ + planilha → site
+npm run validate     # valida planilha vs encontros.ts
+npm run dev          # desenvolvimento local (sync automático antes)
+npm run build        # build produção (sync automático antes)
 ```
-
-Sincronizar fotos da pasta local `FOTOS/` para `public/FOTOS/`:
-
-```bash
-npm run sync-fotos
-```
-
-## Deploy no Netlify
-
-O deploy é automático via GitHub Actions ao fazer push na branch `main`.
-
-Configuração em `netlify.toml`:
-- Build: `npm run build`
-- Publish: `out/`
-
-### Adicionar novos encontros
-
-1. Coloque a foto em `FOTOS/` (pasta local) ou diretamente em `public/FOTOS/`
-2. Execute `npm run sync-fotos` (se usou a pasta local)
-3. Atualize `app/data/encontros.ts` com os dados da agenda
-4. Execute `npm run validate` para conferir
-5. Commit e push para `main` — o Netlify atualiza automaticamente
 
 ## Estrutura
 
 ```
-app/data/encontros.ts   # Dados dos encontros
-public/FOTOS/           # Fotos servidas pelo site
-netlify.toml            # Configuração Netlify
+FOTOS/                    ← FONTE: fotos e áudio (você edita aqui)
+AGENDA ENCONTROS.xlsx     ← FONTE: dados dos encontros
+public/FOTOS/             ← gerado pelo sync (não editar)
+app/data/encontros.ts     ← gerado pelo sync (não editar)
+scripts/fontes.js         ← caminhos oficiais centralizados
 ```
 
 ---
