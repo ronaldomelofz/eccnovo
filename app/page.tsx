@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { encontros, type Encontro } from './data/encontros'
 import { sortEncontrosAsc } from './data/ordenar'
+import { calcularRodadaAtual } from './data/rodada'
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -12,7 +13,7 @@ export default function Home() {
   const [allImages, setAllImages] = useState<{src: string, caption: string, data: string, numero: string, anfitriao: string}[]>([])
   const [currentEncontroInfo, setCurrentEncontroInfo] = useState<{data: string, numero: string, anfitriao: string} | null>(null)
   const [allEncontros] = useState(encontros)
-  const [activeAno, setActiveAno] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState<'ordem' | number | null>(null)
 
   // Criar lista de todas as imagens disponíveis
   const getAllImages = () => {
@@ -114,13 +115,14 @@ export default function Home() {
     return acc
   }, {})
 
-  const anoAtivo = activeAno ?? anos[0] ?? 2025
+  const tabAtiva = activeTab ?? anos[0] ?? 'ordem'
+  const rodada = calcularRodadaAtual(allEncontros)
 
   useEffect(() => {
-    if (activeAno === null && anos.length > 0) {
-      setActiveAno(anos[0])
+    if (activeTab === null && anos.length > 0) {
+      setActiveTab(anos[0])
     }
-  }, [anos, activeAno])
+  }, [anos, activeTab])
 
   const renderEncontroCard = (encontro: Encontro, index: number) => (
     <div key={`${encontro.ano}-${encontro.mes}-${encontro.dia}-${index}`} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -258,14 +260,24 @@ export default function Home() {
         <section>
           <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 text-white">ENCONTROS</h2>
 
-          {/* Abas por ano */}
+          {/* Abas: ordem dos casais + anos */}
           <div className="flex flex-wrap justify-center gap-3 mb-10">
+            <button
+              onClick={() => setActiveTab('ordem')}
+              className={`px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border-2 ${
+                tabAtiva === 'ordem'
+                  ? 'bg-amber-600 border-amber-400 text-white shadow-lg scale-105'
+                  : 'bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600 hover:border-gray-400'
+              }`}
+            >
+              Ordem dos Casais
+            </button>
             {anos.map(ano => (
               <button
                 key={ano}
-                onClick={() => setActiveAno(ano)}
+                onClick={() => setActiveTab(ano)}
                 className={`px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border-2 ${
-                  anoAtivo === ano
+                  tabAtiva === ano
                     ? 'bg-pink-600 border-pink-400 text-white shadow-lg scale-105'
                     : 'bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600 hover:border-gray-400'
                 }`}
@@ -275,19 +287,106 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Encontros do ano selecionado */}
-          <div className="mb-16">
-            <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">
-              Agenda {anoAtivo}
-            </h3>
-            <div className="grid gap-6 lg:gap-8">
-              {(encontrosPorAno[anoAtivo] || []).length > 0 ? (
-                (encontrosPorAno[anoAtivo] || []).map(renderEncontroCard)
-              ) : (
-                <p className="text-center text-gray-400 py-8">Nenhum encontro registrado para {anoAtivo}.</p>
+          {tabAtiva === 'ordem' ? (
+            <div className="mb-16 max-w-4xl mx-auto">
+              <h3 className="text-2xl lg:text-3xl font-semibold mb-4 text-gray-300 border-b-2 border-gray-600 pb-3 text-center">
+                Ordem dos Encontros — Rodada Atual
+                {rodada.temario !== null && (
+                  <span className="block text-lg font-normal text-gray-400 mt-1">
+                    {rodada.numeroInicioCiclo}º a {rodada.numeroFimCiclo}º encontro · {rodada.temario}º temário
+                  </span>
+                )}
+              </h3>
+
+              <div className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 mb-8 text-center">
+                <p className="text-xl font-semibold text-amber-300 mb-2">
+                  {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
+                </p>
+                {rodada.pendentes.length > 0 ? (
+                  <p className="text-gray-200">
+                    <strong className="text-red-300">Ainda faltam:</strong>{' '}
+                    {rodada.pendentes.map(p => p.casal).join(' · ')}
+                  </p>
+                ) : (
+                  <p className="text-green-300 font-medium">Rodada completa! Todos os 10 casais já receberam.</p>
+                )}
+                {rodada.proximosNaOrdem[0] && (
+                  <p className="text-pink-300 mt-3 text-lg">
+                    Próximo na ordem: <strong>{rodada.proximosNaOrdem[0].casal}</strong>
+                  </p>
+                )}
+              </div>
+
+              <div className="grid gap-3">
+                {rodada.statusCasais.map((item) => (
+                  <div
+                    key={item.casal}
+                    className={`flex items-center gap-4 rounded-xl border-2 p-4 lg:p-5 transition-all ${
+                      item.jaFoiAnfitriao
+                        ? 'bg-gray-700/80 border-green-600/60'
+                        : 'bg-red-950/40 border-red-500/70 shadow-md'
+                    }`}
+                  >
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-500 flex items-center justify-center font-bold text-lg">
+                      {item.ordem}
+                    </span>
+                    <span
+                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold ${
+                        item.jaFoiAnfitriao ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                      }`}
+                      title={item.jaFoiAnfitriao ? 'Já foi anfitrião nesta rodada' : 'Ainda não foi anfitrião nesta rodada'}
+                    >
+                      {item.jaFoiAnfitriao ? '✓' : '!'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-semibold text-lg ${item.jaFoiAnfitriao ? 'text-gray-100' : 'text-red-200'}`}>
+                        {item.casal}
+                      </p>
+                      {item.jaFoiAnfitriao && item.dataUltimoEncontro && (
+                        <p className="text-sm text-gray-400 truncate">
+                          {item.descricaoUltimoEncontro} — {item.dataUltimoEncontro}
+                        </p>
+                      )}
+                      {!item.jaFoiAnfitriao && (
+                        <p className="text-sm text-red-300/90">Aguardando vez na rodada atual</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {rodada.encontrosNaRodada.length > 0 && (
+                <div className="mt-10">
+                  <h4 className="text-xl font-semibold text-gray-400 mb-4 border-b border-gray-600 pb-2">
+                    Encontros desta rodada ({rodada.encontrosNaRodada.length})
+                  </h4>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    {rodada.encontrosNaRodada.map((e, i) => (
+                      <li key={`${e.ano}-${e.mes}-${e.dia}-${i}`} className="flex flex-wrap gap-x-2">
+                        <span className="text-pink-300">{e.descricao}</span>
+                        <span>—</span>
+                        <span>{e.dia} de {e.mes} de {e.ano}</span>
+                        <span className="text-gray-400">({e.anfitriao})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
-          </div>
+          ) : (
+            <div className="mb-16">
+              <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">
+                Agenda {tabAtiva}
+              </h3>
+              <div className="grid gap-6 lg:gap-8">
+                {(encontrosPorAno[tabAtiva as number] || []).length > 0 ? (
+                  (encontrosPorAno[tabAtiva as number] || []).map(renderEncontroCard)
+                ) : (
+                  <p className="text-center text-gray-400 py-8">Nenhum encontro registrado para {tabAtiva}.</p>
+                )}
+              </div>
+            </div>
+          )}
         </section>
       </main>
 
