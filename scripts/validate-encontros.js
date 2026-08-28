@@ -5,6 +5,14 @@ const path = require('path')
 const agendaPath = path.join(__dirname, '..', 'AGENDA ENCONTROS.xlsx')
 const encontrosPath = path.join(__dirname, '..', 'app', 'data', 'encontros.ts')
 
+if (!fs.existsSync(agendaPath)) {
+  console.log(JSON.stringify({
+    skipped: true,
+    reason: 'AGENDA ENCONTROS.xlsx não encontrada — validação ignorada (CI/deploy).',
+  }))
+  process.exit(0)
+}
+
 const MESES = {
   JANEIRO: 'Janeiro',
   FEVEREIRO: 'Fevereiro',
