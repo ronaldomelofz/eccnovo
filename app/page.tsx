@@ -474,13 +474,6 @@ export default function Home() {
                 className="rounded-lg object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
-              {currentEncontroInfo && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black/75 text-center py-3 px-4 rounded-b-lg pointer-events-none">
-                  <p className="text-amber-300 font-semibold text-sm lg:text-base">
-                    Casal Anfitrião: {currentEncontroInfo.anfitriao}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Seta Direita - Desktop */}
