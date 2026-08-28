@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { FOTOS_DIR, ENCONTROS_TS, FOTOS_WEB_PREFIX } = require('./fontes')
 const { parseAgendaExcel } = require('./lib/agenda')
+const { sortEncontrosDesc } = require('./lib/ordenar')
 
 function findPhotoFile(num, fotosDir) {
   if (!fs.existsSync(fotosDir)) return null
@@ -78,7 +79,7 @@ function syncEncontros() {
     return false
   }
 
-  const content = generateEncontrosTs(items, FOTOS_DIR)
+  const content = generateEncontrosTs(sortEncontrosDesc(items), FOTOS_DIR)
   fs.writeFileSync(ENCONTROS_TS, content, 'utf8')
   console.log(`✓ encontros.ts gerado com ${items.length} encontros (fonte: planilha + FOTOS/)`)
   return true

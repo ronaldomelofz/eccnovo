@@ -2,6 +2,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { encontros, type Encontro } from './data/encontros'
+import { sortEncontrosDesc } from './data/ordenar'
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -18,20 +19,7 @@ export default function Home() {
     const images: {src: string, caption: string, data: string, numero: string, anfitriao: string}[] = []
     
     // Organizar encontros por ano (2025, 2024, 2023) e dentro de cada ano do mais recente para o mais antigo
-    const encontrosOrdenados = [...allEncontros].sort((a, b) => {
-      if (a.ano !== b.ano) {
-        return b.ano - a.ano // Anos em ordem decrescente (2025, 2024, 2023)
-      }
-      // Dentro do mesmo ano, ordenar por mês e dia (do mais recente para o mais antigo)
-      const meses = { "Janeiro": 1, "Fevereiro": 2, "Março": 3, "Abril": 4, "Maio": 5, "Junho": 6, 
-                     "Julho": 7, "Agosto": 8, "Setembro": 9, "Outubro": 10, "Novembro": 11, "Dezembro": 12 }
-      const mesA = meses[a.mes as keyof typeof meses] || 0
-      const mesB = meses[b.mes as keyof typeof meses] || 0
-      if (mesA !== mesB) {
-        return mesB - mesA
-      }
-      return parseInt(b.dia) - parseInt(a.dia)
-    })
+    const encontrosOrdenados = sortEncontrosDesc(allEncontros)
     
     encontrosOrdenados.forEach(encontro => {
       if (!encontro.semFoto && encontro.foto) {
@@ -122,7 +110,7 @@ export default function Home() {
   const anos = Array.from(new Set(allEncontros.map(e => e.ano))).sort((a, b) => b - a)
 
   const encontrosPorAno = anos.reduce<Record<number, Encontro[]>>((acc, ano) => {
-    acc[ano] = allEncontros.filter(e => e.ano === ano).reverse()
+    acc[ano] = sortEncontrosDesc(allEncontros.filter(e => e.ano === ano))
     return acc
   }, {})
 
