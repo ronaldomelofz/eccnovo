@@ -59,3 +59,7 @@ setup-deploy.sh
 
 # Arquivos do Windows
 Thumbs.db
+.vercel
+
+# Fotos locais (cópia de trabalho — servidas de public/FOTOS)
+/FOTOS/
