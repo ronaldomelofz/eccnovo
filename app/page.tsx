@@ -410,6 +410,9 @@ export default function Home() {
               {currentEncontroInfo && (
                 <div className="mt-2 space-y-1">
                   <p className="text-gray-300 text-sm font-medium">{currentEncontroInfo.data}</p>
+                  <p className="text-amber-300 text-sm font-semibold">
+                    Casal Anfitrião: {currentEncontroInfo.anfitriao}
+                  </p>
                   <p className="text-pink-300 text-sm font-semibold">{currentEncontroInfo.numero}</p>
                 </div>
               )}
@@ -430,6 +433,9 @@ export default function Home() {
               {currentEncontroInfo && (
                 <div className="space-y-1">
                   <p className="text-gray-300 text-base font-medium">{currentEncontroInfo.data}</p>
+                  <p className="text-amber-300 text-base font-semibold">
+                    Casal Anfitrião: {currentEncontroInfo.anfitriao}
+                  </p>
                   <p className="text-pink-300 text-base font-semibold">{currentEncontroInfo.numero}</p>
                 </div>
               )}
@@ -462,12 +468,19 @@ export default function Home() {
             <div className="relative w-full max-w-5xl h-[60vh] lg:h-[70vh] flex items-center justify-center">
               <Image
                 src={currentImage}
-                alt={currentCaption}
+                alt={currentEncontroInfo ? `${currentCaption} — ${currentEncontroInfo.anfitriao}` : currentCaption}
                 fill
                 sizes="(max-width: 768px) 100vw, 80vw"
                 className="rounded-lg object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
+              {currentEncontroInfo && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/75 text-center py-3 px-4 rounded-b-lg pointer-events-none">
+                  <p className="text-amber-300 font-semibold text-sm lg:text-base">
+                    Casal Anfitrião: {currentEncontroInfo.anfitriao}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Seta Direita - Desktop */}
