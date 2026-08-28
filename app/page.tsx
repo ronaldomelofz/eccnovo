@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { encontros, type Encontro } from './data/encontros'
-import { sortEncontrosDesc } from './data/ordenar'
+import { sortEncontrosAsc } from './data/ordenar'
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -19,7 +19,7 @@ export default function Home() {
     const images: {src: string, caption: string, data: string, numero: string, anfitriao: string}[] = []
     
     // Organizar encontros por ano (2025, 2024, 2023) e dentro de cada ano do mais recente para o mais antigo
-    const encontrosOrdenados = sortEncontrosDesc(allEncontros)
+    const encontrosOrdenados = sortEncontrosAsc(allEncontros)
     
     encontrosOrdenados.forEach(encontro => {
       if (!encontro.semFoto && encontro.foto) {
@@ -110,7 +110,7 @@ export default function Home() {
   const anos = Array.from(new Set(allEncontros.map(e => e.ano))).sort((a, b) => b - a)
 
   const encontrosPorAno = anos.reduce<Record<number, Encontro[]>>((acc, ano) => {
-    acc[ano] = sortEncontrosDesc(allEncontros.filter(e => e.ano === ano))
+    acc[ano] = sortEncontrosAsc(allEncontros.filter(e => e.ano === ano))
     return acc
   }, {})
 

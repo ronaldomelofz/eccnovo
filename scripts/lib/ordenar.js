@@ -13,14 +13,14 @@ const MESES_ORDEM = {
   Dezembro: 12,
 }
 
-function sortEncontrosDesc(items) {
+function sortEncontrosAsc(items) {
   return [...items].sort((a, b) => {
-    if (a.ano !== b.ano) return b.ano - a.ano
+    if (a.ano !== b.ano) return a.ano - b.ano
     const mesA = MESES_ORDEM[a.mes] ?? 0
     const mesB = MESES_ORDEM[b.mes] ?? 0
-    if (mesA !== mesB) return mesB - mesA
-    return parseInt(b.dia, 10) - parseInt(a.dia, 10)
+    if (mesA !== mesB) return mesA - mesB
+    return parseInt(a.dia, 10) - parseInt(b.dia, 10)
   })
 }
 
-module.exports = { MESES_ORDEM, sortEncontrosDesc }
+module.exports = { MESES_ORDEM, sortEncontrosAsc }

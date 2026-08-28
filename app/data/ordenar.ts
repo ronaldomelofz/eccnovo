@@ -1,4 +1,4 @@
-/** Ordem decrescente: mais recente primeiro (Dezembro → Janeiro) */
+/** Ordem cronológica: Janeiro → Dezembro */
 export const MESES_ORDEM: Record<string, number> = {
   Janeiro: 1,
   Fevereiro: 2,
@@ -20,12 +20,12 @@ export interface EncontroOrdenavel {
   dia: string
 }
 
-export function sortEncontrosDesc<T extends EncontroOrdenavel>(items: T[]): T[] {
+export function sortEncontrosAsc<T extends EncontroOrdenavel>(items: T[]): T[] {
   return [...items].sort((a, b) => {
-    if (a.ano !== b.ano) return b.ano - a.ano
+    if (a.ano !== b.ano) return a.ano - b.ano
     const mesA = MESES_ORDEM[a.mes] ?? 0
     const mesB = MESES_ORDEM[b.mes] ?? 0
-    if (mesA !== mesB) return mesB - mesA
-    return parseInt(b.dia, 10) - parseInt(a.dia, 10)
+    if (mesA !== mesB) return mesA - mesB
+    return parseInt(a.dia, 10) - parseInt(b.dia, 10)
   })
 }
