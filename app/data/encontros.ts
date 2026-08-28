@@ -46,4 +46,15 @@ export const encontros: Encontro[] = [
   { ano: 2025, mes: "Agosto", dia: "29", anfitriao: "RIBINHA E ROSANA", foto: "/FOTOS/ENCONTRO-32-29-08-2025.jpeg", descricao: "16º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Setembro", dia: "03", anfitriao: "RAULINO E NAIR", foto: "/FOTOS/ENCONTRO-33-03-09-2025.jpeg", descricao: "17º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Outubro", dia: "15", anfitriao: "RONALDO E SANDRA", foto: "/FOTOS/ENCONTRO-34-15-10-2025.jpeg", descricao: "18º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2025, mes: "Novembro", dia: "21", anfitriao: "HUGO E YANE", semFoto: true, descricao: "19º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2025, mes: "Dezembro", dia: "20", anfitriao: "RUBENS E FERNANDA", foto: "/FOTOS/ENCONTRO-36-20-12-2025.jpeg", descricao: "20º ENCONTRO 2º TEMÁRIO" },
+  // 2026
+  { ano: 2026, mes: "Janeiro", dia: "31", anfitriao: "RONALD E SARA", foto: "/FOTOS/ENCONTRO-37-31-01-2026.jpeg", descricao: "21º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Fevereiro", dia: "27", anfitriao: "MAURO E DALIANE", foto: "/FOTOS/ENCONTRO-38-27-02-2026.jpeg", descricao: "22º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Março", dia: "27", anfitriao: "MARCIO E FERNANDA", foto: "/FOTOS/ENCONTRO-39-27-03-2026.jpeg", descricao: "23º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Abril", dia: "22", anfitriao: "JOÃO MAURICIO E FERNANDA", foto: "/FOTOS/ENCONTRO-40-22-04-2026.jpeg", descricao: "24º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Maio", dia: "08", anfitriao: "RAULINO E NAIR", foto: "/FOTOS/ENCONTRO-41-08-05-2026.jpeg", descricao: "25º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Junho", dia: "20", anfitriao: "RIBINHA E ROSANA", foto: "/FOTOS/ENCONTRO-42-20-06-2026.jpeg", descricao: "26º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Julho", dia: "16", anfitriao: "ROBERVAL E IARA", foto: "/FOTOS/ENCONTRO-43-16-07-2026.jpeg", descricao: "27º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2026, mes: "Agosto", dia: "27", anfitriao: "HUGO E YANE", foto: "/FOTOS/ENCONTRO-44-27-08-2026.jpeg", descricao: "28º ENCONTRO 2º TEMÁRIO" },
 ];

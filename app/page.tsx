@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
-import { encontros } from './data/encontros'
+import { encontros, type Encontro } from './data/encontros'
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -12,6 +12,7 @@ export default function Home() {
   const [currentEncontroInfo, setCurrentEncontroInfo] = useState<{data: string, numero: string, anfitriao: string} | null>(null)
   const [allEncontros, setAllEncontros] = useState(encontros)
   const [loading, setLoading] = useState(true)
+  const [activeAno, setActiveAno] = useState<number | null>(null)
 
   // Carregar encontros da API (com fallback para dados estáticos)
   useEffect(() => {
@@ -139,12 +140,74 @@ export default function Home() {
     }
   }, [modalOpen, currentImageIndex, allImages, goToPrevious, goToNext, closeModal])
 
-  // Organizar encontros por ano usando dados da API
-  const encontrosPorAno = {
-    2025: allEncontros.filter(e => e.ano === 2025).reverse(),
-    2024: allEncontros.filter(e => e.ano === 2024).reverse(),
-    2023: allEncontros.filter(e => e.ano === 2023).reverse(),
-  }
+  // Organizar encontros por ano dinamicamente
+  const anos = Array.from(new Set(allEncontros.map(e => e.ano))).sort((a, b) => b - a)
+
+  const encontrosPorAno = anos.reduce<Record<number, Encontro[]>>((acc, ano) => {
+    acc[ano] = allEncontros.filter(e => e.ano === ano).reverse()
+    return acc
+  }, {})
+
+  const anoAtivo = activeAno ?? anos[0] ?? 2025
+
+  useEffect(() => {
+    if (activeAno === null && anos.length > 0) {
+      setActiveAno(anos[0])
+    }
+  }, [anos, activeAno])
+
+  const renderEncontroCard = (encontro: Encontro, index: number) => (
+    <div key={`${encontro.ano}-${encontro.mes}-${encontro.dia}-${index}`} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+      <div className="hidden md:flex items-center justify-between">
+        <div className="encontro-info flex-1">
+          <h3 className="text-xl lg:text-2xl font-semibold mb-3 text-pink-300">Encontro de {encontro.mes}</h3>
+          <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
+          <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
+          <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
+        </div>
+        <div className="encontro-foto ml-8 flex-shrink-0">
+          {encontro.semFoto ? (
+            <div className="w-32 h-24 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
+              <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
+            </div>
+          ) : (
+            <Image
+              src={encontro.foto || ''}
+              alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
+              width={128}
+              height={96}
+              className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md hover:shadow-lg"
+              onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
+            />
+          )}
+        </div>
+      </div>
+      <div className="md:hidden">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
+          <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
+          <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
+          <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
+        </div>
+        <div className="flex justify-center">
+          {encontro.semFoto ? (
+            <div className="w-40 h-30 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
+              <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
+            </div>
+          ) : (
+            <Image
+              src={encontro.foto || ''}
+              alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
+              width={160}
+              height={120}
+              className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md"
+              onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-800 text-white">
@@ -248,192 +311,37 @@ export default function Home() {
 
       <main className="container mx-auto px-4 lg:px-6 py-8 lg:py-12">
         <section>
-          <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12 text-white">ENCONTROS</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 text-white">ENCONTROS</h2>
 
-          {/* Agenda 2025 */}
-          <div className="mb-16">
-            <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">Agenda 2025</h3>
-            <div className="grid gap-6 lg:gap-8">
-              {encontrosPorAno[2025].map((encontro, index) => (
-                <div key={index} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                  {/* Desktop Layout */}
-                  <div className="hidden md:flex items-center justify-between">
-                    <div className="encontro-info flex-1">
-                      <h3 className="text-xl lg:text-2xl font-semibold mb-3 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="encontro-foto ml-8 flex-shrink-0">
-                      {encontro.semFoto ? (
-                        <div className="w-32 h-24 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={128}
-                          height={96}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md hover:shadow-lg"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Mobile Layout */}
-                  <div className="md:hidden">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="flex justify-center">
-                      {encontro.semFoto ? (
-                        <div className="w-40 h-30 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={160}
-                          height={120}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Abas por ano */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            {anos.map(ano => (
+              <button
+                key={ano}
+                onClick={() => setActiveAno(ano)}
+                className={`px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border-2 ${
+                  anoAtivo === ano
+                    ? 'bg-pink-600 border-pink-400 text-white shadow-lg scale-105'
+                    : 'bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600 hover:border-gray-400'
+                }`}
+              >
+                {ano}
+              </button>
+            ))}
           </div>
 
-          {/* Agenda 2024 */}
+          {/* Encontros do ano selecionado */}
           <div className="mb-16">
-            <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">Agenda 2024</h3>
-            <div className="grid gap-6 lg:gap-8">
-              {encontrosPorAno[2024].map((encontro, index) => (
-                <div key={index} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                  {/* Desktop Layout */}
-                  <div className="hidden md:flex items-center justify-between">
-                    <div className="encontro-info flex-1">
-                      <h3 className="text-xl lg:text-2xl font-semibold mb-3 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="encontro-foto ml-8 flex-shrink-0">
-                      {encontro.semFoto ? (
-                        <div className="w-32 h-24 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={128}
-                          height={96}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md hover:shadow-lg"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Mobile Layout */}
-                  <div className="md:hidden">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="flex justify-center">
-                      {encontro.semFoto ? (
-                        <div className="w-40 h-30 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={160}
-                          height={120}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Agenda 2023 */}
-          <div className="mb-16">
-            <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">Agenda 2023</h3>
-            <div className="grid gap-6 lg:gap-8">
-              {encontrosPorAno[2023].map((encontro, index) => (
-                <div key={index} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                  {/* Desktop Layout */}
-                  <div className="hidden md:flex items-center justify-between">
-                    <div className="encontro-info flex-1">
-                      <h3 className="text-xl lg:text-2xl font-semibold mb-3 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="encontro-foto ml-8 flex-shrink-0">
-                      {encontro.semFoto ? (
-                        <div className="w-32 h-24 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={128}
-                          height={96}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md hover:shadow-lg"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Mobile Layout */}
-                  <div className="md:hidden">
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
-                      <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-                      <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-                      <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
-                    </div>
-                    <div className="flex justify-center">
-                      {encontro.semFoto ? (
-                        <div className="w-40 h-30 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-                          <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-                        </div>
-                      ) : (
-                        <Image
-                          src={encontro.foto || ''}
-                          alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-                          width={160}
-                          height={120}
-                          className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md"
-                          onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">
+              Agenda {anoAtivo}
+            </h3>
+            {loading ? (
+              <p className="text-center text-gray-400">Carregando encontros...</p>
+            ) : (
+              <div className="grid gap-6 lg:gap-8">
+                {(encontrosPorAno[anoAtivo] || []).map(renderEncontroCard)}
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -442,7 +350,7 @@ export default function Home() {
       <footer className="bg-gradient-to-r from-slate-900 to-slate-800 py-8 lg:py-12">
         <div className="container mx-auto px-4 lg:px-6 text-center">
           <div className="text-gray-300 space-y-2">
-            <p className="text-base lg:text-lg">© 2023-2025 ECC Alimento do Amor</p>
+            <p className="text-base lg:text-lg">© 2023-2026 ECC Alimento do Amor</p>
             <p className="text-sm lg:text-base">Encontros de Casais com Cristo</p>
           </div>
         </div>
