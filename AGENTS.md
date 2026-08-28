@@ -21,3 +21,13 @@ Referência no código: `scripts/fontes.js` e `app/data/fontes.config.ts`
 - Repositório: https://github.com/ronaldomelofz/eccnovo
 - Site: https://eccalimentodoamor.netlify.app
 - Push em `main` → deploy automático Netlify
+
+## Envio ao final (obrigatório)
+
+**Sempre** ao concluir alterações no projeto:
+
+1. Executar `npm run sync` e `npm run validate` (se aplicável)
+2. Fazer **commit** das mudanças relevantes
+3. Fazer **push** para `origin main` (deploy Netlify automático)
+
+Não encerrar a tarefa sem commit + push, salvo se o usuário pedir explicitamente para não enviar.

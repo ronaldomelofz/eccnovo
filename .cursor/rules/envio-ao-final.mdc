@@ -1,0 +1,14 @@
+---
+description: Sempre fazer commit e push ao concluir alterações no projeto ECC
+alwaysApply: true
+---
+
+# Envio ao final (obrigatório)
+
+Ao concluir qualquer tarefa que altere o projeto:
+
+1. `npm run sync` e `npm run validate` quando houver mudanças em fotos/planilha/dados
+2. **Commit** com mensagem clara do que foi feito
+3. **Push** para `origin main` → deploy em https://eccalimentodoamor.netlify.app
+
+Não encerrar sem commit + push, a menos que o usuário peça explicitamente para não enviar.

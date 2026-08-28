@@ -48,7 +48,7 @@ export const encontros: Encontro[] = [
   { ano: 2025, mes: "Junho", dia: "12", anfitriao: "ROBERVAL E IARA", foto: "/FOTOS/ENCONTRO-30-12-06-2025.jpeg", descricao: "14º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Julho", dia: "02", anfitriao: "JOÃO MAURICIO E FERNANDA", foto: "/FOTOS/ENCONTRO-31-02-07-2025.jpeg", descricao: "15º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Agosto", dia: "29", anfitriao: "RIBINHA E ROSANA", foto: "/FOTOS/ENCONTRO-32-29-08-2025.jpeg", descricao: "16º ENCONTRO 2º TEMÁRIO" },
-  { ano: 2025, mes: "Setembro", dia: "03", anfitriao: "RAULINO E NAIR", foto: "/FOTOS/ENCONTRO-32-29-08-2025.jpeg", descricao: "17º ENCONTRO 2º TEMÁRIO" },
+  { ano: 2025, mes: "Setembro", dia: "03", anfitriao: "RAULINO E NAIR", foto: "/FOTOS/ENCONTRO-33-03-09-2025.jpeg", descricao: "17º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Outubro", dia: "15", anfitriao: "RONALDO E SANDRA", foto: "/FOTOS/ENCONTRO-34-15-10-2025.jpeg", descricao: "18º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Novembro", dia: "21", anfitriao: "HUGO E YANE", semFoto: true, descricao: "19º ENCONTRO 2º TEMÁRIO" },
   { ano: 2025, mes: "Dezembro", dia: "20", anfitriao: "RUBENS E FERNANDA", foto: "/FOTOS/ENCONTRO-36-20-12-2025.jpeg", descricao: "20º ENCONTRO 2º TEMÁRIO" },

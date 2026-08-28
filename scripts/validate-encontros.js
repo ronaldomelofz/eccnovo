@@ -40,6 +40,27 @@ const excel = parseAgendaExcel()
 const site = parseEncontrosTs()
 const mismatches = []
 
+const numsExcel = excel.map((e) => e.num)
+const numsDuplicados = numsExcel.filter((n, i) => numsExcel.indexOf(n) !== i)
+if (numsDuplicados.length) {
+  mismatches.push({
+    issue: 'numeros duplicados na planilha',
+    nums: [...new Set(numsDuplicados)],
+  })
+}
+
+const fotosUsadas = new Map()
+for (const s of site) {
+  if (!s.foto) continue
+  if (!fotosUsadas.has(s.foto)) fotosUsadas.set(s.foto, [])
+  fotosUsadas.get(s.foto).push(`${s.descricao} (${s.dia}/${s.mes}/${s.ano})`)
+}
+for (const [foto, encontros] of fotosUsadas) {
+  if (encontros.length > 1) {
+    mismatches.push({ issue: 'foto duplicada no site', foto, encontros })
+  }
+}
+
 for (const e of excel) {
   const match = site.find(
     (s) => s.ano === e.ano && s.mes === e.mes && s.dia === e.dia
@@ -61,6 +82,18 @@ for (const e of excel) {
   }
   if (e.fotoStatus === 'FOTO' && match.semFoto) {
     mismatches.push({ num: e.num, issue: 'nao deveria estar sem foto' })
+  }
+  if (match.foto && e.fotoStatus !== 'SEM FOTO') {
+    const prefix = `ENCONTRO-${String(e.num).padStart(2, '0')}-`
+    const arquivo = match.foto.split('/').pop()
+    if (arquivo && !arquivo.toUpperCase().startsWith(prefix.toUpperCase())) {
+      mismatches.push({
+        num: e.num,
+        issue: 'foto nao corresponde ao numero do encontro',
+        esperado: prefix + '*',
+        encontrado: arquivo,
+      })
+    }
   }
 }
 

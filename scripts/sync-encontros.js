@@ -79,6 +79,14 @@ function syncEncontros() {
     return false
   }
 
+  const nums = items.map((i) => i.num)
+  const duplicados = nums.filter((n, i) => nums.indexOf(n) !== i)
+  if (duplicados.length) {
+    console.warn(
+      `⚠ Números duplicados na planilha: ${[...new Set(duplicados)].join(', ')} — fotos podem ficar incorretas.`
+    )
+  }
+
   const content = generateEncontrosTs(sortEncontrosAsc(items), FOTOS_DIR)
   fs.writeFileSync(ENCONTROS_TS, content, 'utf8')
   console.log(`✓ encontros.ts gerado com ${items.length} encontros (fonte: planilha + FOTOS/)`)
