@@ -1,32 +1,16 @@
-name: CI Build
+name: Deploy to Netlify
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'app/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'next.config.js'
-      - 'tsconfig.json'
-      - 'tailwind.config.js'
-      - 'postcss.config.js'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'app/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'next.config.js'
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: netlify-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,5 +29,20 @@ jobs:
     - name: Validate encontros data
       run: npm run validate
 
-    - name: Build project
+    - name: Build static site
       run: npm run build
+
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: './out'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy: ${{ github.event.head_commit.message }}"
+        enable-pull-request-comment: false
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      timeout-minutes: 10

@@ -3,9 +3,17 @@
   publish = "out"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
+  NETLIFY = "true"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200 
+[[headers]]
+  for = "/FOTOS/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

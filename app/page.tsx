@@ -11,27 +11,23 @@ export default function Home() {
   const [allImages, setAllImages] = useState<{src: string, caption: string, data: string, numero: string, anfitriao: string}[]>([])
   const [currentEncontroInfo, setCurrentEncontroInfo] = useState<{data: string, numero: string, anfitriao: string} | null>(null)
   const [allEncontros, setAllEncontros] = useState(encontros)
-  const [loading, setLoading] = useState(true)
   const [activeAno, setActiveAno] = useState<number | null>(null)
 
-  // Carregar encontros da API (com fallback para dados estáticos)
+  // Netlify usa dados estáticos; API opcional em ambientes com servidor
   useEffect(() => {
     const carregarEncontros = async () => {
       try {
         const response = await fetch('/api/encontros')
         if (response.ok) {
           const encontrosAPI = await response.json()
-          setAllEncontros(encontrosAPI)
+          if (Array.isArray(encontrosAPI) && encontrosAPI.length > 0) {
+            setAllEncontros(encontrosAPI)
+          }
         }
-      } catch (error) {
-        console.error('Erro ao carregar encontros:', error)
-        // Em caso de erro, usar os encontros estáticos
-        setAllEncontros(encontros)
-      } finally {
-        setLoading(false)
+      } catch {
+        // Dados estáticos já carregados — comportamento esperado no Netlify
       }
     }
-    
     carregarEncontros()
   }, [])
 
@@ -40,7 +36,7 @@ export default function Home() {
     const images: {src: string, caption: string, data: string, numero: string, anfitriao: string}[] = []
     
     // Organizar encontros por ano (2025, 2024, 2023) e dentro de cada ano do mais recente para o mais antigo
-    const encontrosOrdenados = allEncontros.sort((a, b) => {
+    const encontrosOrdenados = [...allEncontros].sort((a, b) => {
       if (a.ano !== b.ano) {
         return b.ano - a.ano // Anos em ordem decrescente (2025, 2024, 2023)
       }
@@ -335,13 +331,13 @@ export default function Home() {
             <h3 className="text-2xl lg:text-3xl font-semibold mb-8 text-gray-300 border-b-2 border-gray-600 pb-3">
               Agenda {anoAtivo}
             </h3>
-            {loading ? (
-              <p className="text-center text-gray-400">Carregando encontros...</p>
-            ) : (
-              <div className="grid gap-6 lg:gap-8">
-                {(encontrosPorAno[anoAtivo] || []).map(renderEncontroCard)}
-              </div>
-            )}
+            <div className="grid gap-6 lg:gap-8">
+              {(encontrosPorAno[anoAtivo] || []).length > 0 ? (
+                (encontrosPorAno[anoAtivo] || []).map(renderEncontroCard)
+              ) : (
+                <p className="text-center text-gray-400 py-8">Nenhum encontro registrado para {anoAtivo}.</p>
+              )}
+            </div>
           </div>
         </section>
       </main>
@@ -403,15 +399,6 @@ export default function Home() {
               &times;
             </button>
 
-            {}
-            <button
-              className="hidden lg:block absolute -top-12 right-0 text-white text-4xl font-bold z-10 hover:text-gray-300 transition-colors duration-200 bg-black bg-opacity-50 rounded-full w-12 h-12 flex items-center justify-center"
-              onClick={(e) => { e.stopPropagation(); closeModal(); }}
-              title="Fechar (ESC)"
-            >
-              &times;
-            </button>
-
             {/* Seta Esquerda - Desktop */}
             {allImages.length > 1 && (
               <button
@@ -424,14 +411,14 @@ export default function Home() {
             )}
 
             {/* Imagem */}
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div className="relative w-full max-w-5xl h-[60vh] lg:h-[70vh] flex items-center justify-center">
               <Image
                 src={currentImage}
                 alt={currentCaption}
-                layout="fill"
-                objectFit="contain"
-                className="rounded-lg"
-                onClick={(e) => e.stopPropagation()} // Evita fechar o modal ao clicar na imagem
+                fill
+                sizes="(max-width: 768px) 100vw, 80vw"
+                className="rounded-lg object-contain"
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
 

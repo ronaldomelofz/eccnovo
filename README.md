@@ -1,92 +1,75 @@
 # ECC Alimento do Amor
 
-Site oficial do ECC Alimento do Amor - Encontros de Casais com Cristo.
+Site oficial do ECC Alimento do Amor — Encontros de Casais com Cristo.
 
-## 🚀 Tecnologias
+**Site em produção:** https://eccalimentodoamor.netlify.app
 
-- Next.js 14
+**Repositório:** https://github.com/ronaldomelofz/eccnovo
+
+## Tecnologias
+
+- Next.js 14 (export estático)
 - TypeScript
 - Tailwind CSS
-- Vercel (Deploy Recomendado) ⭐
+- Netlify (deploy principal)
 
-## 📋 Funcionalidades
+## Funcionalidades
 
-- ✅ Sistema de administração para gerenciar encontros
-- ✅ Salvamento automático via API
-- ✅ Interface responsiva (desktop e mobile)
-- ✅ Galeria de fotos com navegação
-- ✅ Upload de imagens
-- ✅ Deploy automático
+- Galeria de fotos com navegação por teclado e setas
+- Abas por ano (2026, 2025, 2024, 2023)
+- Interface responsiva (desktop e mobile)
+- Player de áudio
+- 44 encontros catalogados com dados da agenda oficial
 
-## 🔧 Desenvolvimento Local
+## Desenvolvimento local
 
 ```bash
-# Instalar dependências
 npm install
-
-# Modo desenvolvimento
 npm run dev
+```
 
-# Build para produção
+Build de produção (gera pasta `out/` para Netlify):
+
+```bash
 npm run build
 ```
 
-Acesse: http://localhost:3000
-
-## 🚀 Deploy no Vercel (RECOMENDADO)
-
-O sistema funciona **100%** no Vercel com todas as funcionalidades:
-
-### Deploy Rápido (5 minutos):
+Validar dados contra a planilha `AGENDA ENCONTROS.xlsx`:
 
 ```bash
-# Via CLI
-npx vercel --prod
+npm run validate
 ```
 
-**OU via Interface Web:**
-1. Acesse: https://vercel.com/new
-2. Importe: `ronaldomelofz/eccnovo`
-3. Clique em Deploy ✅
+Sincronizar fotos da pasta local `FOTOS/` para `public/FOTOS/`:
 
-### Por que Vercel?
-- ✅ Suporta API Routes nativamente
-- ✅ Sistema admin funciona perfeitamente
-- ✅ Deploy automático
-- ✅ Grátis para projetos pessoais
-- ✅ Plataforma oficial do Next.js
+```bash
+npm run sync-fotos
+```
 
-## 🔐 Acesso Admin
+## Deploy no Netlify
 
-Após o deploy, acesse:
-- URL: `https://[seu-site].vercel.app/admin`
-- Senha: `amoragape`
+O deploy é automático via GitHub Actions ao fazer push na branch `main`.
 
-Funcionalidades do Admin:
-- ✅ Adicionar novos encontros
-- ✅ Upload de fotos
-- ✅ Editar informações
-- ✅ Salvamento automático
+Configuração em `netlify.toml`:
+- Build: `npm run build`
+- Publish: `out/`
 
-## 📖 Documentação Completa
+### Adicionar novos encontros
 
-- `SOLUCAO-DEFINITIVA.md` - Solução completa e correções ⭐
-- `GUIA-PASSO-A-PASSO-NETLIFY.md` - Guia Netlify (limitações)
-- `IMPORTANTE-LEIA.md` - Informações importantes
-- `RESUMO-EXECUTIVO.md` - Visão geral do projeto
+1. Coloque a foto em `FOTOS/` (pasta local) ou diretamente em `public/FOTOS/`
+2. Execute `npm run sync-fotos` (se usou a pasta local)
+3. Atualize `app/data/encontros.ts` com os dados da agenda
+4. Execute `npm run validate` para conferir
+5. Commit e push para `main` — o Netlify atualiza automaticamente
 
-## ⚠️ Importante
+## Estrutura
 
-O sistema requer servidor Node.js para funcionar completamente (API routes). 
-
-**Plataformas suportadas:**
-- ✅ **Vercel** - Totalmente funcional (RECOMENDADO)
-- ⚠️ **Netlify** - Apenas site estático (admin não salva)
-
-## 📞 Contato
-
-ECC Alimento do Amor - Encontros de Casais com Cristo
+```
+app/data/encontros.ts   # Dados dos encontros
+public/FOTOS/           # Fotos servidas pelo site
+netlify.toml            # Configuração Netlify
+```
 
 ---
 
-**Desenvolvido com ❤️ para o ECC Alimento do Amor**
+**ECC Alimento do Amor — Encontros de Casais com Cristo**
