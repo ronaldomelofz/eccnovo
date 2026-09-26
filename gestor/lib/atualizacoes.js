@@ -56,16 +56,19 @@ function ensureAtualizacoesDir() {
 
 function appVersion() {
   try {
-    const pkgPath = isAsarPath(__dirname)
-      ? path.join(process.resourcesPath || '', 'app.asar', 'package.json')
-      : path.join(ROOT, 'package.json')
-    const alt = path.join(__dirname, '..', '..', 'package.json')
-    const file = fs.existsSync(pkgPath) ? pkgPath : alt
-    const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
-    return pkg.version || '0.0.0'
-  } catch {
-    return '0.0.0'
-  }
+    const candidates = [
+      path.join(__dirname, '..', 'package.json'),
+      path.join(__dirname, '..', '..', 'package.json'),
+    ]
+    for (const file of candidates) {
+      if (!fs.existsSync(file)) continue
+      try {
+        const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
+        if (pkg.version) return pkg.version
+      } catch (_) {}
+    }
+  } catch (_) {}
+  return '0.0.0'
 }
 
 function parseVersion(v) {

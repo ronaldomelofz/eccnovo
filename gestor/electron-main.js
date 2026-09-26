@@ -1,6 +1,7 @@
 /**
  * ECC Gestor — Electron (Windows / macOS)
  * Suporta abrir arquivo .eccupdate com duplo clique.
+ * Startup otimizado: janela só aparece quando pronta.
  */
 const { app, BrowserWindow, shell } = require('electron')
 const path = require('path')
@@ -17,7 +18,6 @@ function isUpdateArg(arg) {
   if (arg.startsWith('-')) return false
   const lower = arg.toLowerCase()
   if (lower.endsWith('.eccupdate')) return fs.existsSync(arg)
-  // .exe de atualização (não o próprio app)
   if (lower.endsWith('.exe') && /ecc-gestor.*(setup|update)/i.test(path.basename(arg))) {
     return fs.existsSync(arg)
   }
@@ -38,18 +38,17 @@ function setupAtualizacoesDir() {
   const docs = path.join(os.homedir(), 'Documents', 'ECC Gestor', 'ATUALIZACOES')
   const besideExe = path.join(path.dirname(process.execPath), 'ATUALIZACOES')
 
-  // Nunca usar caminho dentro do asar
   if (!__dirname.includes('app.asar') && fs.existsSync(path.join(__dirname, '..', 'gestor'))) {
     fs.mkdirSync(projeto, { recursive: true })
     process.env.ECC_ATUALIZACOES_DIR = projeto
     return projeto
   }
 
-  const prefer = process.env.ECC_ATUALIZACOES_DIR && !process.env.ECC_ATUALIZACOES_DIR.includes('app.asar')
-    ? process.env.ECC_ATUALIZACOES_DIR
-    : docs
+  const prefer =
+    process.env.ECC_ATUALIZACOES_DIR && !process.env.ECC_ATUALIZACOES_DIR.includes('app.asar')
+      ? process.env.ECC_ATUALIZACOES_DIR
+      : docs
   fs.mkdirSync(prefer, { recursive: true })
-  // também cria ao lado do exe se possível
   try {
     fs.mkdirSync(besideExe, { recursive: true })
   } catch (_) {}
@@ -81,10 +80,18 @@ async function boot(updateFile) {
     minWidth: 960,
     minHeight: 640,
     title: 'ECC Gestor',
+    show: false,
+    backgroundColor: '#0f172a',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      backgroundThrottling: true,
+      spellcheck: false,
     },
+  })
+
+  mainWindow.once('ready-to-show', () => {
+    if (mainWindow) mainWindow.show()
   })
 
   const file = updateFile || pendingUpdateFile
@@ -121,7 +128,6 @@ if (!gotTheLock) {
     }
   })
 
-  // macOS open-file
   app.on('open-file', (event, filePath) => {
     event.preventDefault()
     if (mainWindow) showUpdateOverlay(filePath)

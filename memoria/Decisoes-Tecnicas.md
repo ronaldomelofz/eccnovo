@@ -10,11 +10,13 @@
 | Dados | JSON em disco | Portátil, backup fácil, estilo Obsidian |
 | Fotos | Pasta por grupo | Igual ao fluxo FOTOS/ do site |
 
-## Por que não Electron (por enquanto)
+## Empacotamento leve (Electron)
 
-- Coordenador abre `http://localhost:3847` no navegador
-- Instalação = `npm install` + `npm run gestor`
-- Electron pode ser embalado depois se pedirem .exe
+- App do Gestor usa `directories.app = gestor` com `gestor/package.json` contendo **somente** `express`, `multer` e `archiver`
+- O site Next.js continua nas deps da raiz — **não** entra no .exe
+- `electronLanguages` limitado a pt/en (remove dezenas de locales do Chromium)
+- `compression: maximum` no instalador NSIS
+- Build: `npm run gestor:dist:win` → `scripts/build-gestor-electron.js`
 
 ## Site público vs Gestor
 

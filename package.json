@@ -1,6 +1,6 @@
 {
   "name": "ecc-alimento-do-amor",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "private": true,
   "description": "Site ECC Alimento do Amor + ECC Gestor Local (coordenadores)",
   "author": "ECC Alimento do Amor",
@@ -19,9 +19,9 @@
     "gestor": "node gestor/server.js",
     "gestor:seed": "node gestor/seed-alimento.js",
     "gestor:desktop": "electron .",
-    "gestor:dist": "electron-builder --win --mac",
-    "gestor:dist:win": "electron-builder --win nsis",
-    "gestor:dist:mac": "electron-builder --mac dmg",
+    "gestor:dist": "node scripts/build-gestor-electron.js --win && node scripts/build-gestor-electron.js --mac",
+    "gestor:dist:win": "node scripts/build-gestor-electron.js --win",
+    "gestor:dist:mac": "node scripts/build-gestor-electron.js --mac",
     "gestor:pack-update": "node scripts/pack-atualizacao-gestor.js"
   },
   "dependencies": {
@@ -51,20 +51,43 @@
     "productName": "ECC Gestor",
     "copyright": "Copyright © ECC",
     "directories": {
+      "app": "gestor",
       "output": "dist-gestor"
     },
     "files": [
-      "gestor/electron-main.js",
-      "gestor/server.js",
-      "gestor/lib/**/*",
-      "gestor/public/**/*",
-      "gestor/dados/.gitkeep",
-      "gestor/dados/README.md",
-      "package.json",
-      "EXECUTAVEL/ATUALIZACOES/README.md"
+      "**/*",
+      "!dados/**/*",
+      "dados/.gitkeep",
+      "dados/README.md",
+      "!seed-alimento.js",
+      "!README.md",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json,package-lock.json}"
     ],
-    "extraResources": [],
+    "extraMetadata": {
+      "name": "ecc-gestor",
+      "main": "electron-main.js"
+    },
     "asar": true,
+    "compression": "maximum",
+    "electronLanguages": [
+      "pt-BR",
+      "pt",
+      "en-US",
+      "en"
+    ],
+    "removePackageScripts": true,
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
     "win": {
       "target": [
         {
@@ -88,7 +111,8 @@
       "allowToChangeInstallationDirectory": true,
       "shortcutName": "ECC Gestor",
       "include": "gestor/installer.nsh",
-      "warningsAsErrors": false
+      "warningsAsErrors": false,
+      "differentialPackage": false
     },
     "fileAssociations": [
       {
