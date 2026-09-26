@@ -57,6 +57,9 @@ setup-deploy.sh
 .vercel
 .tmp-nl/
 /dist-gestor/
+/EXECUTAVEL/*.exe
+/EXECUTAVEL/*.dmg
+/EXECUTAVEL/*.blockmap
 *.tgz
 
 # autenticação Netlify local
