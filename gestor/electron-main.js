@@ -14,6 +14,16 @@ async function boot() {
   fs.mkdirSync(dadosDir, { recursive: true })
   process.env.ECC_GESTOR_DADOS = dadosDir
 
+  // Preferência do projeto em desenvolvimento; ao lado do .exe em produção
+  const projAtualizacoes = path.join(__dirname, '..', 'EXECUTAVEL', 'ATUALIZACOES')
+  const exeAtualizacoes = path.join(path.dirname(process.execPath), 'ATUALIZACOES')
+  if (fs.existsSync(projAtualizacoes)) {
+    process.env.ECC_ATUALIZACOES_DIR = projAtualizacoes
+  } else {
+    fs.mkdirSync(exeAtualizacoes, { recursive: true })
+    process.env.ECC_ATUALIZACOES_DIR = exeAtualizacoes
+  }
+
   const { startServer } = require('./server')
   const { server } = await startServer(PORT)
   serverRef = server

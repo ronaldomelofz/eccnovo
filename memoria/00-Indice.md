@@ -13,6 +13,7 @@ Pasta no estilo **Obsidian**: notas em Markdown que documentam decisões, modelo
 | [[Fluxos-Operacionais]] | Como o coordenador usa o sistema |
 | [[Decisoes-Tecnicas]] | Stack, pastas, por que local |
 | [[Publicacao-Netlify-Desktop]] | App instalável Win/Mac, logo, Netlify |
+| [[Atualizacoes]] | Pacotes em EXECUTAVEL/ATUALIZACOES |
 | [[Mapa-do-Codigo]] | Onde está cada peça |
 
 ## Relação com o site público

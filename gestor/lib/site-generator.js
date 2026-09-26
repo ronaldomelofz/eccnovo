@@ -92,10 +92,11 @@ function buildHtml(grupo, encontros, rodada) {
     })
     .join('')
 
-  const periodo =
-    grupo.periodoInicio
+  const periodoTexto =
+    (grupo.periodo && (grupo.periodo.texto || require('./periodo').formatPeriodoCabecalho(grupo.periodo))) ||
+    (grupo.periodoInicio
       ? `Período: ${escapeHtml(grupo.periodoInicio)}${grupo.periodoFim ? ` → ${escapeHtml(grupo.periodoFim)}` : ''}`
-      : ''
+      : '')
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -108,13 +109,13 @@ function buildHtml(grupo, encontros, rodada) {
     *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:linear-gradient(160deg,var(--bg2),var(--bg));color:var(--text);min-height:100vh}
     header{padding:2rem 1.5rem;text-align:center;background:linear-gradient(90deg,#1e293b,#334155)}
     .logo{max-height:140px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-    h1{margin:.75rem 0 .35rem;font-size:clamp(1.6rem,4vw,2.6rem)}
-    .periodo{color:var(--muted)}
-    main{max-width:960px;margin:0 auto;padding:1.5rem}
+    h1{margin:.75rem 0 .75rem;font-size:clamp(1.6rem,4vw,2.6rem)}
+    .periodo-box{display:inline-block;background:#1e293b;border:2px solid var(--border);border-radius:.75rem;padding:.65rem 1.25rem;color:#e2e8f0;font-size:clamp(0.95rem,2.5vw,1.15rem);font-weight:500}
     .tabs{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.5rem 0}
     .tab-btn{padding:.65rem 1.1rem;border-radius:.7rem;border:2px solid var(--border);background:#334155;color:var(--muted);cursor:pointer;font-weight:600}
     .tab-btn.active{background:#db2777;border-color:#f9a8d4;color:#fff}
     .ano-panel,.ordem-panel{display:none}.ano-panel.active,.ordem-panel.active{display:block}
+    main{max-width:960px;margin:0 auto;padding:1.5rem}
     .card{display:flex;gap:1rem;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#374151,#4b5563);border:1px solid var(--border);border-radius:.9rem;padding:1.1rem 1.25rem;margin-bottom:.9rem}
     .card img{width:128px;height:96px;object-fit:cover;border-radius:.5rem;cursor:pointer}
     .sem-foto{width:128px;height:96px;display:grid;place-items:center;border:2px dashed var(--border);border-radius:.5rem;color:var(--muted);font-size:.75rem}
@@ -138,7 +139,7 @@ function buildHtml(grupo, encontros, rodada) {
   <header>
     ${logoTag}
     <h1>${escapeHtml(grupo.nome)}</h1>
-    <p class="periodo">${periodo}</p>
+    ${periodoTexto ? `<div class="periodo-box">${escapeHtml(periodoTexto)}</div>` : ''}
   </header>
   <main>
     <div class="tabs">

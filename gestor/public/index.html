@@ -23,6 +23,7 @@
         <button type="button" data-tab="encontros">Encontros</button>
         <button type="button" data-tab="ordem">Ordem dos Encontros</button>
         <button type="button" data-tab="publicar">Publicar site</button>
+        <button type="button" data-tab="atualizacoes">Atualizações</button>
       </nav>
       <p class="hint">Dados em disco · pasta gestor/dados</p>
     </aside>
@@ -38,15 +39,41 @@
         <div class="card">
           <h3>Dados do grupo</h3>
           <form id="formGrupo" class="form-grid">
-            <label>Nome do grupo
+            <label class="full">Nome do grupo
               <input name="nome" required placeholder="Ex.: ECC Alimento do Amor" />
             </label>
-            <label>Início do período
-              <input name="periodoInicio" type="date" />
+
+            <p class="full muted" style="margin:0">Período de realização do encontro (como no cabeçalho do site)</p>
+            <label>Nº do encontro (ex.: 57)
+              <input name="periodoNumero" type="number" min="1" placeholder="57" />
             </label>
-            <label>Fim do período
-              <input name="periodoFim" type="date" />
+            <label>Ano
+              <input name="periodoAno" type="number" min="2000" max="2100" placeholder="2023" />
             </label>
+            <label>Dias (ex.: 28, 29 e 30)
+              <input name="periodoDias" placeholder="28, 29 e 30" />
+            </label>
+            <label>Mês
+              <select name="periodoMes">
+                <option value="">—</option>
+                <option>Janeiro</option>
+                <option>Fevereiro</option>
+                <option>Março</option>
+                <option>Abril</option>
+                <option>Maio</option>
+                <option>Junho</option>
+                <option>Julho</option>
+                <option>Agosto</option>
+                <option>Setembro</option>
+                <option>Outubro</option>
+                <option>Novembro</option>
+                <option>Dezembro</option>
+              </select>
+            </label>
+            <div class="full">
+              <p class="muted" style="margin:0 0 0.35rem">Pré-visualização do cabeçalho</p>
+              <div id="periodoPreview" class="periodo-preview">Preencha os campos do período</div>
+            </div>
             <div class="actions">
               <button type="submit" class="btn primary">Salvar grupo</button>
             </div>
@@ -176,17 +203,57 @@
           <div id="resultadoPublicar" class="alerta hidden" style="margin-top:1rem"></div>
         </div>
       </section>
+
+      <!-- ATUALIZAÇÕES -->
+      <section id="tab-atualizacoes" class="tab">
+        <div class="card">
+          <h3>Atualizações do ECC Gestor</h3>
+          <p class="muted">Pacotes ficam em <code>EXECUTAVEL\ATUALIZACOES</code>. O app verifica e pode abrir o instalador.</p>
+          <div id="statusAtualizacao" class="alerta">Carregando…</div>
+          <div class="actions" style="margin-top:0.75rem">
+            <button type="button" id="btnVerificarUpdate" class="btn secondary">Verificar atualizações</button>
+            <button type="button" id="btnAbrirPastaUpdate" class="btn ghost">Abrir pasta ATUALIZACOES</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Pacotes disponíveis</h3>
+          <div id="listaPacotes" class="lista-encontros"></div>
+        </div>
+      </section>
     </main>
   </div>
 
   <dialog id="dlgNovoGrupo">
     <form method="dialog" id="formNovoGrupo" class="form-grid">
       <h3>Novo grupo ECC</h3>
-      <label>Nome
+      <label class="full">Nome
         <input name="nome" required />
       </label>
-      <label>Início do período
-        <input name="periodoInicio" type="date" />
+      <label>Nº do encontro
+        <input name="periodoNumero" type="number" min="1" placeholder="57" />
+      </label>
+      <label>Ano
+        <input name="periodoAno" type="number" placeholder="2023" />
+      </label>
+      <label>Dias
+        <input name="periodoDias" placeholder="28, 29 e 30" />
+      </label>
+      <label>Mês
+        <select name="periodoMes">
+          <option value="">—</option>
+          <option>Janeiro</option>
+          <option>Fevereiro</option>
+          <option>Março</option>
+          <option>Abril</option>
+          <option>Maio</option>
+          <option>Junho</option>
+          <option>Julho</option>
+          <option>Agosto</option>
+          <option>Setembro</option>
+          <option>Outubro</option>
+          <option>Novembro</option>
+          <option>Dezembro</option>
+        </select>
       </label>
       <div class="actions">
         <button type="submit" class="btn primary" value="ok">Criar</button>

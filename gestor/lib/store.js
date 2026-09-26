@@ -6,6 +6,8 @@ const fs = require('fs')
 const path = require('path')
 const { randomUUID } = require('crypto')
 
+const { formatPeriodoCabecalho, periodoFromForm } = require('./periodo')
+
 const DADOS_DIR =
   process.env.ECC_GESTOR_DADOS || path.join(__dirname, '..', 'dados')
 const INDEX_FILE = path.join(DADOS_DIR, 'index.json')
@@ -80,15 +82,28 @@ function saveGrupo(grupo) {
   return grupo
 }
 
-function createGrupo({ nome, periodoInicio, periodoFim }) {
+function createGrupo({ nome, periodoInicio, periodoFim, periodo }) {
   let id = slugify(nome)
   if (fs.existsSync(grupoPath(id))) id = `${id}-${randomUUID().slice(0, 4)}`
   const agora = new Date().toISOString()
+  const periodoObj = periodo
+    ? {
+        ...periodo,
+        texto: formatPeriodoCabecalho(periodo) || periodo.texto || '',
+      }
+    : periodoFromForm({
+        periodoNumero: null,
+        periodoAno: null,
+        periodoDias: '',
+        periodoMes: '',
+      })
+
   const grupo = {
     id,
     nome: String(nome).trim(),
-    periodoInicio: periodoInicio || null,
+    periodoInicio: periodoObj.periodoInicio || periodoInicio || null,
     periodoFim: periodoFim || null,
+    periodo: periodoObj,
     casais: [],
     logo: null,
     netlify: null,
@@ -104,6 +119,13 @@ function updateGrupo(grupoId, patch) {
   if (patch.nome !== undefined) grupo.nome = String(patch.nome).trim()
   if (patch.periodoInicio !== undefined) grupo.periodoInicio = patch.periodoInicio
   if (patch.periodoFim !== undefined) grupo.periodoFim = patch.periodoFim
+  if (patch.periodo !== undefined) {
+    grupo.periodo = {
+      ...patch.periodo,
+      texto: formatPeriodoCabecalho(patch.periodo) || patch.periodo.texto || '',
+    }
+    if (grupo.periodo.periodoInicio) grupo.periodoInicio = grupo.periodo.periodoInicio
+  }
   if (patch.logo !== undefined) grupo.logo = patch.logo
   if (patch.netlify !== undefined) grupo.netlify = patch.netlify
   if (Array.isArray(patch.casais)) {

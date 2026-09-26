@@ -28,11 +28,18 @@ function createApp() {
   })
 
   app.post('/api/grupos', (req, res) => {
-    const { nome, periodoInicio, periodoFim } = req.body || {}
-    if (!nome || !String(nome).trim()) {
+    const body = req.body || {}
+    if (!body.nome || !String(body.nome).trim()) {
       return res.status(400).json({ erro: 'Nome do grupo é obrigatório' })
     }
-    const grupo = store.createGrupo({ nome, periodoInicio, periodoFim })
+    const { periodoFromForm } = require('./lib/periodo')
+    const periodo = body.periodo || periodoFromForm(body)
+    const grupo = store.createGrupo({
+      nome: body.nome,
+      periodoInicio: body.periodoInicio,
+      periodoFim: body.periodoFim,
+      periodo,
+    })
     res.status(201).json(grupo)
   })
 
@@ -46,7 +53,18 @@ function createApp() {
   })
 
   app.put('/api/grupos/:id', (req, res) => {
-    const grupo = store.updateGrupo(req.params.id, req.body || {})
+    const body = req.body || {}
+    const { periodoFromForm } = require('./lib/periodo')
+    if (
+      body.periodoNumero !== undefined ||
+      body.periodoAno !== undefined ||
+      body.periodoDias !== undefined ||
+      body.periodoMes !== undefined ||
+      body.periodoTextoManual !== undefined
+    ) {
+      body.periodo = periodoFromForm(body)
+    }
+    const grupo = store.updateGrupo(req.params.id, body)
     if (!grupo) return res.status(404).json({ erro: 'Grupo não encontrado' })
     res.json(grupo)
   })
@@ -245,6 +263,36 @@ function createApp() {
       res.json({ ok: true, exportPath })
     } catch (err) {
       res.status(400).json({ erro: err.message })
+    }
+  })
+
+  // —— Atualizações ——
+  app.get('/api/atualizacoes/status', (_req, res) => {
+    try {
+      const atualizacoes = require('./lib/atualizacoes')
+      res.json(atualizacoes.statusAtualizacoes())
+    } catch (err) {
+      res.status(500).json({ erro: err.message })
+    }
+  })
+
+  app.post('/api/atualizacoes/receber', (req, res) => {
+    try {
+      const atualizacoes = require('./lib/atualizacoes')
+      const resultado = atualizacoes.receberAtualizacao(req.body?.arquivo)
+      res.json(resultado)
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
+  app.get('/api/atualizacoes/abrir-pasta', (_req, res) => {
+    try {
+      const atualizacoes = require('./lib/atualizacoes')
+      const pasta = atualizacoes.openFolder()
+      res.json({ ok: true, pasta })
+    } catch (err) {
+      res.status(500).json({ erro: err.message })
     }
   })
 

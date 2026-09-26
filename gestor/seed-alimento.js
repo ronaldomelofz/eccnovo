@@ -84,8 +84,14 @@ function main() {
 
   let grupo = store.createGrupo({
     nome: 'ECC Alimento do Amor',
-    periodoInicio: '2023-04-28',
-    periodoFim: null,
+    periodo: {
+      numero: 57,
+      ano: 2023,
+      dias: '28, 29 e 30',
+      mes: 'Abril',
+      texto: '57º / 2023 - 28, 29 e 30 de Abril de 2023',
+      periodoInicio: '2023-04-28',
+    },
   })
 
   // Renomear pasta para id estável alimento-do-amor

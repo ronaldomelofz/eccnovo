@@ -67,20 +67,25 @@ function setTab(tab) {
   state.tab = tab
   $$('#navTabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab))
   $$('.tab').forEach((el) => el.classList.toggle('active', el.id === `tab-${tab}`))
+  if (tab === 'atualizacoes') carregarAtualizacoes()
 }
 
 function render() {
   const g = state.grupo
+  const periodoTxt = g?.periodo?.texto || ''
   $('#tituloGrupo').textContent = g ? g.nome : 'Selecione ou crie um grupo'
   $('#subGrupo').textContent = g
-    ? `Período: ${fmtData(g.periodoInicio)} → ${g.periodoFim ? fmtData(g.periodoFim) : 'em andamento'} · ${g.casais?.length || 0} casais · ${state.encontros.length} encontros`
+    ? `${periodoTxt ? periodoTxt + ' · ' : ''}${g.casais?.length || 0} casais · ${state.encontros.length} encontros`
     : ''
 
   if (g) {
     const form = $('#formGrupo')
     form.nome.value = g.nome || ''
-    form.periodoInicio.value = g.periodoInicio || ''
-    form.periodoFim.value = g.periodoFim || ''
+    form.periodoNumero.value = g.periodo?.numero || ''
+    form.periodoAno.value = g.periodo?.ano || ''
+    form.periodoDias.value = g.periodo?.dias || ''
+    form.periodoMes.value = g.periodo?.mes || ''
+    atualizarPreviewPeriodo()
   }
 
   renderCasais()
@@ -90,6 +95,22 @@ function render() {
   renderAlertaProximo()
   renderLogo()
   renderPublicar()
+}
+
+function formatPeriodoPreview(num, ano, dias, mes) {
+  if (!num || !ano || !dias || !mes) return 'Preencha os campos do período'
+  return `${num}º / ${ano} - ${dias} de ${mes} de ${ano}`
+}
+
+function atualizarPreviewPeriodo() {
+  const form = $('#formGrupo')
+  if (!form || !$('#periodoPreview')) return
+  $('#periodoPreview').textContent = formatPeriodoPreview(
+    form.periodoNumero.value,
+    form.periodoAno.value,
+    form.periodoDias.value,
+    form.periodoMes.value
+  )
 }
 
 function renderLogo() {
@@ -332,7 +353,10 @@ $('#formNovoGrupo').addEventListener('submit', async (ev) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       nome: fd.get('nome'),
-      periodoInicio: fd.get('periodoInicio') || null,
+      periodoNumero: fd.get('periodoNumero'),
+      periodoAno: fd.get('periodoAno'),
+      periodoDias: fd.get('periodoDias'),
+      periodoMes: fd.get('periodoMes'),
     }),
   })
   $('#dlgNovoGrupo').close()
@@ -352,12 +376,21 @@ $('#formGrupo').addEventListener('submit', async (ev) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       nome: fd.get('nome'),
-      periodoInicio: fd.get('periodoInicio') || null,
-      periodoFim: fd.get('periodoFim') || null,
+      periodoNumero: fd.get('periodoNumero'),
+      periodoAno: fd.get('periodoAno'),
+      periodoDias: fd.get('periodoDias'),
+      periodoMes: fd.get('periodoMes'),
     }),
   })
   await carregarGrupos()
   await carregarGrupo()
+  alert('Grupo salvo.')
+})
+
+;['periodoNumero', 'periodoAno', 'periodoDias', 'periodoMes'].forEach((name) => {
+  const el = $('#formGrupo')?.[name]
+  if (el) el.addEventListener('input', atualizarPreviewPeriodo)
+  if (el) el.addEventListener('change', atualizarPreviewPeriodo)
 })
 
 $('#formCasal').addEventListener('submit', (ev) => {
@@ -561,6 +594,67 @@ $('#btnExportLocal').addEventListener('click', async () => {
   try {
     const data = await api(`/api/grupos/${state.grupoId}/exportar`, { method: 'POST' })
     alert(`Site gerado em:\n${data.exportPath}`)
+  } catch (err) {
+    alert(err.message)
+  }
+})
+
+async function carregarAtualizacoes() {
+  const status = $('#statusAtualizacao')
+  const lista = $('#listaPacotes')
+  if (!status) return
+  try {
+    const data = await api('/api/atualizacoes/status')
+    if (data.atualizacaoDisponivel && data.pacoteSugerido) {
+      status.className = 'alerta completa'
+      status.innerHTML = `Versão instalada: <strong>${data.versaoAtual}</strong><br>
+        Atualização disponível: <strong>${data.pacoteSugerido.versao}</strong> (${data.pacoteSugerido.arquivo})`
+    } else {
+      status.className = 'alerta'
+      status.innerHTML = `Versão instalada: <strong>${data.versaoAtual}</strong><br>
+        Pasta: <code>${data.pasta}</code><br>
+        ${data.pacotes.length ? 'Nenhuma versão mais nova que a instalada.' : 'Nenhum pacote na pasta ATUALIZACOES ainda.'}`
+    }
+    lista.innerHTML = data.pacotes.length
+      ? data.pacotes
+          .map(
+            (p) => `
+        <div class="encontro-item">
+          <div class="sem">${(p.tipo || '').toUpperCase()}</div>
+          <div>
+            <strong>${p.arquivo}</strong>
+            <div class="muted">${p.versao ? 'v' + p.versao : 'sem versão'} · ${(p.tamanho / 1024 / 1024).toFixed(1)} MB</div>
+          </div>
+          <button type="button" class="btn primary btn-receber" data-arquivo="${p.arquivo}">Receber atualização</button>
+        </div>`
+          )
+          .join('')
+      : '<p class="muted">Coloque os instaladores em EXECUTAVEL\\ATUALIZACOES ou rode <code>npm run gestor:pack-update</code>.</p>'
+  } catch (err) {
+    status.className = 'alerta'
+    status.textContent = err.message
+  }
+}
+
+$('#btnVerificarUpdate')?.addEventListener('click', carregarAtualizacoes)
+$('#btnAbrirPastaUpdate')?.addEventListener('click', async () => {
+  try {
+    await api('/api/atualizacoes/abrir-pasta')
+  } catch (err) {
+    alert(err.message)
+  }
+})
+
+$('#listaPacotes')?.addEventListener('click', async (ev) => {
+  const btn = ev.target.closest('.btn-receber')
+  if (!btn) return
+  try {
+    const data = await api('/api/atualizacoes/receber', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ arquivo: btn.dataset.arquivo }),
+    })
+    alert(data.mensagem)
   } catch (err) {
     alert(err.message)
   }
