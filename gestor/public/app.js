@@ -342,8 +342,34 @@ $$('#navTabs button').forEach((b) =>
   b.addEventListener('click', () => setTab(b.dataset.tab))
 )
 
-$('#btnNovoGrupo').addEventListener('click', () => $('#dlgNovoGrupo').showModal())
-$('#btnCancelarGrupo').addEventListener('click', () => $('#dlgNovoGrupo').close())
+function abrirNovoGrupo() {
+  const dlg = $('#dlgNovoGrupo')
+  const form = $('#formNovoGrupo')
+  form.reset()
+  dlg.classList.remove('hidden')
+  setTimeout(() => {
+    const nome = $('#novoGrupoNome') || form.nome
+    if (nome) {
+      nome.focus()
+      nome.select?.()
+    }
+  }, 50)
+}
+
+function fecharNovoGrupo() {
+  $('#dlgNovoGrupo').classList.add('hidden')
+}
+
+$('#btnNovoGrupo').addEventListener('click', abrirNovoGrupo)
+$('#btnCancelarGrupo').addEventListener('click', fecharNovoGrupo)
+$('#dlgNovoGrupo').addEventListener('click', (ev) => {
+  if (ev.target.matches('[data-close-modal]')) fecharNovoGrupo()
+})
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape' && !$('#dlgNovoGrupo').classList.contains('hidden')) {
+    fecharNovoGrupo()
+  }
+})
 
 $('#formNovoGrupo').addEventListener('submit', async (ev) => {
   ev.preventDefault()
@@ -359,7 +385,7 @@ $('#formNovoGrupo').addEventListener('submit', async (ev) => {
       periodoMes: fd.get('periodoMes'),
     }),
   })
-  $('#dlgNovoGrupo').close()
+  fecharNovoGrupo()
   ev.target.reset()
   state.grupoId = grupo.id
   await carregarGrupos()
