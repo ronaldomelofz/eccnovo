@@ -274,6 +274,51 @@ dialog {
 }
 dialog::backdrop { background: rgba(0,0,0,0.65); }
 
+.logo-preview-wrap { margin: 0.75rem 0; }
+.logo-preview {
+  max-height: 140px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+.logo-preview.hidden, .hidden { display: none !important; }
+
+.sugestoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.75rem 0 1rem;
+}
+.sugestoes button {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+}
+.sugestoes button:hover,
+.sugestoes button.active {
+  border-color: var(--pink);
+  color: var(--pink);
+}
+
+.token-alt {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.token-alt summary { cursor: pointer; }
+
+#nomeSite {
+  width: 100%;
+  margin-top: 0.35rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.7rem;
+}
+
 @media (max-width: 860px) {
   #app { grid-template-columns: 1fr; }
   .sidebar { border-right: none; border-bottom: 1px solid var(--border); }

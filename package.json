@@ -1,7 +1,10 @@
 {
   "name": "ecc-alimento-do-amor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "description": "Site ECC Alimento do Amor + ECC Gestor Local (coordenadores)",
+  "author": "ECC Alimento do Amor",
+  "main": "gestor/electron-main.js",
   "scripts": {
     "dev": "next dev",
     "sync": "node scripts/sync-all.js",
@@ -14,9 +17,14 @@
     "start": "next start",
     "lint": "next lint",
     "gestor": "node gestor/server.js",
-    "gestor:seed": "node gestor/seed-alimento.js"
+    "gestor:seed": "node gestor/seed-alimento.js",
+    "gestor:desktop": "electron .",
+    "gestor:dist": "electron-builder --win --mac",
+    "gestor:dist:win": "electron-builder --win nsis",
+    "gestor:dist:mac": "electron-builder --mac dmg"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.17",
     "express": "^4.22.3",
     "multer": "^2.4.0",
@@ -30,9 +38,53 @@
     "@types/node": "^20.11.19",
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "typescript": "^5.3.3",
     "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "br.ecc.gestor",
+    "productName": "ECC Gestor",
+    "copyright": "Copyright © ECC",
+    "directories": {
+      "output": "dist-gestor"
+    },
+    "files": [
+      "gestor/electron-main.js",
+      "gestor/server.js",
+      "gestor/lib/**/*",
+      "gestor/public/**/*",
+      "gestor/dados/.gitkeep",
+      "gestor/dados/README.md",
+      "package.json"
+    ],
+    "extraResources": [],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "ECC-Gestor-Setup-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity",
+      "artifactName": "ECC-Gestor-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "ECC Gestor"
+    }
   }
 }

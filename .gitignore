@@ -55,3 +55,10 @@ setup-deploy.sh
 
 # pastas locais de ferramentas
 .vercel
+.tmp-nl/
+/dist-gestor/
+*.tgz
+
+# autenticação Netlify local
+/gestor/dados/netlify-auth.json
+

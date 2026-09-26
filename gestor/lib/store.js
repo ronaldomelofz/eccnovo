@@ -6,7 +6,8 @@ const fs = require('fs')
 const path = require('path')
 const { randomUUID } = require('crypto')
 
-const DADOS_DIR = path.join(__dirname, '..', 'dados')
+const DADOS_DIR =
+  process.env.ECC_GESTOR_DADOS || path.join(__dirname, '..', 'dados')
 const INDEX_FILE = path.join(DADOS_DIR, 'index.json')
 
 function ensureDir(dir) {
@@ -89,6 +90,8 @@ function createGrupo({ nome, periodoInicio, periodoFim }) {
     periodoInicio: periodoInicio || null,
     periodoFim: periodoFim || null,
     casais: [],
+    logo: null,
+    netlify: null,
     criadoEm: agora,
     atualizadoEm: agora,
   }
@@ -101,6 +104,8 @@ function updateGrupo(grupoId, patch) {
   if (patch.nome !== undefined) grupo.nome = String(patch.nome).trim()
   if (patch.periodoInicio !== undefined) grupo.periodoInicio = patch.periodoInicio
   if (patch.periodoFim !== undefined) grupo.periodoFim = patch.periodoFim
+  if (patch.logo !== undefined) grupo.logo = patch.logo
+  if (patch.netlify !== undefined) grupo.netlify = patch.netlify
   if (Array.isArray(patch.casais)) {
     grupo.casais = patch.casais.map((c, idx) => ({
       id: c.id || randomUUID(),
@@ -109,6 +114,34 @@ function updateGrupo(grupoId, patch) {
     }))
   }
   return saveGrupo(grupo)
+}
+
+function saveLogo(grupoId, file) {
+  const grupo = getGrupo(grupoId)
+  if (!grupo) throw new Error('Grupo não encontrado')
+  ensureDir(grupoDir(grupoId))
+  const ext = path.extname(file.originalname || '').toLowerCase() || '.jpeg'
+  const nome = `logo${ext}`
+  const dest = path.join(grupoDir(grupoId), nome)
+  // remove logos anteriores
+  for (const f of fs.readdirSync(grupoDir(grupoId))) {
+    if (f.startsWith('logo.')) {
+      try {
+        fs.unlinkSync(path.join(grupoDir(grupoId), f))
+      } catch (_) {}
+    }
+  }
+  fs.copyFileSync(file.path, dest)
+  if (fs.existsSync(file.path)) fs.unlinkSync(file.path)
+  grupo.logo = nome
+  return saveGrupo(grupo)
+}
+
+function logoPath(grupoId) {
+  const grupo = getGrupo(grupoId)
+  if (!grupo?.logo) return null
+  const p = path.join(grupoDir(grupoId), grupo.logo)
+  return fs.existsSync(p) ? p : null
 }
 
 function deleteGrupo(grupoId) {
@@ -206,6 +239,12 @@ module.exports = {
   listEncontros,
   upsertEncontro,
   deleteEncontro,
+  saveLogo,
+  logoPath,
+  grupoDir,
   fotosDir,
+  slugify,
   ensureDir,
+  readJson,
+  writeJson,
 }

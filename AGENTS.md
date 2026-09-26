@@ -39,6 +39,8 @@ Ferramenta multi-grupo em `gestor/` — documentação em `memoria/` (estilo Obs
 ```bash
 npm run gestor          # http://localhost:3847
 npm run gestor:seed     # importa Alimento do Amor para testes
+npm run gestor:desktop  # app Electron
+npm run gestor:dist:win # instalador Windows
 ```
 
-Antes de alterar o gestor, ler `memoria/00-Indice.md`.
+Antes de alterar o gestor, ler `memoria/00-Indice.md` e `memoria/Publicacao-Netlify-Desktop.md`.

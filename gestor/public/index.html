@@ -22,6 +22,7 @@
         <button type="button" data-tab="config" class="active">Configuração</button>
         <button type="button" data-tab="encontros">Encontros</button>
         <button type="button" data-tab="ordem">Ordem dos Encontros</button>
+        <button type="button" data-tab="publicar">Publicar site</button>
       </nav>
       <p class="hint">Dados em disco · pasta gestor/dados</p>
     </aside>
@@ -49,6 +50,19 @@
             <div class="actions">
               <button type="submit" class="btn primary">Salvar grupo</button>
             </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Logo do grupo</h3>
+          <p class="muted">Aparece no site publicado e na identificação do grupo.</p>
+          <div class="logo-preview-wrap">
+            <img id="logoPreview" class="logo-preview hidden" alt="Logo do grupo" />
+            <p id="logoVazio" class="muted">Nenhuma logo cadastrada.</p>
+          </div>
+          <form id="formLogo" class="row">
+            <input name="logo" type="file" accept="image/*" required />
+            <button type="submit" class="btn primary">Enviar logo</button>
           </form>
         </div>
 
@@ -119,6 +133,47 @@
         <div class="card">
           <h3>Encontros desta rodada</h3>
           <ul id="encontrosRodada" class="lista-simples"></ul>
+        </div>
+      </section>
+
+      <!-- PUBLICAR -->
+      <section id="tab-publicar" class="tab">
+        <div class="card">
+          <h3>Conta Netlify</h3>
+          <p class="muted">Faça login com Gmail/Google (ou outra conta) no Netlify. O sistema cria o site e publica automaticamente.</p>
+          <div id="netlifyStatus" class="alerta">Verificando conexão…</div>
+          <div class="actions" style="margin-top:0.75rem">
+            <button type="button" id="btnNetlifyLogin" class="btn primary">Conectar Netlify (login Gmail/Google)</button>
+            <button type="button" id="btnNetlifyLogout" class="btn ghost">Desconectar</button>
+          </div>
+          <details class="token-alt">
+            <summary>Ou colar um Personal Access Token</summary>
+            <form id="formToken" class="row" style="margin-top:0.75rem">
+              <input name="token" type="password" placeholder="Token Netlify" required />
+              <button type="submit" class="btn secondary">Salvar token</button>
+            </form>
+            <p class="muted" style="font-size:0.8rem">Crie em: app.netlify.com → User settings → Applications → Personal access tokens</p>
+          </details>
+        </div>
+
+        <div class="card">
+          <h3>Nome do site</h3>
+          <p class="muted">Escolha uma sugestão ou digite o nome desejado (vira https://nome.netlify.app).</p>
+          <div id="sugestoesNomes" class="sugestoes"></div>
+          <label>Nome escolhido
+            <input id="nomeSite" type="text" placeholder="ex.: ecc-meu-grupo" pattern="[a-z0-9-]{3,63}" />
+          </label>
+          <div id="siteAtual" class="muted" style="margin-top:0.75rem"></div>
+        </div>
+
+        <div class="card">
+          <h3>Publicar</h3>
+          <p class="muted">Gera o site com logo, encontros e ordem dos casais e envia ao Netlify.</p>
+          <div class="actions">
+            <button type="button" id="btnPublicar" class="btn primary">Criar/atualizar site e publicar</button>
+            <button type="button" id="btnExportLocal" class="btn secondary">Só gerar pasta local</button>
+          </div>
+          <div id="resultadoPublicar" class="alerta hidden" style="margin-top:1rem"></div>
         </div>
       </section>
     </main>

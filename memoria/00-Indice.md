@@ -12,6 +12,7 @@ Pasta no estilo **Obsidian**: notas em Markdown que documentam decisões, modelo
 | [[Modelo-de-Dados]] | Grupo, casais, encontros, rodada |
 | [[Fluxos-Operacionais]] | Como o coordenador usa o sistema |
 | [[Decisoes-Tecnicas]] | Stack, pastas, por que local |
+| [[Publicacao-Netlify-Desktop]] | App instalável Win/Mac, logo, Netlify |
 | [[Mapa-do-Codigo]] | Onde está cada peça |
 
 ## Relação com o site público

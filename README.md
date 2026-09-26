@@ -39,15 +39,18 @@ npm run dev          # desenvolvimento local (sync automático antes)
 npm run build        # build produção (sync automático antes)
 npm run gestor       # Gestor Local (coordenadores) → http://localhost:3847
 npm run gestor:seed  # importa grupo Alimento do Amor no gestor
+npm run gestor:desktop   # app instalável (Electron)
+npm run gestor:dist:win  # gera ECC-Gestor-Setup.exe
 ```
 
 ## ECC Gestor Local
 
 Aplicação para coordenadores de **qualquer grupo ECC** organizarem encontros no PC:
 
-- Configuração (nome, período, casais)
+- Configuração (nome, período, casais, **logo**)
 - Cadastro de encontros (foto, anfitrião, data, ordem, temário)
 - Controle da ordem / rodada e sugestão do próximo encontro
+- **Publicação automática no Netlify** (login Gmail/Google, nome do site, deploy)
 
 Docs: `gestor/README.md` · Memória Obsidian: `memoria/`
 
@@ -59,8 +62,9 @@ AGENDA ENCONTROS.xlsx     ← FONTE: dados dos encontros
 public/FOTOS/             ← gerado pelo sync (não editar)
 app/data/encontros.ts     ← gerado pelo sync (não editar)
 scripts/fontes.js         ← caminhos oficiais centralizados
-gestor/                   ← app local multi-grupo para coordenadores
+gestor/                   ← app local multi-grupo (Electron + Netlify)
 memoria/                  ← notas Obsidian do produto Gestor
+dist-gestor/              ← instaladores Windows/Mac (gerados)
 ```
 
 ---

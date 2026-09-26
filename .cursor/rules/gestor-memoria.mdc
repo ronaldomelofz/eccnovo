@@ -5,9 +5,11 @@ alwaysApply: true
 
 # Memória e Gestor
 
-Antes de alterar o **ECC Gestor** (`gestor/`), ler `memoria/00-Indice.md` e as notas ligadas.
+Antes de alterar o **ECC Gestor** (`gestor/`), ler `memoria/00-Indice.md` e `memoria/Publicacao-Netlify-Desktop.md`.
 
-- Dados locais: `gestor/dados/` (não versionar conteúdo operacional)
+- Dados locais: `gestor/dados/` ou pasta userData no Electron
 - Subir: `npm run gestor` → http://localhost:3847
-- Seed Alimento do Amor: `npm run gestor:seed`
-- Site público Netlify continua em `app/` com fontes `FOTOS/` + planilha
+- Desktop: `npm run gestor:desktop` · Instalador Win: `npm run gestor:dist:win`
+- Seed: `npm run gestor:seed`
+- Logo na Configuração; publicação Netlify na aba Publicar site
+- Site público Alimento do Amor: `app/` + `FOTOS/` + planilha

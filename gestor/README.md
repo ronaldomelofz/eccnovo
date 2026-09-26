@@ -2,30 +2,22 @@
 
 Aplicação para coordenadores de grupos ECC organizarem encontros no computador.
 
-## Início rápido
-
-Na raiz do repositório:
+## Comandos
 
 ```bash
 npm install
-npm run gestor
+npm run gestor              # navegador → http://localhost:3847
+npm run gestor:seed         # importa Alimento do Amor
+npm run gestor:desktop      # janela Electron (Windows/Mac)
+npm run gestor:dist:win     # gera instalador Windows (.exe)
+npm run gestor:dist:mac     # gera instalador macOS (.dmg) — rode no Mac
 ```
 
-Abra http://localhost:3847
+## Logo e publicação Netlify
 
-Opcional — importar o grupo Alimento do Amor:
+1. Aba **Configuração** → enviar logo do grupo  
+2. Aba **Publicar site** → Conectar Netlify (login Gmail/Google)  
+3. Escolher ou digitar o nome do site  
+4. **Criar/atualizar site e publicar** → URL `https://nome.netlify.app`
 
-```bash
-npm run gestor:seed
-npm run gestor
-```
-
-## Abas
-
-1. **Configuração** — nome do grupo, período, casais (ordem do rodízio)
-2. **Encontros** — data, anfitrião, ordem, temário, nº no temário, foto
-3. **Ordem dos Encontros** — quem já foi / quem falta; próximo sugerido
-
-## Memória do produto
-
-Notas estilo Obsidian em `memoria/` (raiz do repositório).
+Instaladores ficam em `dist-gestor/` após o build.
