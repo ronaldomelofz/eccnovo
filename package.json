@@ -1,6 +1,6 @@
 {
   "name": "ecc-alimento-do-amor",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "description": "Site ECC Alimento do Amor + ECC Gestor Local (coordenadores)",
   "author": "ECC Alimento do Amor",
@@ -86,7 +86,17 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "ECC Gestor"
-    }
+      "shortcutName": "ECC Gestor",
+      "include": "gestor/installer.nsh",
+      "warningsAsErrors": false
+    },
+    "fileAssociations": [
+      {
+        "ext": "eccupdate",
+        "name": "Atualizacao ECC Gestor",
+        "description": "Pacote de atualização do ECC Gestor",
+        "role": "Viewer"
+      }
+    ]
   }
 }

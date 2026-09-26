@@ -631,16 +631,16 @@ async function carregarAtualizacoes() {
   if (!status) return
   try {
     const data = await api('/api/atualizacoes/status')
-    if (data.atualizacaoDisponivel && data.pacoteSugerido) {
-      status.className = 'alerta completa'
-      status.innerHTML = `Versão instalada: <strong>${data.versaoAtual}</strong><br>
-        Atualização disponível: <strong>${data.pacoteSugerido.versao}</strong> (${data.pacoteSugerido.arquivo})`
-    } else {
-      status.className = 'alerta'
-      status.innerHTML = `Versão instalada: <strong>${data.versaoAtual}</strong><br>
-        Pasta: <code>${data.pasta}</code><br>
-        ${data.pacotes.length ? 'Nenhuma versão mais nova que a instalada.' : 'Nenhum pacote na pasta ATUALIZACOES ainda.'}`
-    }
+    status.className = data.atualizacaoDisponivel ? 'alerta completa' : 'alerta'
+    status.innerHTML = `Versão instalada: <strong>${data.versaoAtual}</strong><br>
+      Pasta padrão: <code>${data.pasta}</code><br>
+      ${
+        data.atualizacaoDisponivel
+          ? `Atualização disponível na pasta: <strong>${data.pacoteSugerido.arquivo}</strong>`
+          : data.pacotes.length
+            ? `${data.pacotes.length} pacote(s) na pasta. Você também pode localizar outro arquivo abaixo.`
+            : 'Nenhum pacote na pasta ainda — use <strong>Localizar arquivo</strong>.'
+      }`
     lista.innerHTML = data.pacotes.length
       ? data.pacotes
           .map(
@@ -651,21 +651,88 @@ async function carregarAtualizacoes() {
             <strong>${p.arquivo}</strong>
             <div class="muted">${p.versao ? 'v' + p.versao : 'sem versão'} · ${(p.tamanho / 1024 / 1024).toFixed(1)} MB</div>
           </div>
-          <button type="button" class="btn primary btn-receber" data-arquivo="${p.arquivo}">Receber atualização</button>
+          <button type="button" class="btn primary btn-receber" data-caminho="${p.caminho}" data-arquivo="${p.arquivo}">Atualizar</button>
         </div>`
           )
           .join('')
-      : '<p class="muted">Coloque os instaladores em EXECUTAVEL\\ATUALIZACOES ou rode <code>npm run gestor:pack-update</code>.</p>'
+      : '<p class="muted">Pasta vazia. Localize o arquivo .exe / .eccupdate no computador.</p>'
   } catch (err) {
     status.className = 'alerta'
     status.textContent = err.message
   }
 }
 
+function mostrarOverlayAtualizando(texto) {
+  let el = document.getElementById('overlayAtualizando')
+  if (!el) {
+    el = document.createElement('div')
+    el.id = 'overlayAtualizando'
+    el.innerHTML = `
+      <div class="overlay-box">
+        <h2>ECC Gestor</h2>
+        <p><strong>O sistema está em processo de atualização.</strong></p>
+        <div class="overlay-spin"></div>
+        <p id="overlayMsg"></p>
+      </div>`
+    document.body.appendChild(el)
+  }
+  el.querySelector('#overlayMsg').textContent = texto || 'Abrindo o instalador…'
+  el.classList.add('open')
+}
+
+function esconderOverlayAtualizando() {
+  document.getElementById('overlayAtualizando')?.classList.remove('open')
+}
+
+async function aplicarArquivoUpdate(caminho, fileObj) {
+  mostrarOverlayAtualizando('O sistema está em processo de atualização. Aguarde…')
+  try {
+    let data
+    if (caminho) {
+      data = await api('/api/atualizacoes/aplicar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caminho }),
+      })
+    } else if (fileObj) {
+      const fd = new FormData()
+      fd.append('pacote', fileObj)
+      const res = await fetch('/api/atualizacoes/upload', { method: 'POST', body: fd })
+      data = await res.json()
+      if (!res.ok) throw new Error(data.erro || 'Falha no upload')
+    } else {
+      throw new Error('Selecione o arquivo de atualização')
+    }
+    mostrarOverlayAtualizando(data.mensagem || 'Instalador aberto. Conclua a atualização.')
+  } catch (err) {
+    esconderOverlayAtualizando()
+    alert(err.message)
+  }
+}
+
+let selectedUpdateFile = null
+let selectedUpdatePath = null
+
+$('#fileUpdate')?.addEventListener('change', (ev) => {
+  const f = ev.target.files?.[0]
+  selectedUpdateFile = f || null
+  // Electron expõe caminho absoluto em file.path
+  selectedUpdatePath = f?.path || null
+  $('#caminhoUpdate').value = selectedUpdatePath || f?.name || ''
+})
+
+$('#btnAplicarUpdate')?.addEventListener('click', async () => {
+  if (!selectedUpdatePath && !selectedUpdateFile) {
+    return alert('Localize o arquivo de atualização primeiro.')
+  }
+  await aplicarArquivoUpdate(selectedUpdatePath, selectedUpdatePath ? null : selectedUpdateFile)
+})
+
 $('#btnVerificarUpdate')?.addEventListener('click', carregarAtualizacoes)
 $('#btnAbrirPastaUpdate')?.addEventListener('click', async () => {
   try {
-    await api('/api/atualizacoes/abrir-pasta')
+    const r = await api('/api/atualizacoes/abrir-pasta')
+    alert('Pasta: ' + r.pasta)
   } catch (err) {
     alert(err.message)
   }
@@ -674,16 +741,7 @@ $('#btnAbrirPastaUpdate')?.addEventListener('click', async () => {
 $('#listaPacotes')?.addEventListener('click', async (ev) => {
   const btn = ev.target.closest('.btn-receber')
   if (!btn) return
-  try {
-    const data = await api('/api/atualizacoes/receber', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ arquivo: btn.dataset.arquivo }),
-    })
-    alert(data.mensagem)
-  } catch (err) {
-    alert(err.message)
-  }
+  await aplicarArquivoUpdate(btn.dataset.caminho || btn.dataset.arquivo, null)
 })
 
 async function init() {

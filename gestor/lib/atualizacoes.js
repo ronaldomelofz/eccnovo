@@ -1,29 +1,52 @@
 /**
  * Pacotes de atualização do ECC Gestor
- * Pasta oficial: EXECUTAVEL/ATUALIZACOES
+ * Pasta preferencial (dev): EXECUTAVEL/ATUALIZACOES
+ * Em app instalado: Documentos/ECC Gestor/ATUALIZACOES (nunca dentro do asar)
  */
 const fs = require('fs')
 const path = require('path')
-const { exec } = require('child_process')
+const os = require('os')
+const { exec, spawn } = require('child_process')
 const store = require('./store')
 
 const ROOT = path.resolve(__dirname, '..', '..')
 
-function resolveAtualizacoesDir() {
-  if (process.env.ECC_ATUALIZACOES_DIR) return process.env.ECC_ATUALIZACOES_DIR
-  const candidatos = [
-    path.join(ROOT, 'EXECUTAVEL', 'ATUALIZACOES'),
-    path.join(path.dirname(process.execPath || ''), 'ATUALIZACOES'),
-    path.join(process.cwd(), 'EXECUTAVEL', 'ATUALIZACOES'),
-  ]
-  for (const c of candidatos) {
-    if (c && fs.existsSync(c)) return c
-  }
-  const fallback = path.join(ROOT, 'EXECUTAVEL', 'ATUALIZACOES')
-  return fallback
+function isAsarPath(p) {
+  return String(p || '').includes('app.asar')
 }
 
-const ATUALIZACOES_DIR = resolveAtualizacoesDir()
+function resolveAtualizacoesDir() {
+  if (process.env.ECC_ATUALIZACOES_DIR && !isAsarPath(process.env.ECC_ATUALIZACOES_DIR)) {
+    return process.env.ECC_ATUALIZACOES_DIR
+  }
+
+  const docs = path.join(os.homedir(), 'Documents', 'ECC Gestor', 'ATUALIZACOES')
+  const exeDir = process.execPath
+    ? path.join(path.dirname(process.execPath), 'ATUALIZACOES')
+    : null
+  const projeto = path.join(ROOT, 'EXECUTAVEL', 'ATUALIZACOES')
+
+  // Dev: pasta do projeto se existir e não for asar
+  if (!isAsarPath(projeto) && fs.existsSync(path.dirname(projeto))) {
+    if (fs.existsSync(projeto) || process.env.NODE_ENV !== 'production') {
+      // Prefer project folder when developing
+      if (fs.existsSync(path.join(ROOT, 'gestor')) && !isAsarPath(ROOT)) {
+        store.ensureDir(projeto)
+        return projeto
+      }
+    }
+  }
+
+  const candidatos = [docs, exeDir, projeto].filter(Boolean)
+  for (const c of candidatos) {
+    if (c && !isAsarPath(c)) {
+      store.ensureDir(c)
+      return c
+    }
+  }
+  store.ensureDir(docs)
+  return docs
+}
 
 function ensureAtualizacoesDir() {
   const dir = resolveAtualizacoesDir()
@@ -33,7 +56,12 @@ function ensureAtualizacoesDir() {
 
 function appVersion() {
   try {
-    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'))
+    const pkgPath = isAsarPath(__dirname)
+      ? path.join(process.resourcesPath || '', 'app.asar', 'package.json')
+      : path.join(ROOT, 'package.json')
+    const alt = path.join(__dirname, '..', '..', 'package.json')
+    const file = fs.existsSync(pkgPath) ? pkgPath : alt
+    const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
     return pkg.version || '0.0.0'
   } catch {
     return '0.0.0'
@@ -64,7 +92,7 @@ function listPacotes() {
   if (!fs.existsSync(dir)) return []
   return fs
     .readdirSync(dir)
-    .filter((f) => /\.(exe|zip|dmg)$/i.test(f))
+    .filter((f) => /\.(exe|eccupdate|zip|dmg)$/i.test(f))
     .map((f) => {
       const full = path.join(dir, f)
       const st = fs.statSync(full)
@@ -86,59 +114,104 @@ function listPacotes() {
 
 function statusAtualizacoes() {
   const atual = appVersion()
+  const pasta = ensureAtualizacoesDir()
   const pacotes = listPacotes()
   const maisNovo = pacotes.find((p) => p.versao && compareVersions(p.versao, atual) > 0) || null
   return {
     versaoAtual: atual,
-    pasta: ensureAtualizacoesDir(),
+    pasta,
     pacotes,
     atualizacaoDisponivel: Boolean(maisNovo),
     pacoteSugerido: maisNovo,
   }
 }
 
+function resolvePacotePath(arquivoOuCaminho) {
+  if (!arquivoOuCaminho) return null
+  const raw = String(arquivoOuCaminho).trim().replace(/^["']|["']$/g, '')
+  if (path.isAbsolute(raw) && fs.existsSync(raw)) return raw
+  const naPasta = path.join(ensureAtualizacoesDir(), path.basename(raw))
+  if (fs.existsSync(naPasta)) return naPasta
+  return null
+}
+
 /**
- * Recebe/aplica um pacote: .exe abre o instalador; .zip extrai manifesto (futuro).
+ * Prepara arquivo para execução (copia .eccupdate → temp .exe se preciso)
  */
-function receberAtualizacao(nomeArquivo) {
-  const dir = ensureAtualizacoesDir()
-  const base = path.basename(nomeArquivo || '')
-  const full = path.join(dir, base)
-  if (!base || !fs.existsSync(full)) {
-    throw new Error('Pacote de atualização não encontrado em ATUALIZACOES')
-  }
+function prepararInstalador(caminho) {
+  const full = resolvePacotePath(caminho)
+  if (!full) throw new Error('Arquivo de atualização não encontrado. Selecione o caminho correto.')
+
   const ext = path.extname(full).toLowerCase()
-
-  if (ext === '.exe' || ext === '.dmg') {
-    openFile(full)
-    return {
-      ok: true,
-      acao: 'abrir-instalador',
-      arquivo: full,
-      mensagem: 'Instalador aberto. Conclua a instalação para atualizar o ECC Gestor.',
-    }
+  if (!['.exe', '.eccupdate', '.dmg'].includes(ext)) {
+    throw new Error('Use um arquivo .exe, .eccupdate ou .dmg')
   }
 
-  if (ext === '.zip') {
-    return {
-      ok: true,
-      acao: 'pacote-zip',
-      arquivo: full,
-      mensagem:
-        'Pacote ZIP encontrado. Use o instalador .exe correspondente ou extraia manualmente. Preferência: abrir o Setup .exe na mesma pasta.',
-    }
+  // .eccupdate = mesmo conteúdo do instalador; Windows precisa de .exe para executar
+  if (ext === '.eccupdate') {
+    const dest = path.join(os.tmpdir(), `ECC-Gestor-Update-${Date.now()}.exe`)
+    fs.copyFileSync(full, dest)
+    return dest
   }
+  return full
+}
 
-  throw new Error('Tipo de pacote não suportado. Use .exe (Windows) ou .dmg (Mac).')
+function openInstaller(filePath) {
+  return new Promise((resolve, reject) => {
+    if (process.platform === 'win32') {
+      const child = spawn(filePath, [], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: false,
+      })
+      child.on('error', reject)
+      child.unref()
+      resolve()
+      return
+    }
+    const cmd = process.platform === 'darwin' ? `open "${filePath}"` : `xdg-open "${filePath}"`
+    exec(cmd, (err) => (err ? reject(err) : resolve()))
+  })
+}
+
+/**
+ * Aplica atualização a partir de caminho absoluto ou nome na pasta ATUALIZACOES
+ */
+async function aplicarAtualizacao(caminho) {
+  const instalador = prepararInstalador(caminho)
+  await openInstaller(instalador)
+  return {
+    ok: true,
+    acao: 'abrir-instalador',
+    arquivo: caminho,
+    instalador,
+    mensagem:
+      'O sistema está em processo de atualização. Conclua as etapas do instalador e, ao terminar, abra novamente o ECC Gestor.',
+  }
+}
+
+/** @deprecated use aplicarAtualizacao */
+function receberAtualizacao(nomeArquivo) {
+  const full = resolvePacotePath(nomeArquivo)
+  if (!full) throw new Error('Pacote de atualização não encontrado')
+  // sync wrapper
+  const instalador = prepararInstalador(full)
+  openFile(instalador)
+  return {
+    ok: true,
+    acao: 'abrir-instalador',
+    arquivo: full,
+    mensagem: 'O sistema está em processo de atualização. Conclua o instalador.',
+  }
 }
 
 function openFile(filePath) {
+  if (process.platform === 'win32') {
+    spawn(filePath, [], { detached: true, stdio: 'ignore' }).unref()
+    return
+  }
   const cmd =
-    process.platform === 'win32'
-      ? `start "" "${filePath}"`
-      : process.platform === 'darwin'
-        ? `open "${filePath}"`
-        : `xdg-open "${filePath}"`
+    process.platform === 'darwin' ? `open "${filePath}"` : `xdg-open "${filePath}"`
   exec(cmd)
 }
 
@@ -155,12 +228,16 @@ function openFolder(dir = ensureAtualizacoesDir()) {
 }
 
 module.exports = {
-  ATUALIZACOES_DIR,
   ensureAtualizacoesDir,
+  resolveAtualizacoesDir,
   appVersion,
   compareVersions,
   listPacotes,
   statusAtualizacoes,
   receberAtualizacao,
+  aplicarAtualizacao,
+  resolvePacotePath,
+  prepararInstalador,
   openFolder,
+  isAsarPath,
 }

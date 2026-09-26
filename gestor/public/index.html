@@ -208,15 +208,28 @@
       <section id="tab-atualizacoes" class="tab">
         <div class="card">
           <h3>Atualizações do ECC Gestor</h3>
-          <p class="muted">Pacotes ficam em <code>EXECUTAVEL\ATUALIZACOES</code>. O app verifica e pode abrir o instalador.</p>
+          <p class="muted">Escolha o arquivo de atualização no computador (.exe ou .eccupdate) e clique em <strong>Atualizar</strong>. Também pode dar <strong>duplo clique</strong> no arquivo .eccupdate.</p>
           <div id="statusAtualizacao" class="alerta">Carregando…</div>
-          <div class="actions" style="margin-top:0.75rem">
-            <button type="button" id="btnVerificarUpdate" class="btn secondary">Verificar atualizações</button>
-            <button type="button" id="btnAbrirPastaUpdate" class="btn ghost">Abrir pasta ATUALIZACOES</button>
+
+          <div class="update-pick" style="margin-top:1rem">
+            <label class="full">Local do arquivo de atualização
+              <input type="text" id="caminhoUpdate" readonly placeholder="Nenhum arquivo selecionado" />
+            </label>
+            <div class="actions" style="margin-top:0.75rem">
+              <label class="btn secondary" style="cursor:pointer;display:inline-block">
+                Localizar arquivo…
+                <input type="file" id="fileUpdate" accept=".exe,.eccupdate,application/octet-stream" hidden />
+              </label>
+              <button type="button" id="btnAplicarUpdate" class="btn primary">Atualizar</button>
+              <button type="button" id="btnAbrirPastaUpdate" class="btn ghost">Abrir pasta ATUALIZACOES</button>
+            </div>
           </div>
         </div>
         <div class="card">
-          <h3>Pacotes disponíveis</h3>
+          <h3>Pacotes na pasta padrão</h3>
+          <div class="actions" style="margin-bottom:0.75rem">
+            <button type="button" id="btnVerificarUpdate" class="btn secondary">Atualizar lista</button>
+          </div>
           <div id="listaPacotes" class="lista-encontros"></div>
         </div>
       </section>

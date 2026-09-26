@@ -5,6 +5,7 @@
 const express = require('express')
 const multer = require('multer')
 const path = require('path')
+const fs = require('fs')
 const os = require('os')
 const store = require('./lib/store')
 const { calcularRodada, sugerirProximo, descricaoEncontro } = require('./lib/rodada')
@@ -276,11 +277,41 @@ function createApp() {
     }
   })
 
-  app.post('/api/atualizacoes/receber', (req, res) => {
+  app.post('/api/atualizacoes/aplicar', async (req, res) => {
     try {
       const atualizacoes = require('./lib/atualizacoes')
-      const resultado = atualizacoes.receberAtualizacao(req.body?.arquivo)
+      const caminho = req.body?.caminho || req.body?.arquivo
+      const resultado = await atualizacoes.aplicarAtualizacao(caminho)
       res.json(resultado)
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
+  app.post('/api/atualizacoes/receber', async (req, res) => {
+    try {
+      const atualizacoes = require('./lib/atualizacoes')
+      const caminho = req.body?.caminho || req.body?.arquivo
+      const resultado = await atualizacoes.aplicarAtualizacao(caminho)
+      res.json(resultado)
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
+  app.post('/api/atualizacoes/upload', upload.single('pacote'), async (req, res) => {
+    try {
+      const atualizacoes = require('./lib/atualizacoes')
+      if (!req.file) return res.status(400).json({ erro: 'Selecione um arquivo de atualização' })
+      const pasta = atualizacoes.ensureAtualizacoesDir()
+      const nome = req.file.originalname || `update-${Date.now()}.exe`
+      const dest = path.join(pasta, path.basename(nome))
+      fs.copyFileSync(req.file.path, dest)
+      try {
+        fs.unlinkSync(req.file.path)
+      } catch (_) {}
+      const resultado = await atualizacoes.aplicarAtualizacao(dest)
+      res.json({ ...resultado, salvoEm: dest })
     } catch (err) {
       res.status(400).json({ erro: err.message })
     }
@@ -294,6 +325,11 @@ function createApp() {
     } catch (err) {
       res.status(500).json({ erro: err.message })
     }
+  })
+
+  // página de atualização (rota explícita antes do *)
+  app.get('/atualizando.html', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'atualizando.html'))
   })
 
   app.get('*', (_req, res) => {
