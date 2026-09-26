@@ -128,6 +128,10 @@ function updateGrupo(grupoId, patch) {
   }
   if (patch.logo !== undefined) grupo.logo = patch.logo
   if (patch.netlify !== undefined) grupo.netlify = patch.netlify
+  if (patch.preservarNumerosTemario !== undefined) {
+    grupo.preservarNumerosTemario = Boolean(patch.preservarNumerosTemario)
+  }
+  if (patch.importadoDe !== undefined) grupo.importadoDe = patch.importadoDe
   if (Array.isArray(patch.casais)) {
     grupo.casais = patch.casais.map((c, idx) => ({
       id: c.id || randomUUID(),
@@ -189,13 +193,15 @@ function reordenarEncontrosPorData(grupoId) {
   lista.forEach((e, i) => {
     e.ordem = i + 1
   })
-  // Nº no temário: sequência automática pela data, por temário
-  const contagemPorTemario = {}
-  lista.forEach((e) => {
-    const t = Number(e.temario) || 1
-    contagemPorTemario[t] = (contagemPorTemario[t] || 0) + 1
-    e.numeroNoTemario = contagemPorTemario[t]
-  })
+  const grupo = getGrupo(grupoId)
+  if (!grupo?.preservarNumerosTemario) {
+    const contagemPorTemario = {}
+    lista.forEach((e) => {
+      const t = Number(e.temario) || 1
+      contagemPorTemario[t] = (contagemPorTemario[t] || 0) + 1
+      e.numeroNoTemario = contagemPorTemario[t]
+    })
+  }
   saveEncontros(grupoId, lista)
   return lista
 }
@@ -203,12 +209,19 @@ function reordenarEncontrosPorData(grupoId) {
 function upsertEncontro(grupoId, encontro, fotoFile) {
   const lista = listEncontros(grupoId)
   const agora = new Date().toISOString()
+  const grupo = getGrupo(grupoId)
+  const preservar = Boolean(grupo?.preservarNumerosTemario || encontro._preservarNumero)
+  const numeroInformado =
+    encontro.numeroNoTemario !== undefined &&
+    encontro.numeroNoTemario !== null &&
+    encontro.numeroNoTemario !== ''
   let item
 
   if (encontro.id) {
     const idx = lista.findIndex((e) => e.id === encontro.id)
     if (idx < 0) throw new Error('Encontro não encontrado')
-    item = { ...lista[idx], ...encontro, atualizadoEm: agora }
+    const { _preservarNumero, ...rest } = encontro
+    item = { ...lista[idx], ...rest, atualizadoEm: agora }
     lista[idx] = item
   } else {
     item = {
@@ -218,7 +231,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
       data: encontro.data,
       anfitriao: String(encontro.anfitriao).trim().toUpperCase(),
       temario: Number(encontro.temario),
-      numeroNoTemario: 0, // definido em reordenarEncontrosPorData
+      numeroNoTemario: numeroInformado ? Number(encontro.numeroNoTemario) : 0,
       foto: null,
       semFoto: Boolean(encontro.semFoto),
       criadoEm: agora,
@@ -230,8 +243,11 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
   item.data = encontro.data ?? item.data
   item.anfitriao = String(encontro.anfitriao ?? item.anfitriao).trim().toUpperCase()
   item.temario = Number(encontro.temario ?? item.temario)
-  // numeroNoTemario é sempre recalculado pela data — ignora valor do cliente
+  if (preservar && numeroInformado) {
+    item.numeroNoTemario = Number(encontro.numeroNoTemario)
+  }
   item.semFoto = encontro.semFoto !== undefined ? Boolean(encontro.semFoto) : item.semFoto
+  delete item._preservarNumero
 
   // ordem provisória; será recalculada por data
   if (encontro.ordem !== undefined && encontro.ordem !== null && encontro.ordem !== '') {
@@ -302,8 +318,10 @@ module.exports = {
   getGrupo,
   createGrupo,
   updateGrupo,
+  saveGrupo,
   deleteGrupo,
   listEncontros,
+  saveEncontros,
   upsertEncontro,
   deleteEncontro,
   reordenarEncontrosPorData,

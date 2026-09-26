@@ -81,6 +81,19 @@
         </div>
 
         <div class="card">
+          <h3>Importar de site existente</h3>
+          <p class="muted">Cole o endereço de um site ECC já publicado (Netlify). O Gestor lê encontros, casais, período, logo e fotos.</p>
+          <label class="full">Endereço do site
+            <input id="urlImportar" type="url" placeholder="https://eccalimentodoamor.netlify.app/" />
+          </label>
+          <div class="actions" style="margin-top:0.65rem">
+            <button type="button" id="btnPreviewImportar" class="btn ghost">Pré-visualizar</button>
+            <button type="button" id="btnImportarSite" class="btn secondary">Importar para novo grupo</button>
+          </div>
+          <div id="statusImportar" class="nome-status muted" style="margin-top:0.75rem">Ex.: https://eccalimentodoamor.netlify.app/</div>
+        </div>
+
+        <div class="card">
           <h3>Logo do grupo</h3>
           <p class="muted">Aparece no site publicado e na identificação do grupo.</p>
           <div class="logo-preview-wrap">

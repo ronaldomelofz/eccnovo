@@ -75,6 +75,43 @@ function createApp() {
     res.json({ ok: true })
   })
 
+  // —— Importar site existente ——
+  app.post('/api/importar-site/preview', async (req, res) => {
+    try {
+      const importar = require('./lib/importar-site')
+      const dados = await importar.extrairDadosDoSite(req.body?.url)
+      res.json({
+        ok: true,
+        nome: dados.nome,
+        origem: dados.origem,
+        fonte: dados.fonte,
+        periodo: dados.periodo,
+        encontros: dados.encontros.length,
+        casais: dados.casais.length,
+        amostra: dados.encontros.slice(0, 3).map((e) => ({
+          data: e.data,
+          anfitriao: e.anfitriao,
+          descricao: e.descricao,
+        })),
+      })
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
+  app.post('/api/importar-site', async (req, res) => {
+    try {
+      const importar = require('./lib/importar-site')
+      const resultado = await importar.importarGrupoDeUrl(req.body?.url, {
+        substituirGrupoId: req.body?.substituirGrupoId || null,
+        nomeGrupo: req.body?.nomeGrupo || null,
+      })
+      res.status(201).json(resultado)
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
   app.post('/api/grupos/:id/logo', upload.single('logo'), (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ erro: 'Envie um arquivo de logo' })

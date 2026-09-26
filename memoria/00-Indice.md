@@ -14,6 +14,7 @@ Pasta no estilo **Obsidian**: notas em Markdown que documentam decisões, modelo
 | [[Decisoes-Tecnicas]] | Stack, pastas, por que local |
 | [[Publicacao-Netlify-Desktop]] | App instalável Win/Mac, logo, Netlify |
 | [[Atualizacoes]] | Pacotes em EXECUTAVEL/ATUALIZACOES |
+| [[Importar-Site]] | Importar grupo a partir de URL Netlify |
 | [[Mapa-do-Codigo]] | Onde está cada peça |
 
 ## Relação com o site público

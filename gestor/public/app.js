@@ -424,6 +424,73 @@ $('#btnCancelarGrupo').addEventListener('click', fecharNovoGrupo)
 $('#dlgNovoGrupo').addEventListener('click', (ev) => {
   if (ev.target.matches('[data-close-modal]')) fecharNovoGrupo()
 })
+
+async function previewImportarSite() {
+  const el = $('#statusImportar')
+  const url = $('#urlImportar')?.value?.trim()
+  if (!url) return alert('Cole o endereço do site')
+  el.className = 'nome-status muted'
+  el.textContent = 'Lendo o site…'
+  try {
+    const data = await api('/api/importar-site/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    el.className = 'nome-status ok'
+    el.innerHTML = `<strong>${data.nome}</strong> · ${data.encontros} encontros · ${data.casais} casais · fonte <code>${data.fonte}</code>${
+      data.periodo?.texto ? `<br>${data.periodo.texto}` : ''
+    }`
+    return data
+  } catch (err) {
+    el.className = 'nome-status erro'
+    el.textContent = err.message
+    return null
+  }
+}
+
+$('#btnPreviewImportar')?.addEventListener('click', () => previewImportarSite())
+
+$('#btnImportarSite')?.addEventListener('click', async () => {
+  const url = $('#urlImportar')?.value?.trim()
+  if (!url) return alert('Cole o endereço do site')
+  const el = $('#statusImportar')
+  if (
+    !confirm(
+      'Importar este site como um NOVO grupo?\n\nEncontros, casais, período, logo e fotos serão baixados para o Gestor.'
+    )
+  ) {
+    return
+  }
+  el.className = 'nome-status muted'
+  el.textContent = 'Importando… isso pode levar 1–2 minutos (download das fotos).'
+  $('#btnImportarSite').disabled = true
+  $('#btnPreviewImportar').disabled = true
+  try {
+    const data = await api('/api/importar-site', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    el.className = 'nome-status ok'
+    const passos = (data.passos || []).map((p) => `<li>${p}</li>`).join('')
+    el.innerHTML = `${data.mensagem}${passos ? `<ol style="margin:.5rem 0 0;padding-left:1.2rem">${passos}</ol>` : ''}`
+    await carregarGrupos()
+    state.grupoId = data.grupo.id
+    localStorage.setItem('eccGrupoId', state.grupoId)
+    $('#selGrupo').value = state.grupoId
+    await carregarGrupo()
+    setTab('encontros')
+    alert(data.mensagem)
+  } catch (err) {
+    el.className = 'nome-status erro'
+    el.textContent = err.message
+    alert(err.message)
+  } finally {
+    $('#btnImportarSite').disabled = false
+    $('#btnPreviewImportar').disabled = false
+  }
+})
 document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && !$('#dlgNovoGrupo').classList.contains('hidden')) {
     fecharNovoGrupo()
