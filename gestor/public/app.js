@@ -67,6 +67,7 @@ function setTab(tab) {
   state.tab = tab
   $$('#navTabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab))
   $$('.tab').forEach((el) => el.classList.toggle('active', el.id === `tab-${tab}`))
+  if (tab === 'publicar') renderPublicar()
   if (tab === 'atualizacoes') carregarAtualizacoes()
 }
 
@@ -94,9 +95,12 @@ function render() {
   renderOrdem()
   renderSequenciaAnfitrioes()
   renderLogo()
-  renderPublicar()
+  if (state.tab === 'publicar') renderPublicar()
   const formEnc = $('#formEncontro')
-  if (formEnc && !formEnc.id.value) atualizarNumeroNoTemario()
+  if (formEnc && !formEnc.id.value) {
+    aplicarSugestaoProximo()
+    atualizarNumeroNoTemario()
+  }
 }
 
 function formatPeriodoPreview(num, ano, dias, mes) {
@@ -195,10 +199,16 @@ function renderCasais() {
 
 function renderSelectAnfitriao() {
   const sel = $('#formEncontro').anfitriao
+  const atual = sel.value
   const casais = state.casaisDraft
   sel.innerHTML = casais.length
     ? casais.map((c) => `<option value="${c.nome}">${c.nome}</option>`).join('')
     : '<option value="">Cadastre casais na Configuração</option>'
+  if (atual && [...sel.options].some((o) => o.value === atual)) {
+    sel.value = atual
+  } else if (!$('#formEncontro').id.value) {
+    aplicarSugestaoProximo()
+  }
 }
 
 function renderEncontros() {
@@ -358,9 +368,20 @@ function limparEncontro() {
   const form = $('#formEncontro')
   form.reset()
   form.id.value = ''
-  if (state.proximo?.temario) form.temario.value = state.proximo.temario
-  else if (!form.temario.value) form.temario.value = 1
+  aplicarSugestaoProximo()
   atualizarNumeroNoTemario()
+}
+
+function aplicarSugestaoProximo() {
+  const form = $('#formEncontro')
+  if (!form || form.id.value) return
+  const p = state.proximo
+  if (p?.temario) form.temario.value = p.temario
+  else if (!form.temario.value) form.temario.value = 1
+  if (p?.anfitriao) {
+    const opt = [...form.anfitriao.options].find((o) => o.value === p.anfitriao)
+    if (opt) form.anfitriao.value = p.anfitriao
+  }
 }
 
 function renumerarCasais() {

@@ -235,10 +235,10 @@ function zipExport(grupoId) {
   const out = generateSite(grupoId)
   return new Promise((resolve, reject) => {
     const chunks = []
-    const archive = archiver('zip', { zlib: { level: 9 } })
+    const archive = archiver('zip', { zlib: { level: 6 } })
     archive.on('data', (c) => chunks.push(c))
     archive.on('error', reject)
-    archive.on('end', () => resolve(Buffer.concat(chunks)))
+    archive.on('end', () => resolve({ buffer: Buffer.concat(chunks), exportPath: out }))
     archive.directory(out, false)
     archive.finalize()
   })

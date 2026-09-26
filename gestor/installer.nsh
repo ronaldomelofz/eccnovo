@@ -1,7 +1,7 @@
-; Custom NSIS — mensagem de atualização do ECC Gestor
+; Custom NSIS — instalação e atualização do ECC Gestor
 !macro customHeader
-  !define MUI_WELCOMEPAGE_TITLE "Atualização do ECC Gestor"
-  !define MUI_WELCOMEPAGE_TEXT "O sistema está em processo de atualização.$\r$\n$\r$\nSiga as instruções deste assistente para concluir a instalação da nova versão.$\r$\n$\r$\nClique em Avançar para continuar."
-  !define MUI_FINISHPAGE_TITLE "Atualização concluída"
-  !define MUI_FINISHPAGE_TEXT "A atualização do ECC Gestor foi instalada.$\r$\n$\r$\nClique em Concluir para sair."
+  !define MUI_WELCOMEPAGE_TITLE "ECC Gestor"
+  !define MUI_WELCOMEPAGE_TEXT "Bem-vindo ao assistente do ECC Gestor.$\r$\n$\r$\nSe já existe uma versão instalada, este assistente irá atualizá-la.$\r$\n$\r$\nClique em Avançar para continuar."
+  !define MUI_FINISHPAGE_TITLE "Concluído"
+  !define MUI_FINISHPAGE_TEXT "O ECC Gestor foi instalado com sucesso.$\r$\n$\r$\nClique em Concluir para sair. Abra o aplicativo pelo atalho do menu Iniciar."
 !macroend

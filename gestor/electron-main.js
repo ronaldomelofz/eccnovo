@@ -3,7 +3,7 @@
  * Suporta abrir arquivo .eccupdate com duplo clique.
  * Startup otimizado: janela só aparece quando pronta.
  */
-const { app, BrowserWindow, shell } = require('electron')
+const { app, BrowserWindow, shell, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
@@ -12,6 +12,7 @@ const PORT = Number(process.env.GESTOR_PORT) || 3847
 let mainWindow
 let serverRef
 let pendingUpdateFile = null
+let booting = false
 
 function isUpdateArg(arg) {
   if (!arg || typeof arg !== 'string') return false
@@ -65,52 +66,74 @@ function showUpdateOverlay(filePath) {
 }
 
 async function boot(updateFile) {
-  const dadosDir = path.join(app.getPath('userData'), 'dados')
-  fs.mkdirSync(dadosDir, { recursive: true })
-  process.env.ECC_GESTOR_DADOS = dadosDir
-  setupAtualizacoesDir()
-
-  const { startServer } = require('./server')
-  const { server } = await startServer(PORT)
-  serverRef = server
-
-  mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 860,
-    minWidth: 960,
-    minHeight: 640,
-    title: 'ECC Gestor',
-    show: false,
-    backgroundColor: '#0f172a',
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      backgroundThrottling: true,
-      spellcheck: false,
-    },
-  })
-
-  mainWindow.once('ready-to-show', () => {
-    if (mainWindow) mainWindow.show()
-  })
-
-  const file = updateFile || pendingUpdateFile
-  pendingUpdateFile = null
-
-  if (file && fs.existsSync(file)) {
-    showUpdateOverlay(file)
-  } else {
-    mainWindow.loadURL(`http://localhost:${PORT}`)
+  if (booting) return
+  if (mainWindow && !mainWindow.isDestroyed() && serverRef) {
+    if (updateFile) showUpdateOverlay(updateFile)
+    else {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+    return
   }
+  booting = true
+  try {
+    const dadosDir = path.join(app.getPath('userData'), 'dados')
+    fs.mkdirSync(dadosDir, { recursive: true })
+    process.env.ECC_GESTOR_DADOS = dadosDir
+    setupAtualizacoesDir()
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url)
-    return { action: 'deny' }
-  })
+    if (!serverRef) {
+      const { startServer } = require('./server')
+      try {
+        const { server } = await startServer(PORT)
+        serverRef = server
+      } catch (err) {
+        dialog.showErrorBox('ECC Gestor', err.message || String(err))
+        app.quit()
+        return
+      }
+    }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+    mainWindow = new BrowserWindow({
+      width: 1280,
+      height: 860,
+      minWidth: 960,
+      minHeight: 640,
+      title: 'ECC Gestor',
+      show: false,
+      backgroundColor: '#0f172a',
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        backgroundThrottling: true,
+        spellcheck: false,
+      },
+    })
+
+    mainWindow.once('ready-to-show', () => {
+      if (mainWindow) mainWindow.show()
+    })
+
+    const file = updateFile || pendingUpdateFile
+    pendingUpdateFile = null
+
+    if (file && fs.existsSync(file)) {
+      showUpdateOverlay(file)
+    } else {
+      mainWindow.loadURL(`http://localhost:${PORT}`)
+    }
+
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url)
+      return { action: 'deny' }
+    })
+
+    mainWindow.on('closed', () => {
+      mainWindow = null
+    })
+  } finally {
+    booting = false
+  }
 }
 
 const gotTheLock = app.requestSingleInstanceLock()
@@ -138,12 +161,14 @@ if (!gotTheLock) {
 }
 
 app.on('window-all-closed', () => {
+  if (process.platform === 'darwin') return
   if (serverRef) {
     try {
       serverRef.close()
     } catch (_) {}
+    serverRef = null
   }
-  if (process.platform !== 'darwin') app.quit()
+  app.quit()
 })
 
 app.on('activate', () => {

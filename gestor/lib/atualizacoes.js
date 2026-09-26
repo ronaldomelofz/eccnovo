@@ -178,7 +178,8 @@ function openInstaller(filePath) {
 }
 
 /**
- * Aplica atualização a partir de caminho absoluto ou nome na pasta ATUALIZACOES
+ * Aplica atualização a partir de caminho absoluto ou nome na pasta ATUALIZACOES.
+ * Abre o instalador e sinaliza para encerrar o app (necessário no Windows).
  */
 async function aplicarAtualizacao(caminho) {
   const instalador = prepararInstalador(caminho)
@@ -188,9 +189,23 @@ async function aplicarAtualizacao(caminho) {
     acao: 'abrir-instalador',
     arquivo: caminho,
     instalador,
+    encerrarApp: true,
     mensagem:
-      'O sistema está em processo de atualização. Conclua as etapas do instalador e, ao terminar, abra novamente o ECC Gestor.',
+      'O sistema está em processo de atualização. O ECC Gestor será fechado para o instalador poder substituir os arquivos. Ao terminar, abra novamente o aplicativo.',
   }
+}
+
+function encerrarProcesso() {
+  try {
+    // Electron (quando disponível)
+    const electron = require('electron')
+    if (electron?.app) {
+      electron.app.quit()
+      setTimeout(() => process.exit(0), 800)
+      return
+    }
+  } catch (_) {}
+  process.exit(0)
 }
 
 /** @deprecated use aplicarAtualizacao */
@@ -237,10 +252,12 @@ module.exports = {
   compareVersions,
   listPacotes,
   statusAtualizacoes,
-  receberAtualizacao,
-  aplicarAtualizacao,
-  resolvePacotePath,
   prepararInstalador,
+  aplicarAtualizacao,
+  receberAtualizacao,
+  encerrarProcesso,
   openFolder,
+  openInstaller,
+  resolvePacotePath,
   isAsarPath,
 }

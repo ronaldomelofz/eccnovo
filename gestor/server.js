@@ -252,7 +252,7 @@ function createApp() {
       // Garante conta completa antes de gerar ZIP (falha rápida se cadastro incompleto)
       await netlify.ensureAccountReady()
 
-      const zip = await zipExport(grupo.id)
+      const { buffer: zip, exportPath } = await zipExport(grupo.id)
       const resultado = await netlify.publicarSiteCompleto(nome, zip)
 
       const netlifyInfo = {
@@ -265,7 +265,6 @@ function createApp() {
       }
       store.updateGrupo(grupo.id, { netlify: netlifyInfo })
 
-      const exportPath = generateSite(grupo.id)
       try {
         netlify.openBrowser(resultado.url)
       } catch (_) {}
@@ -309,6 +308,9 @@ function createApp() {
       const caminho = req.body?.caminho || req.body?.arquivo
       const resultado = await atualizacoes.aplicarAtualizacao(caminho)
       res.json(resultado)
+      if (resultado.encerrarApp) {
+        setTimeout(() => atualizacoes.encerrarProcesso(), 1200)
+      }
     } catch (err) {
       res.status(400).json({ erro: err.message })
     }
@@ -320,6 +322,9 @@ function createApp() {
       const caminho = req.body?.caminho || req.body?.arquivo
       const resultado = await atualizacoes.aplicarAtualizacao(caminho)
       res.json(resultado)
+      if (resultado.encerrarApp) {
+        setTimeout(() => atualizacoes.encerrarProcesso(), 1200)
+      }
     } catch (err) {
       res.status(400).json({ erro: err.message })
     }
@@ -338,6 +343,9 @@ function createApp() {
       } catch (_) {}
       const resultado = await atualizacoes.aplicarAtualizacao(dest)
       res.json({ ...resultado, salvoEm: dest })
+      if (resultado.encerrarApp) {
+        setTimeout(() => atualizacoes.encerrarProcesso(), 1200)
+      }
     } catch (err) {
       res.status(400).json({ erro: err.message })
     }
@@ -368,7 +376,7 @@ function createApp() {
 function startServer(port = PORT) {
   store.ensureDir(store.DADOS_DIR)
   const app = createApp()
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const server = app.listen(port, () => {
       console.log('')
       console.log('  ECC Gestor Local')
@@ -376,6 +384,17 @@ function startServer(port = PORT) {
       console.log(`  Dados: ${store.DADOS_DIR}`)
       console.log('')
       resolve({ app, server, port })
+    })
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        reject(
+          new Error(
+            `A porta ${port} já está em uso. Feche o outro ECC Gestor (ou o terminal com npm run gestor) e tente de novo.`
+          )
+        )
+      } else {
+        reject(err)
+      }
     })
   })
 }

@@ -265,6 +265,12 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
     if (idx2 >= 0) ordenados[idx2] = item
     saveEncontros(grupoId, ordenados)
   } else if (item.semFoto) {
+    if (item.foto) {
+      const old = path.join(fotosDir(grupoId), item.foto)
+      try {
+        if (fs.existsSync(old)) fs.unlinkSync(old)
+      } catch (_) {}
+    }
     item.foto = null
     const idx2 = ordenados.findIndex((e) => e.id === item.id)
     if (idx2 >= 0) ordenados[idx2] = item

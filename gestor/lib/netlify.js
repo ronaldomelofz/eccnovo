@@ -523,6 +523,20 @@ async function confirmarSiteNoAr(url, { maxMs = 60000, intervalMs = 2000 } = {})
   let lastStatus = null
   while (Date.now() - start < maxMs) {
     try {
+      const head = await fetch(url, {
+        method: 'HEAD',
+        redirect: 'follow',
+        headers: { 'User-Agent': 'ECC-Gestor/1.0', 'Cache-Control': 'no-cache' },
+      })
+      lastStatus = head.status
+      if (head.status >= 200 && head.status < 400) {
+        return { ok: true, status: head.status }
+      }
+      if (head.status !== 404 && head.status !== 405) {
+        await sleep(intervalMs)
+        continue
+      }
+      // Alguns hosts não aceitam HEAD — confirma com GET curto
       const res = await fetch(url, {
         method: 'GET',
         redirect: 'follow',

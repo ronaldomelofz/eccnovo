@@ -71,7 +71,7 @@
         const data = await res.json()
         if (!res.ok) throw new Error(data.erro || 'Falha ao iniciar atualização')
         document.querySelector('.box p:nth-of-type(2)').innerHTML =
-          'Instalador aberto.<br /><strong>O sistema está em processo de atualização.</strong><br />Finalize o instalador e reabra o aplicativo.'
+          'Instalador aberto.<br /><strong>O ECC Gestor será fechado</strong> para concluir a atualização.<br />Ao terminar, abra novamente o aplicativo.'
       } catch (e) {
         document.getElementById('err').textContent = e.message
       }
