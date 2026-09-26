@@ -92,7 +92,7 @@ function render() {
   renderSelectAnfitriao()
   renderEncontros()
   renderOrdem()
-  renderAlertaProximo()
+  renderSequenciaAnfitrioes()
   renderLogo()
   renderPublicar()
 }
@@ -213,7 +213,7 @@ function renderEncontros() {
         ${thumb}
         <div>
           <strong>${descricao(e)}</strong>
-          <div class="muted">${fmtData(e.data)} · Ordem ${e.ordem}</div>
+          <div class="muted">${fmtData(e.data)} · ${e.ordem}º na ordem</div>
           <div>${e.anfitriao}</div>
         </div>
         <div>
@@ -279,29 +279,37 @@ function renderOrdem() {
     : '<li class="muted">Nenhum encontro nesta rodada ainda.</li>'
 }
 
-function renderAlertaProximo() {
-  const el = $('#alertaProximo')
-  const p = state.proximo
-  if (!p || !state.grupo) {
-    el.classList.add('hidden')
+function renderSequenciaAnfitrioes() {
+  const ol = $('#sequenciaAnfitrioes')
+  if (!ol) return
+  const r = state.rodada
+  const pendentes = r?.proximosNaOrdem || r?.pendentes || []
+  if (!state.grupo) {
+    ol.innerHTML = '<li class="muted">Selecione um grupo.</li>'
     return
   }
-  el.classList.remove('hidden')
-  el.classList.toggle('completa', !!p.rodadaCompleta)
-  el.innerHTML = `<strong>Próximo encontro</strong><br>${p.mensagem}<br>
-    Sugestão: <strong>${p.anfitriao || '—'}</strong> · ordem ${p.ordem} · ${p.numeroNoTemario}º encontro · ${p.temario}º temário`
-}
-
-function aplicarSugestao() {
-  const p = state.proximo
-  if (!p) return
-  const form = $('#formEncontro')
-  form.id.value = ''
-  form.ordem.value = p.ordem
-  form.temario.value = p.temario
-  form.numeroNoTemario.value = p.numeroNoTemario
-  if (p.anfitriao) form.anfitriao.value = p.anfitriao
-  if (!form.data.value) form.data.value = new Date().toISOString().slice(0, 10)
+  if (!pendentes.length) {
+    if (r?.rodadaCompleta) {
+      const casais = [...(state.casaisDraft || [])].sort((a, b) => a.ordem - b.ordem)
+      ol.innerHTML = casais.length
+        ? casais
+            .map(
+              (c, i) =>
+                `<li><span class="seq-n">${i + 1}º</span> <strong>${c.nome}</strong>${i === 0 ? ' <em>(início da nova rodada)</em>' : ''}</li>`
+            )
+            .join('')
+        : '<li class="muted">Cadastre os casais na Configuração.</li>'
+      return
+    }
+    ol.innerHTML = '<li class="muted">Cadastre os casais na Configuração para ver a sequência.</li>'
+    return
+  }
+  ol.innerHTML = pendentes
+    .map(
+      (p, i) =>
+        `<li class="${i === 0 ? 'destaque' : ''}"><span class="seq-n">${i + 1}º</span> <strong>${p.casal}</strong>${i === 0 ? ' <em>(próximo sugerido)</em>' : ''}</li>`
+    )
+    .join('')
 }
 
 function preencherEncontro(e) {
@@ -309,7 +317,6 @@ function preencherEncontro(e) {
   form.id.value = e.id
   form.data.value = e.data
   form.anfitriao.value = e.anfitriao
-  form.ordem.value = e.ordem
   form.temario.value = e.temario
   form.numeroNoTemario.value = e.numeroNoTemario
   form.semFoto.checked = !!e.semFoto
@@ -322,7 +329,6 @@ function limparEncontro() {
   const form = $('#formEncontro')
   form.reset()
   form.id.value = ''
-  aplicarSugestao()
 }
 
 function renumerarCasais() {
@@ -478,7 +484,6 @@ $('#btnSalvarCasais').addEventListener('click', async () => {
   alert('Ordem dos casais salva.')
 })
 
-$('#btnUsarSugestao').addEventListener('click', aplicarSugestao)
 $('#btnLimparEncontro').addEventListener('click', limparEncontro)
 
 $('#formEncontro').addEventListener('submit', async (ev) => {
@@ -498,14 +503,11 @@ $('#formEncontro').addEventListener('submit', async (ev) => {
   state.rodada = data.rodada
   state.proximo = data.proximo
   await carregarGrupo()
+  limparEncontro()
 
   if (data.alertaRodadaCompleta) {
-    alert(
-      `Rodada completa!\n\n${data.proximo.mensagem}\n\nPróximo sugerido: ${data.proximo.anfitriao}`
-    )
+    alert(`Rodada completa!\n\n${data.proximo?.mensagem || 'Todos os casais já foram anfitriões.'}`)
     setTab('ordem')
-  } else {
-    limparEncontro()
   }
 })
 
@@ -747,7 +749,6 @@ $('#listaPacotes')?.addEventListener('click', async (ev) => {
 async function init() {
   await carregarGrupos()
   await carregarGrupo()
-  if (state.proximo) aplicarSugestao()
   setTab(state.grupo ? 'encontros' : 'config')
 }
 

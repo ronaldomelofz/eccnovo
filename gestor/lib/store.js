@@ -183,6 +183,16 @@ function saveEncontros(grupoId, encontros) {
   return encontros
 }
 
+function reordenarEncontrosPorData(grupoId) {
+  const lista = listEncontros(grupoId)
+  lista.sort((a, b) => String(a.data).localeCompare(String(b.data)) || String(a.id).localeCompare(String(b.id)))
+  lista.forEach((e, i) => {
+    e.ordem = i + 1
+  })
+  saveEncontros(grupoId, lista)
+  return lista
+}
+
 function upsertEncontro(grupoId, encontro, fotoFile) {
   const lista = listEncontros(grupoId)
   const agora = new Date().toISOString()
@@ -197,7 +207,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
     item = {
       id: randomUUID(),
       grupoId,
-      ordem: Number(encontro.ordem),
+      ordem: lista.length + 1,
       data: encontro.data,
       anfitriao: String(encontro.anfitriao).trim().toUpperCase(),
       temario: Number(encontro.temario),
@@ -210,12 +220,22 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
     lista.push(item)
   }
 
-  item.ordem = Number(encontro.ordem ?? item.ordem)
   item.data = encontro.data ?? item.data
   item.anfitriao = String(encontro.anfitriao ?? item.anfitriao).trim().toUpperCase()
   item.temario = Number(encontro.temario ?? item.temario)
   item.numeroNoTemario = Number(encontro.numeroNoTemario ?? item.numeroNoTemario)
   item.semFoto = encontro.semFoto !== undefined ? Boolean(encontro.semFoto) : item.semFoto
+
+  // ordem provisória; será recalculada por data
+  if (encontro.ordem !== undefined && encontro.ordem !== null && encontro.ordem !== '') {
+    item.ordem = Number(encontro.ordem)
+  }
+
+  saveEncontros(grupoId, lista)
+
+  // recalcular ordem global pela data
+  const ordenados = reordenarEncontrosPorData(grupoId)
+  item = ordenados.find((e) => e.id === item.id) || item
 
   if (fotoFile) {
     ensureDir(fotosDir(grupoId))
@@ -223,16 +243,27 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
     const [y, m, d] = String(item.data).split('-')
     const nome = `ENCONTRO-${String(item.ordem).padStart(2, '0')}-${d}-${m}-${y}${ext}`
     const dest = path.join(fotosDir(grupoId), nome)
+    // remove foto antiga se nome diferente
+    if (item.foto && item.foto !== nome) {
+      const old = path.join(fotosDir(grupoId), item.foto)
+      try {
+        if (fs.existsSync(old)) fs.unlinkSync(old)
+      } catch (_) {}
+    }
     fs.copyFileSync(fotoFile.path, dest)
     if (fs.existsSync(fotoFile.path)) fs.unlinkSync(fotoFile.path)
     item.foto = nome
     item.semFoto = false
+    const idx2 = ordenados.findIndex((e) => e.id === item.id)
+    if (idx2 >= 0) ordenados[idx2] = item
+    saveEncontros(grupoId, ordenados)
   } else if (item.semFoto) {
     item.foto = null
+    const idx2 = ordenados.findIndex((e) => e.id === item.id)
+    if (idx2 >= 0) ordenados[idx2] = item
+    saveEncontros(grupoId, ordenados)
   }
 
-  lista.sort((a, b) => a.ordem - b.ordem || a.data.localeCompare(b.data))
-  saveEncontros(grupoId, lista)
   return item
 }
 
@@ -248,6 +279,7 @@ function deleteEncontro(grupoId, encontroId) {
     grupoId,
     lista.filter((e) => e.id !== encontroId)
   )
+  reordenarEncontrosPorData(grupoId)
   return true
 }
 
@@ -261,6 +293,7 @@ module.exports = {
   listEncontros,
   upsertEncontro,
   deleteEncontro,
+  reordenarEncontrosPorData,
   saveLogo,
   logoPath,
   grupoDir,

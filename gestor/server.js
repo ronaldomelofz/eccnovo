@@ -107,6 +107,7 @@ function createApp() {
     res.json(sugerirProximo(grupo.casais, store.listEncontros(grupo.id)))
   })
 
+  // ordem auto no upsert
   app.post('/api/grupos/:id/encontros', upload.single('foto'), (req, res) => {
     const grupo = store.getGrupo(req.params.id)
     if (!grupo) return res.status(404).json({ erro: 'Grupo não encontrado' })
@@ -117,7 +118,6 @@ function createApp() {
         grupo.id,
         {
           id: body.id || undefined,
-          ordem: body.ordem,
           data: body.data,
           anfitriao: body.anfitriao,
           temario: body.temario,

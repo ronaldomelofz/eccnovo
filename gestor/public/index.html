@@ -109,7 +109,11 @@
 
       <!-- ENCONTROS -->
       <section id="tab-encontros" class="tab">
-        <div id="alertaProximo" class="alerta hidden"></div>
+        <div class="card">
+          <h3>Sequência sugerida de anfitriões</h3>
+          <p class="muted">Sugestão com base na ordem dos casais e na rodada atual. Você preenche todos os dados do encontro livremente.</p>
+          <ol id="sequenciaAnfitrioes" class="seq-anfitrioes"></ol>
+        </div>
 
         <div class="card">
           <h3>Novo / editar encontro</h3>
@@ -120,9 +124,6 @@
             </label>
             <label>Casal anfitrião
               <select name="anfitriao" required></select>
-            </label>
-            <label>Nº de ordem (global)
-              <input name="ordem" type="number" min="1" required />
             </label>
             <label>Temário
               <input name="temario" type="number" min="1" required />
@@ -137,7 +138,6 @@
               <input name="semFoto" type="checkbox" /> Sem foto
             </label>
             <div class="actions">
-              <button type="button" id="btnUsarSugestao" class="btn secondary">Usar sugestão do próximo</button>
               <button type="submit" class="btn primary">Salvar encontro</button>
               <button type="button" id="btnLimparEncontro" class="btn ghost">Limpar</button>
             </div>
@@ -146,6 +146,7 @@
 
         <div class="card">
           <h3>Encontros cadastrados</h3>
+          <p class="muted">A ordem global é ajustada automaticamente pela data ao salvar.</p>
           <div id="listaEncontros" class="lista-encontros"></div>
         </div>
       </section>
