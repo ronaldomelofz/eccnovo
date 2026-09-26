@@ -186,11 +186,16 @@
 
         <div class="card">
           <h3>Nome do site</h3>
-          <p class="muted">Escolha uma sugestão ou digite o nome desejado (vira https://nome.netlify.app).</p>
+          <p class="muted">Digite o nome desejado (vira https://nome.netlify.app). O sistema verifica no Netlify se está disponível.</p>
           <div id="sugestoesNomes" class="sugestoes"></div>
           <label>Nome escolhido
-            <input id="nomeSite" type="text" placeholder="ex.: ecc-meu-grupo" pattern="[a-z0-9-]{3,63}" />
+            <input id="nomeSite" type="text" autocomplete="off" spellcheck="false"
+              placeholder="Digite aqui, ex.: ecc-meu-grupo" />
           </label>
+          <div class="actions" style="margin-top:0.65rem">
+            <button type="button" id="btnVerificarNome" class="btn secondary">Verificar disponibilidade</button>
+          </div>
+          <div id="statusNomeSite" class="nome-status muted" style="margin-top:0.75rem">Digite um nome e clique em verificar (ou aguarde a verificação automática).</div>
           <div id="siteAtual" class="muted" style="margin-top:0.75rem"></div>
         </div>
 

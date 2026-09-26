@@ -170,19 +170,151 @@ function sugerirNomesSite(nomeGrupo) {
     })
 }
 
-async function checkNameAvailable(name) {
-  const token = requireToken()
+function normalizarNomeSite(nome) {
+  return String(nome || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 63)
+}
+
+function validarFormatoNomeSite(nome) {
+  if (!nome || nome.length < 3) {
+    return { ok: false, erro: 'Use no mínimo 3 caracteres (a-z, 0-9 e hífen).' }
+  }
+  if (nome.length > 63) {
+    return { ok: false, erro: 'Máximo de 63 caracteres.' }
+  }
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(nome)) {
+    return {
+      ok: false,
+      erro: 'Nome inválido. Use letras minúsculas, números e hífen (não comece/termine com hífen).',
+    }
+  }
+  return { ok: true }
+}
+
+/**
+ * Verifica se o nome pode ser usado no Netlify (subdomínio *.netlify.app).
+ * - Se já for site da conta conectada → disponível para publicar/atualizar
+ * - Se existir na internet como site Netlify → indisponível
+ * - Caso contrário → disponível para criar
+ */
+async function checkNameAvailable(nameRaw) {
+  const name = normalizarNomeSite(nameRaw)
+  const formato = validarFormatoNomeSite(name)
+  if (!formato.ok) {
+    return {
+      available: false,
+      name,
+      motivo: 'formato',
+      mensagem: formato.erro,
+      url: name ? `https://${name}.netlify.app` : null,
+    }
+  }
+
+  let owned = false
+  let token = null
   try {
-    // tenta criar em dry-run? Netlify não tem endpoint dedicado — listamos sites
-    const sites = await apiFetch('/sites?per_page=100', { token })
-    const taken = (sites || []).some((s) => s.name === name || s.subdomain === name)
-    return { available: !taken, name }
+    token = requireToken()
   } catch {
-    return { available: true, name }
+    token = null
+  }
+
+  if (token) {
+    try {
+      const sites = await apiFetch('/sites?per_page=100', { token })
+      const mine = (sites || []).find((s) => s.name === name || s.subdomain === name)
+      if (mine) {
+        owned = true
+        return {
+          available: true,
+          owned: true,
+          name,
+          siteId: mine.id,
+          motivo: 'proprio',
+          mensagem: `Este nome já é seu no Netlify. Pode publicar em https://${name}.netlify.app`,
+          url: mine.ssl_url || mine.url || `https://${name}.netlify.app`,
+        }
+      }
+    } catch (_) {
+      /* segue para checagem pública */
+    }
+  }
+
+  // Checagem pública: site existente responde diferente de "Site not found"
+  try {
+    const res = await fetch(`https://${name}.netlify.app/`, {
+      method: 'GET',
+      redirect: 'follow',
+      headers: { 'User-Agent': 'ECC-Gestor/1.0' },
+    })
+    const text = await res.text().catch(() => '')
+    const notFound =
+      res.status === 404 &&
+      (/site not found/i.test(text) || /failed to find site/i.test(text) || /page not found/i.test(text))
+
+    if (!notFound && res.status !== 404) {
+      return {
+        available: false,
+        owned: false,
+        name,
+        motivo: 'ocupado',
+        mensagem: `Nome indisponível. Já existe um site em https://${name}.netlify.app — escolha outro nome.`,
+        url: `https://${name}.netlify.app`,
+      }
+    }
+
+    // 404 "site not found" ou similar → livre
+    if (notFound || res.status === 404) {
+      return {
+        available: true,
+        owned: false,
+        name,
+        motivo: 'livre',
+        mensagem: `Nome disponível! É possível criar https://${name}.netlify.app`,
+        url: `https://${name}.netlify.app`,
+      }
+    }
+  } catch (_) {
+    // rede falhou — tenta via API se tiver token
+  }
+
+  if (token) {
+    // Sem confirmação pública: assume disponível se não estiver na conta
+    return {
+      available: true,
+      owned: false,
+      name,
+      motivo: 'livre-estimado',
+      mensagem: `Nome parece disponível para criar https://${name}.netlify.app (confirme ao publicar).`,
+      url: `https://${name}.netlify.app`,
+    }
+  }
+
+  return {
+    available: false,
+    name,
+    motivo: 'sem-conexao',
+    mensagem: 'Conecte-se ao Netlify para verificar a disponibilidade deste nome.',
+    url: `https://${name}.netlify.app`,
   }
 }
 
-async function createOrGetSite(name) {
+async function createOrGetSite(nameRaw) {
+  const name = normalizarNomeSite(nameRaw)
+  const formato = validarFormatoNomeSite(name)
+  if (!formato.ok) throw new Error(formato.erro)
+
+  const check = await checkNameAvailable(name)
+  if (!check.available && !check.owned) {
+    throw new Error(check.mensagem || 'Nome de site indisponível no Netlify')
+  }
+
   const token = requireToken()
   const sites = await apiFetch('/sites?per_page=100', { token })
   const existing = (sites || []).find((s) => s.name === name || s.subdomain === name)
@@ -195,17 +327,25 @@ async function createOrGetSite(name) {
       created: false,
     }
   }
-  const site = await apiFetch('/sites', {
-    method: 'POST',
-    token,
-    body: { name },
-  })
-  return {
-    id: site.id,
-    name: site.name,
-    url: site.ssl_url || site.url,
-    adminUrl: site.admin_url,
-    created: true,
+  try {
+    const site = await apiFetch('/sites', {
+      method: 'POST',
+      token,
+      body: { name },
+    })
+    return {
+      id: site.id,
+      name: site.name,
+      url: site.ssl_url || site.url,
+      adminUrl: site.admin_url,
+      created: true,
+    }
+  } catch (err) {
+    const msg = String(err.message || err)
+    if (/unique|taken|exist|subdomain|already/i.test(msg)) {
+      throw new Error(`Nome "${name}" indisponível no Netlify. Escolha outro.`)
+    }
+    throw err
   }
 }
 
@@ -243,4 +383,6 @@ module.exports = {
   deployZip,
   requireToken,
   openBrowser,
+  normalizarNomeSite,
+  validarFormatoNomeSite,
 }

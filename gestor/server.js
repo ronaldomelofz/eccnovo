@@ -211,6 +211,16 @@ function createApp() {
     res.json({ sugestoes: netlify.sugerirNomesSite(grupo.nome) })
   })
 
+  app.post('/api/netlify/verificar-nome', async (req, res) => {
+    try {
+      const nome = req.body?.nome || req.body?.nomeSite || ''
+      const resultado = await netlify.checkNameAvailable(nome)
+      res.json(resultado)
+    } catch (err) {
+      res.status(400).json({ erro: err.message })
+    }
+  })
+
   app.post('/api/grupos/:id/netlify/publicar', async (req, res) => {
     try {
       const grupo = store.getGrupo(req.params.id)

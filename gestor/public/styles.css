@@ -386,6 +386,40 @@ code {
   font-style: normal;
 }
 
+.nome-status {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+}
+.nome-status.ok {
+  border-color: #16a34a;
+  color: #86efac;
+  background: rgba(22, 101, 52, 0.25);
+}
+.nome-status.erro {
+  border-color: #dc2626;
+  color: #fca5a5;
+  background: rgba(127, 29, 29, 0.3);
+}
+.nome-status.aguardando {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+#nomeSite {
+  width: 100%;
+  margin-top: 0.35rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 #caminhoUpdate {
   width: 100%;
   margin-top: 0.35rem;

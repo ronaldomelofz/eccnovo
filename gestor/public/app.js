@@ -543,6 +543,94 @@ $('#sugestoesNomes').addEventListener('click', (ev) => {
   if (!btn) return
   $('#nomeSite').value = btn.dataset.nome
   $$('#sugestoesNomes button').forEach((b) => b.classList.toggle('active', b === btn))
+  verificarNomeSite()
+})
+
+let nomeCheckTimer = null
+let ultimoNomeVerificado = ''
+
+async function verificarNomeSite() {
+  const el = $('#statusNomeSite')
+  const input = $('#nomeSite')
+  if (!el || !input) return
+  const nome = input.value.trim()
+  if (!nome) {
+    el.className = 'nome-status muted'
+    el.textContent = 'Digite um nome para verificar a disponibilidade no Netlify.'
+    return null
+  }
+  el.className = 'nome-status aguardando'
+  el.textContent = 'Verificando disponibilidade no Netlify…'
+  try {
+    const data = await api('/api/netlify/verificar-nome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome }),
+    })
+    ultimoNomeVerificado = data.name || nome
+    if (data.name && data.name !== nome.toLowerCase()) {
+      input.value = data.name
+    }
+    if (data.available) {
+      el.className = 'nome-status ok'
+      el.innerHTML = `✓ ${data.mensagem}<br><span class="muted">URL: ${data.url || ''}</span>`
+    } else {
+      el.className = 'nome-status erro'
+      el.innerHTML = `✗ ${data.mensagem}`
+    }
+    return data
+  } catch (err) {
+    el.className = 'nome-status erro'
+    el.textContent = err.message
+    return null
+  }
+}
+
+$('#nomeSite')?.addEventListener('input', () => {
+  const el = $('#statusNomeSite')
+  if (el) {
+    el.className = 'nome-status aguardando'
+    el.textContent = 'Digitando… a verificação inicia em breve.'
+  }
+  clearTimeout(nomeCheckTimer)
+  nomeCheckTimer = setTimeout(() => verificarNomeSite(), 700)
+})
+
+$('#nomeSite')?.addEventListener('blur', () => {
+  clearTimeout(nomeCheckTimer)
+  verificarNomeSite()
+})
+
+$('#btnVerificarNome')?.addEventListener('click', () => verificarNomeSite())
+
+$('#btnPublicar').addEventListener('click', async () => {
+  if (!state.grupoId) return alert('Selecione um grupo')
+  const nomeSite = $('#nomeSite').value.trim()
+  if (!nomeSite) return alert('Digite o nome do site')
+
+  const check = await verificarNomeSite()
+  if (check && !check.available) {
+    return alert('Este nome não está disponível no Netlify. Escolha outro antes de publicar.')
+  }
+
+  const el = $('#resultadoPublicar')
+  el.classList.remove('hidden', 'completa')
+  el.textContent = 'Publicando… gerando site e enviando ao Netlify.'
+  $('#btnPublicar').disabled = true
+  try {
+    const data = await api(`/api/grupos/${state.grupoId}/netlify/publicar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nomeSite }),
+    })
+    el.classList.add('completa')
+    el.innerHTML = `${data.mensagem}<br><a href="${data.url}" target="_blank" rel="noopener" style="color:var(--amber)">${data.url}</a>`
+    await carregarGrupo()
+  } catch (err) {
+    el.textContent = err.message
+  } finally {
+    $('#btnPublicar').disabled = false
+  }
 })
 
 $('#btnNetlifyLogin').addEventListener('click', async () => {
@@ -590,30 +678,6 @@ $('#formToken').addEventListener('submit', async (ev) => {
     await renderPublicar()
   } catch (err) {
     alert(err.message)
-  }
-})
-
-$('#btnPublicar').addEventListener('click', async () => {
-  if (!state.grupoId) return alert('Selecione um grupo')
-  const nomeSite = $('#nomeSite').value.trim()
-  if (!nomeSite) return alert('Escolha ou digite o nome do site')
-  const el = $('#resultadoPublicar')
-  el.classList.remove('hidden', 'completa')
-  el.textContent = 'Publicando… gerando site e enviando ao Netlify.'
-  $('#btnPublicar').disabled = true
-  try {
-    const data = await api(`/api/grupos/${state.grupoId}/netlify/publicar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nomeSite }),
-    })
-    el.classList.add('completa')
-    el.innerHTML = `${data.mensagem}<br><a href="${data.url}" target="_blank" rel="noopener" style="color:var(--amber)">${data.url}</a>`
-    await carregarGrupo()
-  } catch (err) {
-    el.textContent = err.message
-  } finally {
-    $('#btnPublicar').disabled = false
   }
 })
 
