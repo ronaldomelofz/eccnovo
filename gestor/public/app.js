@@ -95,6 +95,8 @@ function render() {
   renderSequenciaAnfitrioes()
   renderLogo()
   renderPublicar()
+  const formEnc = $('#formEncontro')
+  if (formEnc && !formEnc.id.value) atualizarNumeroNoTemario()
 }
 
 function formatPeriodoPreview(num, ano, dias, mes) {
@@ -312,6 +314,29 @@ function renderSequenciaAnfitrioes() {
     .join('')
 }
 
+function preverNumeroNoTemario() {
+  const form = $('#formEncontro')
+  if (!form) return 1
+  const temario = Number(form.temario.value) || 1
+  const data = form.data.value || '9999-12-31'
+  const idAtual = form.id.value || null
+  const outros = (state.encontros || []).filter((e) => {
+    if (idAtual && e.id === idAtual) return false
+    return Number(e.temario) === temario
+  })
+  const hipotetico = { id: idAtual || '__novo__', data }
+  const todos = [...outros, hipotetico].sort(
+    (a, b) => String(a.data).localeCompare(String(b.data)) || String(a.id).localeCompare(String(b.id))
+  )
+  return todos.findIndex((e) => e.id === hipotetico.id) + 1
+}
+
+function atualizarNumeroNoTemario() {
+  const form = $('#formEncontro')
+  if (!form?.numeroNoTemario) return
+  form.numeroNoTemario.value = preverNumeroNoTemario()
+}
+
 function preencherEncontro(e) {
   const form = $('#formEncontro')
   form.id.value = e.id
@@ -321,6 +346,7 @@ function preencherEncontro(e) {
   form.numeroNoTemario.value = e.numeroNoTemario
   form.semFoto.checked = !!e.semFoto
   form.foto.value = ''
+  atualizarNumeroNoTemario()
   setTab('encontros')
   form.scrollIntoView({ behavior: 'smooth' })
 }
@@ -329,6 +355,9 @@ function limparEncontro() {
   const form = $('#formEncontro')
   form.reset()
   form.id.value = ''
+  if (state.proximo?.temario) form.temario.value = state.proximo.temario
+  else if (!form.temario.value) form.temario.value = 1
+  atualizarNumeroNoTemario()
 }
 
 function renumerarCasais() {
@@ -485,6 +514,14 @@ $('#btnSalvarCasais').addEventListener('click', async () => {
 })
 
 $('#btnLimparEncontro').addEventListener('click', limparEncontro)
+
+;(() => {
+  const form = $('#formEncontro')
+  if (!form) return
+  form.data?.addEventListener('change', atualizarNumeroNoTemario)
+  form.temario?.addEventListener('input', atualizarNumeroNoTemario)
+  form.temario?.addEventListener('change', atualizarNumeroNoTemario)
+})()
 
 $('#formEncontro').addEventListener('submit', async (ev) => {
   ev.preventDefault()

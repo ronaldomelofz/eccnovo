@@ -130,6 +130,17 @@ input, select {
   border-radius: 0.5rem;
   padding: 0.55rem 0.7rem;
 }
+input.campo-auto,
+input[readonly] {
+  opacity: 0.85;
+  cursor: default;
+  color: var(--muted);
+}
+.form-grid .hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: -0.15rem;
+}
 
 .btn {
   border: none;

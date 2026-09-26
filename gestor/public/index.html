@@ -111,7 +111,7 @@
       <section id="tab-encontros" class="tab">
         <div class="card">
           <h3>Sequência sugerida de anfitriões</h3>
-          <p class="muted">Sugestão com base na ordem dos casais e na rodada atual. Você preenche todos os dados do encontro livremente.</p>
+          <p class="muted">Sugestão com base na ordem dos casais e na rodada atual.</p>
           <ol id="sequenciaAnfitrioes" class="seq-anfitrioes"></ol>
         </div>
 
@@ -129,7 +129,8 @@
               <input name="temario" type="number" min="1" required />
             </label>
             <label>Nº do encontro no temário
-              <input name="numeroNoTemario" type="number" min="1" required />
+              <input name="numeroNoTemario" type="number" min="1" readonly tabindex="-1" class="campo-auto" />
+              <span class="hint">Automático pela data — não é editável.</span>
             </label>
             <label>Foto
               <input name="foto" type="file" accept="image/*" />
@@ -146,7 +147,7 @@
 
         <div class="card">
           <h3>Encontros cadastrados</h3>
-          <p class="muted">A ordem global é ajustada automaticamente pela data ao salvar.</p>
+          <p class="muted">A ordem global e o nº no temário são ajustados automaticamente pela data ao salvar.</p>
           <div id="listaEncontros" class="lista-encontros"></div>
         </div>
       </section>

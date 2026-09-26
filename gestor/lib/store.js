@@ -189,6 +189,13 @@ function reordenarEncontrosPorData(grupoId) {
   lista.forEach((e, i) => {
     e.ordem = i + 1
   })
+  // Nº no temário: sequência automática pela data, por temário
+  const contagemPorTemario = {}
+  lista.forEach((e) => {
+    const t = Number(e.temario) || 1
+    contagemPorTemario[t] = (contagemPorTemario[t] || 0) + 1
+    e.numeroNoTemario = contagemPorTemario[t]
+  })
   saveEncontros(grupoId, lista)
   return lista
 }
@@ -211,7 +218,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
       data: encontro.data,
       anfitriao: String(encontro.anfitriao).trim().toUpperCase(),
       temario: Number(encontro.temario),
-      numeroNoTemario: Number(encontro.numeroNoTemario),
+      numeroNoTemario: 0, // definido em reordenarEncontrosPorData
       foto: null,
       semFoto: Boolean(encontro.semFoto),
       criadoEm: agora,
@@ -223,7 +230,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
   item.data = encontro.data ?? item.data
   item.anfitriao = String(encontro.anfitriao ?? item.anfitriao).trim().toUpperCase()
   item.temario = Number(encontro.temario ?? item.temario)
-  item.numeroNoTemario = Number(encontro.numeroNoTemario ?? item.numeroNoTemario)
+  // numeroNoTemario é sempre recalculado pela data — ignora valor do cliente
   item.semFoto = encontro.semFoto !== undefined ? Boolean(encontro.semFoto) : item.semFoto
 
   // ordem provisória; será recalculada por data
