@@ -36,9 +36,9 @@
 }
 ```
 
-- `ordem` = número sequencial global do encontro no grupo (pela data)
+- `ordem` = número sequencial global do encontro no grupo (pela data, automático)
 - `temario` + `numeroNoTemario` geram a descrição: `28º ENCONTRO 2º TEMÁRIO`
-- `numeroNoTemario` é **automático**: sequência pela data dentro de cada temário (não editável pelo usuário)
+- `numeroNoTemario` é **informado pelo operador** (o sistema só sugere a sequência)
 - Foto fica em `gestor/dados/{grupoId}/fotos/`
 
 ## Rodada

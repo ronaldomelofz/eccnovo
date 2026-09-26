@@ -71,6 +71,11 @@ function setTab(tab) {
   if (tab === 'atualizacoes') carregarAtualizacoes()
 }
 
+function formEmFoco(form) {
+  const ae = document.activeElement
+  return Boolean(form && ae && form.contains(ae))
+}
+
 function render() {
   const g = state.grupo
   const periodoTxt = g?.periodo?.texto || ''
@@ -79,13 +84,13 @@ function render() {
     ? `${periodoTxt ? periodoTxt + ' · ' : ''}${g.casais?.length || 0} casais · ${state.encontros.length} encontros`
     : ''
 
-  if (g) {
-    const form = $('#formGrupo')
-    form.nome.value = g.nome || ''
-    form.periodoNumero.value = g.periodo?.numero || ''
-    form.periodoAno.value = g.periodo?.ano || ''
-    form.periodoDias.value = g.periodo?.dias || ''
-    form.periodoMes.value = g.periodo?.mes || ''
+  const formGrupo = $('#formGrupo')
+  if (g && formGrupo && !formEmFoco(formGrupo)) {
+    formGrupo.nome.value = g.nome || ''
+    formGrupo.periodoNumero.value = g.periodo?.numero || ''
+    formGrupo.periodoAno.value = g.periodo?.ano || ''
+    formGrupo.periodoDias.value = g.periodo?.dias || ''
+    formGrupo.periodoMes.value = g.periodo?.mes || ''
     atualizarPreviewPeriodo()
   }
 
@@ -96,11 +101,7 @@ function render() {
   renderSequenciaAnfitrioes()
   renderLogo()
   if (state.tab === 'publicar') renderPublicar()
-  const formEnc = $('#formEncontro')
-  if (formEnc && !formEnc.id.value) {
-    aplicarSugestaoProximo()
-    atualizarNumeroNoTemario()
-  }
+  atualizarHintNumeroTemario()
 }
 
 function formatPeriodoPreview(num, ano, dias, mes) {
@@ -198,7 +199,9 @@ function renderCasais() {
 }
 
 function renderSelectAnfitriao() {
-  const sel = $('#formEncontro').anfitriao
+  const form = $('#formEncontro')
+  if (!form) return
+  const sel = form.anfitriao
   const atual = sel.value
   const casais = state.casaisDraft
   sel.innerHTML = casais.length
@@ -206,8 +209,6 @@ function renderSelectAnfitriao() {
     : '<option value="">Cadastre casais na Configuração</option>'
   if (atual && [...sel.options].some((o) => o.value === atual)) {
     sel.value = atual
-  } else if (!$('#formEncontro').id.value) {
-    aplicarSugestaoProximo()
   }
 }
 
@@ -331,23 +332,33 @@ function preverNumeroNoTemario() {
   const form = $('#formEncontro')
   if (!form) return 1
   const temario = Number(form.temario.value) || 1
-  const data = form.data.value || '9999-12-31'
   const idAtual = form.id.value || null
-  const outros = (state.encontros || []).filter((e) => {
+  const noTemario = (state.encontros || []).filter((e) => {
     if (idAtual && e.id === idAtual) return false
     return Number(e.temario) === temario
   })
-  const hipotetico = { id: idAtual || '__novo__', data }
-  const todos = [...outros, hipotetico].sort(
-    (a, b) => String(a.data).localeCompare(String(b.data)) || String(a.id).localeCompare(String(b.id))
-  )
-  return todos.findIndex((e) => e.id === hipotetico.id) + 1
+  if (state.proximo && Number(state.proximo.temario) === temario && state.proximo.numeroNoTemario) {
+    return Number(state.proximo.numeroNoTemario)
+  }
+  const max = noTemario.reduce((acc, e) => Math.max(acc, Number(e.numeroNoTemario) || 0), 0)
+  return max + 1
 }
 
-function atualizarNumeroNoTemario() {
+/** Atualiza só o texto de sugestão — nunca sobrescreve o valor digitado. */
+function atualizarHintNumeroTemario() {
+  const hint = $('#hintNumeroTemario')
+  if (!hint) return
+  const sug = preverNumeroNoTemario()
+  hint.textContent = `Sugestão pela sequência: ${sug}º (você pode alterar)`
+}
+
+function sugerirNumeroSeVazio() {
   const form = $('#formEncontro')
   if (!form?.numeroNoTemario) return
+  if (form.id.value) return
+  if (String(form.numeroNoTemario.value || '').trim()) return
   form.numeroNoTemario.value = preverNumeroNoTemario()
+  atualizarHintNumeroTemario()
 }
 
 function preencherEncontro(e) {
@@ -359,7 +370,7 @@ function preencherEncontro(e) {
   form.numeroNoTemario.value = e.numeroNoTemario
   form.semFoto.checked = !!e.semFoto
   form.foto.value = ''
-  atualizarNumeroNoTemario()
+  atualizarHintNumeroTemario()
   setTab('encontros')
   form.scrollIntoView({ behavior: 'smooth' })
 }
@@ -369,7 +380,8 @@ function limparEncontro() {
   form.reset()
   form.id.value = ''
   aplicarSugestaoProximo()
-  atualizarNumeroNoTemario()
+  sugerirNumeroSeVazio()
+  atualizarHintNumeroTemario()
 }
 
 function aplicarSugestaoProximo() {
@@ -381,6 +393,9 @@ function aplicarSugestaoProximo() {
   if (p?.anfitriao) {
     const opt = [...form.anfitriao.options].find((o) => o.value === p.anfitriao)
     if (opt) form.anfitriao.value = p.anfitriao
+  }
+  if (p?.numeroNoTemario && !String(form.numeroNoTemario.value || '').trim()) {
+    form.numeroNoTemario.value = p.numeroNoTemario
   }
 }
 
@@ -609,9 +624,9 @@ $('#btnLimparEncontro').addEventListener('click', limparEncontro)
 ;(() => {
   const form = $('#formEncontro')
   if (!form) return
-  form.data?.addEventListener('change', atualizarNumeroNoTemario)
-  form.temario?.addEventListener('input', atualizarNumeroNoTemario)
-  form.temario?.addEventListener('change', atualizarNumeroNoTemario)
+  // Só atualiza a dica de sugestão — nunca sobrescreve o que o operador digitou
+  form.temario?.addEventListener('change', atualizarHintNumeroTemario)
+  form.data?.addEventListener('change', atualizarHintNumeroTemario)
 })()
 
 $('#formEncontro').addEventListener('submit', async (ev) => {
@@ -620,6 +635,8 @@ $('#formEncontro').addEventListener('submit', async (ev) => {
   const form = ev.target
   const fd = new FormData(form)
   if (!fd.get('anfitriao')) return alert('Selecione o casal anfitrião')
+  const num = Number(fd.get('numeroNoTemario'))
+  if (!num || num < 1) return alert('Informe o nº do encontro no temário')
 
   const res = await fetch(`/api/grupos/${state.grupoId}/encontros`, {
     method: 'POST',

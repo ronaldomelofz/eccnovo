@@ -17,6 +17,6 @@ Na aba **Configuração**, use **Importar de site existente**:
 | Next.js (Alimento do Amor) | Lê o chunk `/_next/static/chunks/app/page-*.js` com os dados embutidos |
 | HTML do Gestor | Faz parse dos `<article class="card">` e da lista de ordem |
 
-Grupos importados ficam com `preservarNumerosTemario: true` para manter a numeração oficial do site de origem.
+Grupos importados podem marcar `preservarNumerosTemario` (legado). Em qualquer caso, o **nº no temário** é o valor informado no formulário ou no import — a reordenação por data só ajusta a `ordem` global.
 
 Código: `gestor/lib/importar-site.js` · API `POST /api/importar-site` e `/api/importar-site/preview`.

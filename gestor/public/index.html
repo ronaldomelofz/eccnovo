@@ -142,8 +142,8 @@
               <input name="temario" type="number" min="1" required />
             </label>
             <label>Nº do encontro no temário
-              <input name="numeroNoTemario" type="number" min="1" readonly tabindex="-1" class="campo-auto" />
-              <span class="hint">Automático pela data — não é editável.</span>
+              <input name="numeroNoTemario" type="number" min="1" required placeholder="Ex.: 29" />
+              <span class="hint" id="hintNumeroTemario">Sugestão pela sequência: — (você pode alterar)</span>
             </label>
             <label>Foto
               <input name="foto" type="file" accept="image/*" />
@@ -160,7 +160,7 @@
 
         <div class="card">
           <h3>Encontros cadastrados</h3>
-          <p class="muted">A ordem global e o nº no temário são ajustados automaticamente pela data ao salvar.</p>
+          <p class="muted">A ordem global (listagem) é ajustada pela data ao salvar. O nº no temário é o que você informar.</p>
           <div id="listaEncontros" class="lista-encontros"></div>
         </div>
       </section>

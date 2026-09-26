@@ -131,10 +131,15 @@ input, select {
   padding: 0.55rem 0.7rem;
 }
 input.campo-auto,
-input[readonly] {
+input[readonly]:not(#caminhoUpdate) {
   opacity: 0.85;
   cursor: default;
   color: var(--muted);
+}
+#caminhoUpdate[readonly] {
+  opacity: 1;
+  cursor: text;
+  color: var(--text);
 }
 .form-grid .hint {
   font-size: 0.75rem;

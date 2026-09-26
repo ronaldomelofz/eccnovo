@@ -193,15 +193,7 @@ function reordenarEncontrosPorData(grupoId) {
   lista.forEach((e, i) => {
     e.ordem = i + 1
   })
-  const grupo = getGrupo(grupoId)
-  if (!grupo?.preservarNumerosTemario) {
-    const contagemPorTemario = {}
-    lista.forEach((e) => {
-      const t = Number(e.temario) || 1
-      contagemPorTemario[t] = (contagemPorTemario[t] || 0) + 1
-      e.numeroNoTemario = contagemPorTemario[t]
-    })
-  }
+  // numeroNoTemario: definido pelo operador — não sobrescrever aqui
   saveEncontros(grupoId, lista)
   return lista
 }
@@ -209,12 +201,13 @@ function reordenarEncontrosPorData(grupoId) {
 function upsertEncontro(grupoId, encontro, fotoFile) {
   const lista = listEncontros(grupoId)
   const agora = new Date().toISOString()
-  const grupo = getGrupo(grupoId)
-  const preservar = Boolean(grupo?.preservarNumerosTemario || encontro._preservarNumero)
   const numeroInformado =
     encontro.numeroNoTemario !== undefined &&
     encontro.numeroNoTemario !== null &&
     encontro.numeroNoTemario !== ''
+  if (!numeroInformado || Number(encontro.numeroNoTemario) < 1) {
+    throw new Error('Informe o nº do encontro no temário (número ≥ 1).')
+  }
   let item
 
   if (encontro.id) {
@@ -231,7 +224,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
       data: encontro.data,
       anfitriao: String(encontro.anfitriao).trim().toUpperCase(),
       temario: Number(encontro.temario),
-      numeroNoTemario: numeroInformado ? Number(encontro.numeroNoTemario) : 0,
+      numeroNoTemario: Number(encontro.numeroNoTemario),
       foto: null,
       semFoto: Boolean(encontro.semFoto),
       criadoEm: agora,
@@ -243,9 +236,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
   item.data = encontro.data ?? item.data
   item.anfitriao = String(encontro.anfitriao ?? item.anfitriao).trim().toUpperCase()
   item.temario = Number(encontro.temario ?? item.temario)
-  if (preservar && numeroInformado) {
-    item.numeroNoTemario = Number(encontro.numeroNoTemario)
-  }
+  item.numeroNoTemario = Number(encontro.numeroNoTemario)
   item.semFoto = encontro.semFoto !== undefined ? Boolean(encontro.semFoto) : item.semFoto
   delete item._preservarNumero
 
@@ -256,7 +247,7 @@ function upsertEncontro(grupoId, encontro, fotoFile) {
 
   saveEncontros(grupoId, lista)
 
-  // recalcular ordem global pela data
+  // recalcular ordem global pela data (não altera numeroNoTemario)
   const ordenados = reordenarEncontrosPorData(grupoId)
   item = ordenados.find((e) => e.id === item.id) || item
 
