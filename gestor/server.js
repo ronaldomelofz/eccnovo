@@ -162,13 +162,30 @@ function createApp() {
   })
 
   // —— Netlify ——
-  app.get('/api/netlify/status', (_req, res) => {
+  app.get('/api/netlify/status', async (_req, res) => {
     const auth = netlify.getAuth()
-    res.json(
-      auth
-        ? { connected: true, email: auth.email, fullName: auth.fullName }
-        : { connected: false }
-    )
+    if (!auth?.accessToken) {
+      return res.json({ connected: false })
+    }
+    try {
+      await netlify.ensureAccountReady()
+      const fresh = netlify.getAuth()
+      res.json({
+        connected: true,
+        email: fresh?.email || auth.email,
+        fullName: fresh?.fullName || auth.fullName,
+        accountSlug: fresh?.accountSlug || auth.accountSlug,
+        incomplete: false,
+      })
+    } catch (err) {
+      res.json({
+        connected: true,
+        email: auth.email,
+        fullName: auth.fullName,
+        incomplete: true,
+        aviso: err.message,
+      })
+    }
   })
 
   app.post('/api/netlify/login', async (_req, res) => {
@@ -226,42 +243,41 @@ function createApp() {
       const grupo = store.getGrupo(req.params.id)
       if (!grupo) return res.status(404).json({ erro: 'Grupo não encontrado' })
       let nome = String(req.body?.nomeSite || '').trim().toLowerCase()
-      nome = nome
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9-]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-      if (!nome || nome.length < 3) {
-        return res.status(400).json({ erro: 'Informe um nome de site válido (mín. 3 caracteres)' })
+      nome = netlify.normalizarNomeSite(nome)
+      const formato = netlify.validarFormatoNomeSite(nome)
+      if (!formato.ok) {
+        return res.status(400).json({ erro: formato.erro })
       }
 
-      const site = await netlify.createOrGetSite(nome)
+      // Garante conta completa antes de gerar ZIP (falha rápida se cadastro incompleto)
+      await netlify.ensureAccountReady()
+
       const zip = await zipExport(grupo.id)
-      const deploy = await netlify.deployZip(site.id, zip)
+      const resultado = await netlify.publicarSiteCompleto(nome, zip)
 
       const netlifyInfo = {
-        siteId: site.id,
-        siteName: site.name,
-        url: deploy.url || site.url,
-        adminUrl: site.adminUrl,
+        siteId: resultado.site.id,
+        siteName: resultado.site.name,
+        url: resultado.url,
+        adminUrl: resultado.site.adminUrl,
         lastDeployAt: new Date().toISOString(),
-        lastDeployId: deploy.id,
+        lastDeployId: resultado.deploy.id,
       }
       store.updateGrupo(grupo.id, { netlify: netlifyInfo })
 
-      // também gera pasta local para conferência
       const exportPath = generateSite(grupo.id)
+      try {
+        netlify.openBrowser(resultado.url)
+      } catch (_) {}
 
       res.json({
         ok: true,
-        site,
-        deploy,
-        url: netlifyInfo.url,
+        site: resultado.site,
+        deploy: resultado.deploy,
+        url: resultado.url,
         exportPath,
-        mensagem: site.created
-          ? `Site criado e publicado: ${netlifyInfo.url}`
-          : `Site atualizado: ${netlifyInfo.url}`,
+        passos: resultado.passos,
+        mensagem: resultado.mensagem,
       })
     } catch (err) {
       res.status(400).json({ erro: err.message })

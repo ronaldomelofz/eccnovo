@@ -110,14 +110,46 @@ async function checkLoginTicket(ticketId) {
   }
   const exchanged = await exchangeTicket(ticketId)
   const token = exchanged.access_token
-  const user = await apiFetch('/user', { token })
+  let user
+  let accountSlug = null
+  let accountName = null
+  try {
+    const ready = await ensureAccountReady(token)
+    user = ready.user
+    accountSlug = ready.accountSlug
+    accountName = ready.account.name || ready.account.account_name || accountSlug
+  } catch (err) {
+    // Salva token mesmo assim para o usuário completar cadastro e reconectar
+    try {
+      user = await apiFetch('/user', { token })
+    } catch (_) {
+      user = { email: null, full_name: null }
+    }
+    saveAuth({
+      accessToken: token,
+      email: user.email,
+      fullName: user.full_name,
+      connectedAt: new Date().toISOString(),
+      incomplete: true,
+    })
+    return {
+      ok: false,
+      pending: false,
+      incomplete: true,
+      email: user.email,
+      erro: err.message,
+    }
+  }
   saveAuth({
     accessToken: token,
     email: user.email,
     fullName: user.full_name,
+    accountSlug,
+    accountName,
     connectedAt: new Date().toISOString(),
+    incomplete: false,
   })
-  return { ok: true, pending: false, email: user.email, fullName: user.full_name }
+  return { ok: true, pending: false, email: user.email, fullName: user.full_name, accountSlug }
 }
 
 /** @deprecated use checkLoginTicket in loop */
@@ -133,14 +165,18 @@ async function pollLogin(ticketId, { maxMs = 300000, intervalMs = 2000 } = {}) {
 
 function saveTokenManual(token) {
   if (!token || !String(token).trim()) throw new Error('Token vazio')
-  return apiFetch('/user', { token: String(token).trim() }).then((user) => {
+  const t = String(token).trim()
+  return ensureAccountReady(t).then(({ user, accountSlug, account }) => {
     saveAuth({
-      accessToken: String(token).trim(),
+      accessToken: t,
       email: user.email,
       fullName: user.full_name,
+      accountSlug,
+      accountName: account.name || account.account_name || accountSlug,
       connectedAt: new Date().toISOString(),
+      incomplete: false,
     })
-    return { ok: true, email: user.email, fullName: user.full_name }
+    return { ok: true, email: user.email, fullName: user.full_name, accountSlug }
   })
 }
 
@@ -148,6 +184,68 @@ function requireToken() {
   const auth = getAuth()
   if (!auth?.accessToken) throw new Error('Conecte-se ao Netlify primeiro')
   return auth.accessToken
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+/**
+ * Garante que a conta Netlify está pronta (cadastro completo + time).
+ * Contas novas param em app.netlify.com/signup-questions e não publicam.
+ */
+async function ensureAccountReady(token = null) {
+  const t = token || requireToken()
+  let user
+  try {
+    user = await apiFetch('/user', { token: t })
+  } catch (err) {
+    throw new Error(
+      `Token Netlify inválido ou expirado. Conecte-se novamente. (${err.message})`
+    )
+  }
+
+  let accounts = []
+  try {
+    accounts = (await apiFetch('/accounts', { token: t })) || []
+  } catch (_) {
+    accounts = []
+  }
+
+  if (!accounts.length) {
+    openBrowser('https://app.netlify.com/signup-questions')
+    throw new Error(
+      'Conta Netlify incompleta. Complete o cadastro no navegador (nome e como pretende usar), depois clique em Conectar Netlify de novo.'
+    )
+  }
+
+  // Preferir conta pessoal / primeira com permissão de criar sites
+  const account =
+    accounts.find((a) => a.type === 'personal' || a.roles?.includes?.('Owner')) || accounts[0]
+
+  return {
+    user,
+    account,
+    accountSlug: account.slug || account.account_slug || account.id,
+    accounts,
+  }
+}
+
+async function refreshAuthProfile() {
+  const token = requireToken()
+  const { user, account, accountSlug } = await ensureAccountReady(token)
+  const prev = getAuth() || {}
+  saveAuth({
+    ...prev,
+    accessToken: token,
+    email: user.email,
+    fullName: user.full_name,
+    accountSlug,
+    accountName: account.name || account.account_name || accountSlug,
+    connectedAt: prev.connectedAt || new Date().toISOString(),
+    verifiedAt: new Date().toISOString(),
+  })
+  return getAuth()
 }
 
 function sugerirNomesSite(nomeGrupo) {
@@ -316,6 +414,8 @@ async function createOrGetSite(nameRaw) {
   }
 
   const token = requireToken()
+  const { accountSlug } = await ensureAccountReady(token)
+
   const sites = await apiFetch('/sites?per_page=100', { token })
   const existing = (sites || []).find((s) => s.name === name || s.subdomain === name)
   if (existing) {
@@ -327,45 +427,179 @@ async function createOrGetSite(nameRaw) {
       created: false,
     }
   }
+
+  const body = { name, force_ssl: true }
+  let site
   try {
-    const site = await apiFetch('/sites', {
+    // Preferir criar no time da conta (fluxo oficial Netlify)
+    site = await apiFetch(`/${encodeURIComponent(accountSlug)}/sites`, {
       method: 'POST',
       token,
-      body: { name },
+      body,
     })
-    return {
-      id: site.id,
-      name: site.name,
-      url: site.ssl_url || site.url,
-      adminUrl: site.admin_url,
-      created: true,
+  } catch (errTeam) {
+    try {
+      site = await apiFetch('/sites', { method: 'POST', token, body })
+    } catch (err) {
+      const msg = String(err.message || err)
+      if (/unique|taken|exist|subdomain|already/i.test(msg)) {
+        throw new Error(`Nome "${name}" indisponível no Netlify. Escolha outro.`)
+      }
+      if (/signup|onboard|account|team|permission|forbidden|401|403/i.test(msg)) {
+        openBrowser('https://app.netlify.com/')
+        throw new Error(
+          `Não foi possível criar o site. Complete o cadastro no Netlify e tente de novo. (${msg})`
+        )
+      }
+      throw new Error(`Falha ao criar site no Netlify: ${msg} (time: ${errTeam.message})`)
     }
-  } catch (err) {
-    const msg = String(err.message || err)
-    if (/unique|taken|exist|subdomain|already/i.test(msg)) {
-      throw new Error(`Nome "${name}" indisponível no Netlify. Escolha outro.`)
-    }
-    throw err
   }
+
+  return {
+    id: site.id,
+    name: site.name,
+    url: site.ssl_url || site.url,
+    adminUrl: site.admin_url,
+    created: true,
+  }
+}
+
+async function waitDeployReady(deployId, token, { maxMs = 180000, intervalMs = 2500 } = {}) {
+  const start = Date.now()
+  let last = null
+  while (Date.now() - start < maxMs) {
+    last = await apiFetch(`/deploys/${deployId}`, { token })
+    const state = String(last.state || '').toLowerCase()
+    if (state === 'ready') return last
+    if (state === 'error' || state === 'failed') {
+      const detail = last.error_message || last.failed_reason || last.state
+      throw new Error(`Deploy falhou no Netlify: ${detail}`)
+    }
+    await sleep(intervalMs)
+  }
+  throw new Error(
+    `Tempo esgotado aguardando o Netlify publicar (estado: ${last?.state || 'desconhecido'}). Abra o painel e confira o deploy.`
+  )
 }
 
 async function deployZip(siteId, zipBuffer) {
   const token = requireToken()
-  const res = await fetch(`${API}/sites/${siteId}/deploys`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/zip',
-    },
-    body: zipBuffer,
-  })
+  const body = Buffer.isBuffer(zipBuffer) ? zipBuffer : Buffer.from(zipBuffer)
+  if (!body.length) throw new Error('Arquivo do site está vazio — não há o que publicar.')
+
+  const res = await fetch(
+    `${API}/sites/${siteId}/deploys?title=${encodeURIComponent('ECC Gestor')}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/zip',
+        'Content-Length': String(body.length),
+      },
+      body,
+    }
+  )
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.message || 'Falha no deploy Netlify')
+  if (!res.ok) {
+    throw new Error(data.message || data.error || `Falha no deploy Netlify (${res.status})`)
+  }
+  if (!data.id) throw new Error('Netlify não retornou ID do deploy')
+
+  const ready = await waitDeployReady(data.id, token)
   return {
-    id: data.id,
-    url: data.ssl_url || data.url,
-    state: data.state,
-    deployUrl: data.deploy_ssl_url || data.deploy_url,
+    id: ready.id,
+    url: ready.ssl_url || ready.url,
+    state: ready.state,
+    deployUrl: ready.deploy_ssl_url || ready.deploy_url,
+    claimed: ready.claimed_at || null,
+  }
+}
+
+/**
+ * Confirma que a URL de produção responde com o site (não "Site not found").
+ */
+async function confirmarSiteNoAr(url, { maxMs = 60000, intervalMs = 2000 } = {}) {
+  const start = Date.now()
+  let lastStatus = null
+  while (Date.now() - start < maxMs) {
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow',
+        headers: { 'User-Agent': 'ECC-Gestor/1.0', 'Cache-Control': 'no-cache' },
+      })
+      lastStatus = res.status
+      const text = await res.text().catch(() => '')
+      const notFound =
+        res.status === 404 &&
+        (/site not found/i.test(text) || /failed to find site/i.test(text))
+      if (!notFound && res.status >= 200 && res.status < 400) {
+        return { ok: true, status: res.status }
+      }
+    } catch (_) {
+      /* tenta de novo */
+    }
+    await sleep(intervalMs)
+  }
+  return { ok: false, status: lastStatus }
+}
+
+/**
+ * Fluxo completo automatizado: valida conta → cria/obtém site → deploy ZIP → aguarda ready → confirma URL.
+ */
+async function publicarSiteCompleto(nameRaw, zipBuffer) {
+  const name = normalizarNomeSite(nameRaw)
+  await ensureAccountReady()
+
+  const passos = []
+  const log = (msg) => {
+    passos.push(msg)
+    return msg
+  }
+
+  log('Validando conta Netlify…')
+  const site = await createOrGetSite(name)
+  log(site.created ? `Site criado: ${site.name}` : `Site existente: ${site.name}`)
+
+  log('Enviando arquivos (ZIP)…')
+  const deploy = await deployZip(site.id, zipBuffer)
+  log(`Deploy concluído (${deploy.state})`)
+
+  const token = requireToken()
+  const siteFresh = await apiFetch(`/sites/${site.id}`, { token })
+  const url =
+    siteFresh.ssl_url ||
+    siteFresh.url ||
+    deploy.url ||
+    `https://${siteFresh.name || site.name}.netlify.app`
+
+  log('Confirmando site no ar…')
+  const conf = await confirmarSiteNoAr(url)
+  if (!conf.ok) {
+    openBrowser(siteFresh.admin_url || site.adminUrl || 'https://app.netlify.com/')
+    throw new Error(
+      `O Netlify aceitou o deploy, mas ${url} ainda não responde. Abra o painel do site e confira o deploy.`
+    )
+  }
+
+  return {
+    site: {
+      id: siteFresh.id || site.id,
+      name: siteFresh.name || site.name,
+      url,
+      adminUrl: siteFresh.admin_url || site.adminUrl,
+      created: site.created,
+    },
+    deploy: {
+      id: deploy.id,
+      state: deploy.state,
+      url: deploy.url,
+    },
+    url,
+    passos,
+    mensagem: site.created
+      ? `Site criado e publicado: ${url}`
+      : `Site atualizado e no ar: ${url}`,
   }
 }
 
@@ -381,6 +615,11 @@ module.exports = {
   checkNameAvailable,
   createOrGetSite,
   deployZip,
+  waitDeployReady,
+  confirmarSiteNoAr,
+  publicarSiteCompleto,
+  ensureAccountReady,
+  refreshAuthProfile,
   requireToken,
   openBrowser,
   normalizarNomeSite,

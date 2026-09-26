@@ -137,9 +137,12 @@ async function renderPublicar() {
 
   try {
     const st = await api('/api/netlify/status')
-    if (st.connected) {
+    if (st.connected && st.incomplete) {
+      status.className = 'alerta'
+      status.innerHTML = `Conta conectada (${st.email || 'Netlify'}), mas <strong>cadastro incompleto</strong>. Abra o Netlify, complete nome/uso e conecte de novo.<br><span class="muted">${st.aviso || ''}</span>`
+    } else if (st.connected) {
       status.className = 'alerta completa'
-      status.innerHTML = `Conectado como <strong>${st.email || st.fullName || 'usuário Netlify'}</strong>`
+      status.innerHTML = `Conectado como <strong>${st.email || st.fullName || 'usuário Netlify'}</strong>${st.accountSlug ? ` · time <code>${st.accountSlug}</code>` : ''}`
     } else {
       status.className = 'alerta'
       status.textContent = 'Não conectado. Clique em “Conectar Netlify” e faça login com Gmail/Google.'
@@ -652,7 +655,8 @@ $('#btnPublicar').addEventListener('click', async () => {
 
   const el = $('#resultadoPublicar')
   el.classList.remove('hidden', 'completa')
-  el.textContent = 'Publicando… gerando site e enviando ao Netlify.'
+  el.innerHTML =
+    'Publicando…<br>1) Validando conta<br>2) Criando/atualizando site<br>3) Enviando arquivos<br>4) Aguardando Netlify publicar (pode levar até 2 min)'
   $('#btnPublicar').disabled = true
   try {
     const data = await api(`/api/grupos/${state.grupoId}/netlify/publicar`, {
@@ -661,7 +665,10 @@ $('#btnPublicar').addEventListener('click', async () => {
       body: JSON.stringify({ nomeSite }),
     })
     el.classList.add('completa')
-    el.innerHTML = `${data.mensagem}<br><a href="${data.url}" target="_blank" rel="noopener" style="color:var(--amber)">${data.url}</a>`
+    const passos = (data.passos || []).map((p) => `<li>${p}</li>`).join('')
+    el.innerHTML = `${data.mensagem}<br><a href="${data.url}" target="_blank" rel="noopener" style="color:var(--amber)">${data.url}</a>${
+      passos ? `<ol style="margin:0.5rem 0 0;padding-left:1.2rem;font-size:0.85rem">${passos}</ol>` : ''
+    }`
     await carregarGrupo()
   } catch (err) {
     el.textContent = err.message
@@ -688,6 +695,9 @@ $('#btnNetlifyLogin').addEventListener('click', async () => {
       await new Promise((r) => setTimeout(r, 2000))
     }
     if (!data || data.pending) throw new Error('Tempo esgotado. Tente conectar novamente.')
+    if (data.incomplete || data.ok === false) {
+      throw new Error(data.erro || 'Conta Netlify incompleta. Complete o cadastro no navegador e conecte de novo.')
+    }
     alert(`Conectado: ${data.email}`)
     await renderPublicar()
   } catch (err) {
