@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ECC Gestor Local</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>ECC Gestor</h1>
+        <p>Coordenação local de encontros</p>
+      </div>
+      <div class="grupo-select">
+        <label for="selGrupo">Grupo ativo</label>
+        <select id="selGrupo"></select>
+        <button type="button" id="btnNovoGrupo" class="btn secondary">+ Novo grupo</button>
+      </div>
+      <nav class="nav" id="navTabs">
+        <button type="button" data-tab="config" class="active">Configuração</button>
+        <button type="button" data-tab="encontros">Encontros</button>
+        <button type="button" data-tab="ordem">Ordem dos Encontros</button>
+      </nav>
+      <p class="hint">Dados em disco · pasta gestor/dados</p>
+    </aside>
+
+    <main class="main">
+      <header class="top">
+        <h2 id="tituloGrupo">Selecione ou crie um grupo</h2>
+        <p id="subGrupo" class="muted"></p>
+      </header>
+
+      <!-- CONFIG -->
+      <section id="tab-config" class="tab active">
+        <div class="card">
+          <h3>Dados do grupo</h3>
+          <form id="formGrupo" class="form-grid">
+            <label>Nome do grupo
+              <input name="nome" required placeholder="Ex.: ECC Alimento do Amor" />
+            </label>
+            <label>Início do período
+              <input name="periodoInicio" type="date" />
+            </label>
+            <label>Fim do período
+              <input name="periodoFim" type="date" />
+            </label>
+            <div class="actions">
+              <button type="submit" class="btn primary">Salvar grupo</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Casais participantes (ordem do rodízio)</h3>
+          <p class="muted">A ordem abaixo define a sequência de anfitriões.</p>
+          <ul id="listaCasais" class="lista-casais"></ul>
+          <form id="formCasal" class="row">
+            <input name="nome" required placeholder="Nome do casal (ex.: ROBERVAL E IARA)" />
+            <button type="submit" class="btn primary">Adicionar casal</button>
+          </form>
+          <div class="actions">
+            <button type="button" id="btnSalvarCasais" class="btn secondary">Salvar ordem dos casais</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENCONTROS -->
+      <section id="tab-encontros" class="tab">
+        <div id="alertaProximo" class="alerta hidden"></div>
+
+        <div class="card">
+          <h3>Novo / editar encontro</h3>
+          <form id="formEncontro" class="form-grid" enctype="multipart/form-data">
+            <input type="hidden" name="id" />
+            <label>Data do encontro
+              <input name="data" type="date" required />
+            </label>
+            <label>Casal anfitrião
+              <select name="anfitriao" required></select>
+            </label>
+            <label>Nº de ordem (global)
+              <input name="ordem" type="number" min="1" required />
+            </label>
+            <label>Temário
+              <input name="temario" type="number" min="1" required />
+            </label>
+            <label>Nº do encontro no temário
+              <input name="numeroNoTemario" type="number" min="1" required />
+            </label>
+            <label>Foto
+              <input name="foto" type="file" accept="image/*" />
+            </label>
+            <label class="check">
+              <input name="semFoto" type="checkbox" /> Sem foto
+            </label>
+            <div class="actions">
+              <button type="button" id="btnUsarSugestao" class="btn secondary">Usar sugestão do próximo</button>
+              <button type="submit" class="btn primary">Salvar encontro</button>
+              <button type="button" id="btnLimparEncontro" class="btn ghost">Limpar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Encontros cadastrados</h3>
+          <div id="listaEncontros" class="lista-encontros"></div>
+        </div>
+      </section>
+
+      <!-- ORDEM -->
+      <section id="tab-ordem" class="tab">
+        <div class="card resumo-rodada" id="resumoRodada"></div>
+        <div class="card">
+          <h3>Status da rodada</h3>
+          <div id="listaOrdem" class="lista-ordem"></div>
+        </div>
+        <div class="card">
+          <h3>Encontros desta rodada</h3>
+          <ul id="encontrosRodada" class="lista-simples"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="dlgNovoGrupo">
+    <form method="dialog" id="formNovoGrupo" class="form-grid">
+      <h3>Novo grupo ECC</h3>
+      <label>Nome
+        <input name="nome" required />
+      </label>
+      <label>Início do período
+        <input name="periodoInicio" type="date" />
+      </label>
+      <div class="actions">
+        <button type="submit" class="btn primary" value="ok">Criar</button>
+        <button type="button" class="btn ghost" id="btnCancelarGrupo">Cancelar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>

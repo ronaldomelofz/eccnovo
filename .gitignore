@@ -27,10 +27,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# documentação local (somente README.md vai para o repositório)
+# documentação local (README, AGENTS e memória Obsidian vão para o repositório)
 *.md
 !README.md
 !AGENTS.md
+!memoria/**/*.md
+!gestor/**/*.md
+!FOTOS/README.md
+
+# dados locais do Gestor (cada coordenador no próprio PC)
+/gestor/dados/*
+!/gestor/dados/.gitkeep
+!/gestor/dados/README.md
 
 # arquivos locais de apoio
 *.xlsx

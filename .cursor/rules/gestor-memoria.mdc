@@ -1,0 +1,13 @@
+---
+description: Memória Obsidian e Gestor Local ECC
+alwaysApply: true
+---
+
+# Memória e Gestor
+
+Antes de alterar o **ECC Gestor** (`gestor/`), ler `memoria/00-Indice.md` e as notas ligadas.
+
+- Dados locais: `gestor/dados/` (não versionar conteúdo operacional)
+- Subir: `npm run gestor` → http://localhost:3847
+- Seed Alimento do Amor: `npm run gestor:seed`
+- Site público Netlify continua em `app/` com fontes `FOTOS/` + planilha

@@ -31,3 +31,14 @@ Referência no código: `scripts/fontes.js` e `app/data/fontes.config.ts`
 3. Fazer **push** para `origin main` (deploy Netlify automático)
 
 Não encerrar a tarefa sem commit + push, salvo se o usuário pedir explicitamente para não enviar.
+
+## ECC Gestor Local (coordenadores)
+
+Ferramenta multi-grupo em `gestor/` — documentação em `memoria/` (estilo Obsidian).
+
+```bash
+npm run gestor          # http://localhost:3847
+npm run gestor:seed     # importa Alimento do Amor para testes
+```
+
+Antes de alterar o gestor, ler `memoria/00-Indice.md`.
