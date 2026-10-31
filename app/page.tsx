@@ -115,20 +115,14 @@ export default function Home() {
     return acc
   }, {})
 
+  const tabAtiva = activeTab ?? anos[0] ?? 'ordem'
   const rodada = calcularRodadaAtual(allEncontros)
-  const novaRodada =
-    rodada.totalCasais > 0 &&
-    rodada.encontrosNaRodada.length > 0 &&
-    rodada.pendentes.length === 0 &&
-    rodada.completos === rodada.totalCasais
-  const proximoCasal = novaRodada ? rodada.statusCasais[0]?.casal : rodada.proximosNaOrdem[0]?.casal
-  const tabAtiva = activeTab ?? (novaRodada ? 'ordem' : anos[0] ?? 'ordem')
 
   useEffect(() => {
-    if (activeTab !== null) return
-    if (novaRodada) setActiveTab('ordem')
-    else if (anos.length > 0) setActiveTab(anos[0])
-  }, [anos, activeTab, novaRodada])
+    if (activeTab === null && anos.length > 0) {
+      setActiveTab(anos[0])
+    }
+  }, [anos, activeTab])
 
   const renderEncontroCard = (encontro: Encontro, index: number) => (
     <div key={`${encontro.ano}-${encontro.mes}-${encontro.dia}-${index}`} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -262,18 +256,6 @@ export default function Home() {
         </div>
       </header>
 
-      {novaRodada && (
-        <div className="bg-amber-500/15 border-y-2 border-amber-400 text-center px-4 py-4">
-          <p className="text-amber-300 text-xl font-bold">Nova rodada iniciada</p>
-          <p className="text-amber-100 mt-1">
-            A rodada anterior foi concluída. A nova sequência está em Ordem dos Casais: casais aptos para o próximo encontro.
-          </p>
-          {proximoCasal && (
-            <p className="text-white font-semibold mt-2">Próximo encontro: {proximoCasal}</p>
-          )}
-        </div>
-      )}
-
       <main className="container mx-auto px-4 lg:px-6 py-8 lg:py-12">
         <section>
           <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 text-white">ENCONTROS</h2>
@@ -308,81 +290,64 @@ export default function Home() {
           {tabAtiva === 'ordem' ? (
             <div className="mb-16 max-w-4xl mx-auto">
               <h3 className="text-2xl lg:text-3xl font-semibold mb-4 text-gray-300 border-b-2 border-gray-600 pb-3 text-center">
-                {novaRodada ? 'Nova sequência da rodada' : 'Ordem dos Encontros — Rodada Atual'}
-                {!novaRodada && rodada.temario !== null && (
+                Ordem dos Encontros — Rodada Atual
+                {rodada.temario !== null && (
                   <span className="block text-lg font-normal text-gray-400 mt-1">
                     {rodada.numeroInicioCiclo}º a {rodada.numeroFimCiclo}º encontro · {rodada.temario}º temário
                   </span>
                 )}
               </h3>
 
-              {novaRodada ? (
-                <div className="bg-amber-500/10 border-2 border-amber-400 rounded-xl p-6 mb-8 text-center">
-                  <p className="text-xl font-semibold text-amber-300 mb-2">Nova rodada iniciada</p>
-                  <p className="text-gray-100">
-                    Estes {rodada.totalCasais} casais estão aptos para o próximo encontro, nesta ordem.
+              <div className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 mb-8 text-center">
+                <p className="text-xl font-semibold text-amber-300 mb-2">
+                  {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
+                </p>
+                {rodada.pendentes.length > 0 ? (
+                  <p className="text-gray-200">
+                    <strong className="text-red-300">Ainda faltam:</strong>{' '}
+                    {rodada.pendentes.map(p => p.casal).join(' · ')}
                   </p>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 mb-8 text-center">
-                  <p className="text-xl font-semibold text-amber-300 mb-2">
-                    {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
+                ) : (
+                  <p className="text-green-300 font-medium">Rodada completa! Todos os 10 casais já receberam.</p>
+                )}
+                {rodada.proximosNaOrdem[0] && (
+                  <p className="text-pink-300 mt-3 text-lg">
+                    Próximo na ordem: <strong>{rodada.proximosNaOrdem[0].casal}</strong>
                   </p>
-                  {rodada.pendentes.length > 0 && (
-                    <p className="text-gray-200">
-                      <strong className="text-red-300">Ainda faltam:</strong>{' '}
-                      {rodada.pendentes.map(p => p.casal).join(' · ')}
-                    </p>
-                  )}
-                  {rodada.proximosNaOrdem[0] && (
-                    <p className="text-pink-300 mt-3 text-lg">
-                      Próximo na ordem: <strong>{rodada.proximosNaOrdem[0].casal}</strong>
-                    </p>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="grid gap-3">
-                {(novaRodada ? [...rodada.statusCasais] : rodada.statusCasais).map((item, index) => (
+                {rodada.statusCasais.map((item) => (
                   <div
                     key={item.casal}
                     className={`flex items-center gap-4 rounded-xl border-2 p-4 lg:p-5 transition-all ${
-                      novaRodada
-                        ? index === 0
-                          ? 'bg-pink-950/40 border-pink-400 shadow-md'
-                          : 'bg-sky-950/30 border-sky-500/70'
-                        : item.jaFoiAnfitriao
-                          ? 'bg-gray-700/80 border-green-600/60'
-                          : 'bg-red-950/40 border-red-500/70 shadow-md'
+                      item.jaFoiAnfitriao
+                        ? 'bg-gray-700/80 border-green-600/60'
+                        : 'bg-red-950/40 border-red-500/70 shadow-md'
                     }`}
                   >
                     <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-500 flex items-center justify-center font-bold text-lg">
                       {item.ordem}
                     </span>
                     <span
-                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold text-white ${
-                        novaRodada
-                          ? index === 0
-                            ? 'bg-pink-600'
-                            : 'bg-sky-600'
-                          : item.jaFoiAnfitriao
-                            ? 'bg-green-600'
-                            : 'bg-red-600'
+                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold ${
+                        item.jaFoiAnfitriao ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
                       }`}
+                      title={item.jaFoiAnfitriao ? 'Já foi anfitrião nesta rodada' : 'Ainda não foi anfitrião nesta rodada'}
                     >
-                      {novaRodada ? (index === 0 ? '→' : '•') : item.jaFoiAnfitriao ? '✓' : '!'}
+                      {item.jaFoiAnfitriao ? '✓' : '!'}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-lg text-gray-100">{item.casal}</p>
-                      {novaRodada ? (
-                        <p className={`text-sm ${index === 0 ? 'text-pink-200' : 'text-sky-200'}`}>
-                          {index === 0 ? 'Próximo encontro' : 'Apto para a nova rodada'}
-                        </p>
-                      ) : item.jaFoiAnfitriao && item.dataUltimoEncontro ? (
+                      <p className={`font-semibold text-lg ${item.jaFoiAnfitriao ? 'text-gray-100' : 'text-red-200'}`}>
+                        {item.casal}
+                      </p>
+                      {item.jaFoiAnfitriao && item.dataUltimoEncontro && (
                         <p className="text-sm text-gray-400 truncate">
                           {item.descricaoUltimoEncontro} — {item.dataUltimoEncontro}
                         </p>
-                      ) : (
+                      )}
+                      {!item.jaFoiAnfitriao && (
                         <p className="text-sm text-red-300/90">Aguardando vez na rodada atual</p>
                       )}
                     </div>
@@ -393,7 +358,7 @@ export default function Home() {
               {rodada.encontrosNaRodada.length > 0 && (
                 <div className="mt-10">
                   <h4 className="text-xl font-semibold text-gray-400 mb-4 border-b border-gray-600 pb-2">
-                    {novaRodada ? 'Encontros da rodada anterior' : 'Encontros desta rodada'} ({rodada.encontrosNaRodada.length})
+                    Encontros desta rodada ({rodada.encontrosNaRodada.length})
                   </h4>
                   <ul className="space-y-2 text-gray-300 text-sm">
                     {rodada.encontrosNaRodada.map((e, i) => (
