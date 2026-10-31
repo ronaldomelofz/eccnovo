@@ -26,12 +26,15 @@ Ao salvar: se a rodada completar (todos os casais já anfitriões), exibir **pr�
 - Marca quem já foi / quem falta na rodada atual
 - Destaca o próximo na fila
 - Mostra encontros da rodada atual
+- Quando a rodada fecha, o site e o gestor mostram **nova rodada iniciada** e a lista dos casais aptos para o próximo encontro (a partir do 1º da ordem)
 
 ## 4. Após fechar uma rodada
 
 Quando o último casal pendente é registrado como anfitrião:
 
 1. Sistema marca rodada completa
-2. Sugere próximo: próximo casal na ordem (reinicia do 1º se quiser ciclo fixo), ordem+1, número no temário+1 (ou 1º do próximo bloco)
+2. O site publicado avisa no topo: **Nova rodada iniciada**
+3. A aba Ordem dos Casais abre na nova sequência: todos os casais aptos, o 1º destacado como próximo encontro
+4. Sugere próximo: 1º casal da ordem oficial
 
-Regra adotada: **reinicia a ordem do 1º casal** no início de cada nova rodada de N encontros, mas na prática o coordenador escolhe o anfitrião; a sugestão aponta o **primeiro da lista oficial que ainda não hospedou nesta rodada**, e se todos hospedaram, sugere o **1º da ordem** para a nova rodada.
+Regra adotada: **reinicia a ordem do 1º casal** no início de cada nova rodada. O coordenador ainda escolhe o anfitrião ao cadastrar; a sugestão aponta o **primeiro da lista oficial que ainda não hospedou nesta rodada**, e se todos hospedaram, sugere o **1º da ordem** para a nova rodada.

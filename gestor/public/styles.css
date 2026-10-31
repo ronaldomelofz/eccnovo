@@ -242,6 +242,10 @@ input[readonly]:not(#caminhoUpdate) {
 }
 .ordem-item.ok { border-color: #166534; background: rgba(22, 101, 52, 0.25); }
 .ordem-item.pendente { border-color: #991b1b; background: rgba(127, 29, 29, 0.35); }
+.ordem-item.apto { border-color: #0369a1; background: rgba(3, 105, 161, 0.22); }
+.ordem-item.proximo { border-color: #db2777; background: rgba(219, 39, 119, 0.28); }
+.badge.apto { background: #0284c7; }
+.badge.proximo { background: #db2777; }
 .badge {
   width: 1.75rem;
   height: 1.75rem;

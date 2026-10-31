@@ -255,35 +255,58 @@ function renderOrdem() {
     return
   }
 
-  resumo.innerHTML = `
-    <p class="destaque">${r.completos} de ${r.totalCasais} casais já foram anfitriões nesta rodada</p>
-    <p class="muted">${r.numeroInicioCiclo}º a ${r.numeroFimCiclo}º encontro no temário${r.temario ? ` · ${r.temario}º temário` : ''}</p>
-    ${
-      r.pendentes.length
-        ? `<p><strong style="color:var(--red)">Ainda faltam:</strong> ${r.pendentes.map((x) => x.casal).join(' · ')}</p>`
-        : `<p style="color:var(--green)">Rodada completa! Todos os casais já receberam.</p>`
-    }
-    ${p?.anfitriao ? `<p class="prox">Próximo sugerido: <strong>${p.anfitriao}</strong> (ordem ${p.ordem}, ${p.numeroNoTemario}º / ${p.temario}º temário)</p>` : ''}
-    <p class="muted" style="margin-top:0.75rem">${p?.mensagem || ''}</p>
-  `
+  if (r.rodadaCompleta) {
+    const casais = [...r.statusCasais].sort((a, b) => a.ordem - b.ordem)
+    const primeiro = casais[0]
+    resumo.innerHTML = `
+      <p class="destaque">Nova rodada iniciada</p>
+      <p>A rodada anterior foi concluída. Estes casais estão aptos para o próximo encontro, nesta ordem.</p>
+      ${primeiro ? `<p class="prox">Próximo encontro: <strong>${primeiro.casal}</strong></p>` : ''}
+    `
+    lista.innerHTML = casais
+      .map(
+        (item, i) => `
+      <div class="ordem-item ${i === 0 ? 'proximo' : 'apto'}">
+        <span class="ord">${item.ordem}</span>
+        <span class="badge ${i === 0 ? 'proximo' : 'apto'}">${i === 0 ? '→' : '•'}</span>
+        <div>
+          <strong>${item.casal}</strong>
+          <div class="muted">${i === 0 ? 'Próximo encontro' : 'Apto para a nova rodada'}</div>
+        </div>
+      </div>`
+      )
+      .join('')
+  } else {
+    resumo.innerHTML = `
+      <p class="destaque">${r.completos} de ${r.totalCasais} casais já foram anfitriões nesta rodada</p>
+      <p class="muted">${r.numeroInicioCiclo}º a ${r.numeroFimCiclo}º encontro no temário${r.temario ? ` · ${r.temario}º temário` : ''}</p>
+      ${
+        r.pendentes.length
+          ? `<p><strong style="color:var(--red)">Ainda faltam:</strong> ${r.pendentes.map((x) => x.casal).join(' · ')}</p>`
+          : ''
+      }
+      ${p?.anfitriao ? `<p class="prox">Próximo sugerido: <strong>${p.anfitriao}</strong> (ordem ${p.ordem}, ${p.numeroNoTemario}º / ${p.temario}º temário)</p>` : ''}
+      <p class="muted" style="margin-top:0.75rem">${p?.mensagem || ''}</p>
+    `
 
-  lista.innerHTML = r.statusCasais
-    .map(
-      (item) => `
-    <div class="ordem-item ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">
-      <span class="ord">${item.ordem}</span>
-      <span class="badge ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">${item.jaFoiAnfitriao ? '✓' : '!'}</span>
-      <div>
-        <strong>${item.casal}</strong>
-        <div class="muted">${
-          item.jaFoiAnfitriao
-            ? `${item.descricaoUltimoEncontro || ''} — ${fmtData(item.dataUltimoEncontro)}`
-            : 'Aguardando vez na rodada atual'
-        }</div>
-      </div>
-    </div>`
-    )
-    .join('')
+    lista.innerHTML = r.statusCasais
+      .map(
+        (item) => `
+      <div class="ordem-item ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">
+        <span class="ord">${item.ordem}</span>
+        <span class="badge ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">${item.jaFoiAnfitriao ? '✓' : '!'}</span>
+        <div>
+          <strong>${item.casal}</strong>
+          <div class="muted">${
+            item.jaFoiAnfitriao
+              ? `${item.descricaoUltimoEncontro || ''} — ${fmtData(item.dataUltimoEncontro)}`
+              : 'Aguardando vez na rodada atual'
+          }</div>
+        </div>
+      </div>`
+      )
+      .join('')
+  }
 
   enRodada.innerHTML = r.encontrosNaRodada.length
     ? r.encontrosNaRodada

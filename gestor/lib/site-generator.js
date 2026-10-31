@@ -51,10 +51,14 @@ function buildHtml(grupo, encontros, rodada) {
     ? `<img src="logo/${escapeHtml(grupo.logo)}" alt="Logo ${escapeHtml(grupo.nome)}" class="logo" />`
     : ''
 
+  const novaRodada = Boolean(rodada?.rodadaCompleta && rodada.totalCasais > 0)
+  const casaisOrdem = [...(rodada?.statusCasais || [])].sort((a, b) => a.ordem - b.ordem)
+  const proximoCasal = casaisOrdem[0]?.casal || ''
+
   const tabsAnos = anos
     .map(
       (a, i) =>
-        `<button type="button" class="tab-btn ${i === 0 ? 'active' : ''}" data-ano="${a}">${a}</button>`
+        `<button type="button" class="tab-btn ${!novaRodada && i === 0 ? 'active' : ''}" data-ano="${a}">${a}</button>`
     )
     .join('')
 
@@ -80,17 +84,46 @@ function buildHtml(grupo, encontros, rodada) {
         </article>`
         })
         .join('\n')
-      return `<section class="ano-panel ${i === 0 ? 'active' : ''}" data-ano="${ano}">${cards}</section>`
+      return `<section class="ano-panel ${!novaRodada && i === 0 ? 'active' : ''}" data-ano="${ano}">${cards}</section>`
     })
     .join('\n')
 
-  const ordemLista = (rodada?.statusCasais || [])
-    .map((c) => {
-      const cls = c.jaFoiAnfitriao ? 'ok' : 'pendente'
-      const mark = c.jaFoiAnfitriao ? '✓' : '!'
-      return `<li class="${cls}"><span class="n">${c.ordem}</span><span class="m">${mark}</span><span>${escapeHtml(c.casal)}</span></li>`
-    })
-    .join('')
+  const ordemLista = novaRodada
+    ? casaisOrdem
+        .map((c, i) => {
+          const proximo = i === 0
+          return `<li class="${proximo ? 'proximo' : 'apto'}"><span class="n">${c.ordem}</span><span class="m">${proximo ? '→' : '•'}</span><span>${escapeHtml(c.casal)}${proximo ? ' <em>(próximo encontro)</em>' : ''}</span></li>`
+        })
+        .join('')
+    : casaisOrdem
+        .map((c) => {
+          const cls = c.jaFoiAnfitriao ? 'ok' : 'pendente'
+          const mark = c.jaFoiAnfitriao ? '✓' : '!'
+          return `<li class="${cls}"><span class="n">${c.ordem}</span><span class="m">${mark}</span><span>${escapeHtml(c.casal)}</span></li>`
+        })
+        .join('')
+
+  const avisoNovaRodada = novaRodada
+    ? `<div class="aviso-nova" role="status">
+        <strong>Nova rodada iniciada</strong>
+        A rodada anterior foi concluída. Abaixo, a nova sequência: casais aptos para o próximo encontro.
+        ${proximoCasal ? `<span class="prox">Próximo: ${escapeHtml(proximoCasal)}</span>` : ''}
+      </div>`
+    : ''
+
+  const resumoRodada = novaRodada
+    ? `<div class="resumo nova">
+        <p class="d">Nova rodada iniciada</p>
+        <p>Estes ${casaisOrdem.length} casais estão aptos para o próximo encontro, nesta ordem.</p>
+      </div>`
+    : `<div class="resumo">
+        <p class="d">${rodada.completos} de ${rodada.totalCasais} casais já foram anfitriões nesta rodada</p>
+        <p>${
+          rodada.pendentes.length
+            ? `Ainda faltam: ${rodada.pendentes.map((p) => escapeHtml(p.casal)).join(' · ')}`
+            : 'Rodada completa!'
+        }</p>
+      </div>`
 
   const periodoTexto =
     (grupo.periodo && (grupo.periodo.texto || require('./periodo').formatPeriodoCabecalho(grupo.periodo))) ||
@@ -120,14 +153,21 @@ function buildHtml(grupo, encontros, rodada) {
     .card img{width:128px;height:96px;object-fit:cover;border-radius:.5rem;cursor:pointer}
     .sem-foto{width:128px;height:96px;display:grid;place-items:center;border:2px dashed var(--border);border-radius:.5rem;color:var(--muted);font-size:.75rem}
     .info h3{margin:0 0 .4rem;color:var(--pink)}
+    .aviso-nova{max-width:720px;margin:1.1rem auto 0;background:rgba(251,191,36,.12);border:2px solid var(--amber);border-radius:.9rem;padding:.9rem 1.15rem;color:#fde68a;text-align:center}
+    .aviso-nova strong{display:block;color:var(--amber);font-size:1.2rem;margin-bottom:.3rem}
+    .aviso-nova .prox{display:block;margin-top:.45rem;color:#fff;font-weight:700}
     .resumo{background:#334155;border:1px solid var(--border);border-radius:.9rem;padding:1rem;text-align:center;margin-bottom:1rem}
+    .resumo.nova{border-color:var(--amber)}
     .resumo .d{color:var(--amber);font-weight:700;font-size:1.15rem}
     ul.ordem{list-style:none;padding:0;margin:0}
     ul.ordem li{display:flex;gap:.75rem;align-items:center;padding:.7rem;border-radius:.65rem;border:2px solid var(--border);margin-bottom:.4rem}
     ul.ordem li.ok{border-color:#166534;background:rgba(22,101,52,.25)}
     ul.ordem li.pendente{border-color:#991b1b;background:rgba(127,29,29,.35)}
+    ul.ordem li.apto{border-color:#0369a1;background:rgba(3,105,161,.22)}
+    ul.ordem li.proximo{border-color:#db2777;background:rgba(219,39,119,.28)}
     .n,.m{width:1.8rem;height:1.8rem;border-radius:999px;display:grid;place-items:center;font-weight:700;background:#0f172a}
     li.ok .m{background:#16a34a} li.pendente .m{background:#dc2626}
+    li.apto .m{background:#0284c7} li.proximo .m{background:#db2777}
     footer{text-align:center;padding:2rem;color:var(--muted);font-size:.9rem}
     #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:50;align-items:center;justify-content:center;flex-direction:column;padding:1rem}
     #modal.open{display:flex} #modal img{max-width:95vw;max-height:70vh;object-fit:contain;border-radius:.5rem}
@@ -140,21 +180,15 @@ function buildHtml(grupo, encontros, rodada) {
     ${logoTag}
     <h1>${escapeHtml(grupo.nome)}</h1>
     ${periodoTexto ? `<div class="periodo-box">${escapeHtml(periodoTexto)}</div>` : ''}
+    ${avisoNovaRodada}
   </header>
   <main>
     <div class="tabs">
-      <button type="button" class="tab-btn" data-view="ordem">Ordem dos Casais</button>
+      <button type="button" class="tab-btn ${novaRodada ? 'active' : ''}" data-view="ordem">Ordem dos Casais</button>
       ${tabsAnos}
     </div>
-    <section class="ordem-panel" id="panel-ordem">
-      <div class="resumo">
-        <p class="d">${rodada.completos} de ${rodada.totalCasais} casais já foram anfitriões nesta rodada</p>
-        <p>${
-          rodada.pendentes.length
-            ? `Ainda faltam: ${rodada.pendentes.map((p) => escapeHtml(p.casal)).join(' · ')}`
-            : 'Rodada completa!'
-        }</p>
-      </div>
+    <section class="ordem-panel ${novaRodada ? 'active' : ''}" id="panel-ordem">
+      ${resumoRodada}
       <ul class="ordem">${ordemLista}</ul>
     </section>
     ${painéis}
