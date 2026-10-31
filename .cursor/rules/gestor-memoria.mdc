@@ -5,11 +5,10 @@ alwaysApply: true
 
 # Memória e Gestor
 
-Antes de alterar o **ECC Gestor** (`gestor/`), ler `memoria/00-Indice.md` e `memoria/Publicacao-Netlify-Desktop.md`.
+Antes de alterar o **ECC Gestor** (`gestor/`), ler **somente** `memoria/00-HOME.md`. Abra mais uma nota só se a tabela dessa página apontar para a tarefa. Não leia o vault inteiro.
 
-- Dados locais: `gestor/dados/` ou pasta userData no Electron
+- Dados do .exe: pasta userData do Electron (`dados/`). `gestor/dados/` é o modo `npm run gestor`
 - Subir: `npm run gestor` → http://localhost:3847
-- Desktop: `npm run gestor:desktop` · Instalador Win: `npm run gestor:dist:win`
-- Seed: `npm run gestor:seed`
-- Logo na Configuração; publicação Netlify na aba Publicar site
-- Site público Alimento do Amor: `app/` + `FOTOS/` + planilha
+- Desktop: `npm run gestor:desktop` · Instalador Win: `npm run gestor:dist:win` · Pacote: `npm run gestor:pack-update`
+- Instalador em `EXECUTAVEL/`. Atualização em `EXECUTAVEL/ATUALIZACOES/`
+- Site público Alimento do Amor: `app/` + `FOTOS/` + planilha. Não editar `public/FOTOS/` nem `app/data/encontros.ts` à mão

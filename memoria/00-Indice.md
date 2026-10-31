@@ -1,30 +1,21 @@
-# Memória do projeto — ECC Gestor
+---
+tags: [moc]
+atualizado: 2026-10-31
+---
 
-Pasta no estilo **Obsidian**: notas em Markdown que documentam decisões, modelo de dados e fluxos.
+# Índice
 
-> Coordenadores de grupos ECC usam o **Gestor Local** para organizar encontros e gerar o site de acompanhamento.
+Entrada única: [[00-HOME]]. Não leia as outras notas sem necessidade.
 
-## Índice
-
-| Nota | Conteúdo |
-|------|----------|
-| [[Visao-do-Produto]] | Objetivo, usuários, escopo |
-| [[Modelo-de-Dados]] | Grupo, casais, encontros, rodada |
-| [[Fluxos-Operacionais]] | Como o coordenador usa o sistema |
-| [[Decisoes-Tecnicas]] | Stack, pastas, por que local |
-| [[Publicacao-Netlify-Desktop]] | App instalável Win/Mac, logo, Netlify |
-| [[Atualizacoes]] | Pacotes em EXECUTAVEL/ATUALIZACOES |
-| [[Importar-Site]] | Importar grupo a partir de URL Netlify |
-| [[Mapa-do-Codigo]] | Onde está cada peça |
-
-## Relação com o site público
-
-O site **ECC Alimento do Amor** (`app/`, Netlify) é o **produto gerado** para um grupo específico.
-
-O **Gestor** (`gestor/`) é a **ferramenta local** universal: cada coordenador configura o próprio grupo, cadastra encontros e acompanha o rodízio de anfitriões.
-
-## Como usar esta pasta
-
-1. Abra `memoria/` no Obsidian (ou qualquer editor Markdown)
-2. Atualize as notas quando mudar regra de negócio
-3. O agente de IA deve ler estas notas antes de alterar o gestor
+| Nota | Quando abrir |
+|---|---|
+| [[00-HOME]] | Sempre — só esta, no início |
+| [[Rodada]] | Rodada fechada ou sequência de anfitriões |
+| [[Modelo-de-Dados]] | Formato de grupo, casal, encontro |
+| [[Fluxos-Operacionais]] | Uso do coordenador |
+| [[Decisoes-Tecnicas]] | Por que Express + Electron |
+| [[Publicacao-Netlify-Desktop]] | Login, deploy, instalador |
+| [[Atualizacoes]] | `.eccupdate` |
+| [[Importar-Site]] | Importar pela URL |
+| [[Mapa-do-Codigo]] | Achar um arquivo |
+| [[Visao-do-Produto]] | Escopo do produto |

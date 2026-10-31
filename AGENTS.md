@@ -34,7 +34,7 @@ Não encerrar a tarefa sem commit + push, salvo se o usuário pedir explicitamen
 
 ## ECC Gestor Local (coordenadores)
 
-Ferramenta multi-grupo em `gestor/` — documentação em `memoria/` (estilo Obsidian).
+Ferramenta multi-grupo em `gestor/`. Memória: ler só `memoria/00-HOME.md` (vault Obsidian; não abrir o restante sem necessidade).
 
 ```bash
 npm run gestor          # http://localhost:3847

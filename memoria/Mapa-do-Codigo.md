@@ -16,6 +16,7 @@
 | `gestor/server.js` | Express: API + UI estática |
 | `gestor/lib/store.js` | Ler/gravar JSON e fotos |
 | `gestor/lib/rodada.js` | Cálculo de rodada / próximo |
+| `gestor/lib/importar-site.js` | Importa grupo a partir de uma URL |
 | `gestor/lib/netlify.js` | Login Netlify, nomes, criar site, deploy |
 | `gestor/lib/site-generator.js` | Gera HTML estático + zip |
 | `gestor/electron-main.js` | App desktop Windows/Mac |
