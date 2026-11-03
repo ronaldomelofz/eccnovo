@@ -483,7 +483,12 @@ code {
 
 @media (max-width: 860px) {
   #app { grid-template-columns: 1fr; }
-  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
-  .nav { flex-direction: row; flex-wrap: wrap; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 1rem; }
+  .nav { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; }
+  .nav button { white-space: nowrap; }
   .form-grid { grid-template-columns: 1fr; }
+  .main { padding: 1rem; }
+  input, select, textarea { font-size: 16px; }
+  .encontro-item { grid-template-columns: 72px 1fr; }
+  .encontro-item > :last-child { grid-column: 1 / -1; display: flex; gap: 0.5rem; }
 }

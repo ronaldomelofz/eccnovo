@@ -172,7 +172,17 @@ function buildHtml(grupo, encontros, rodada) {
     #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:50;align-items:center;justify-content:center;flex-direction:column;padding:1rem}
     #modal.open{display:flex} #modal img{max-width:95vw;max-height:70vh;object-fit:contain;border-radius:.5rem}
     #modal .cap{color:#fff;text-align:center;margin-bottom:1rem}
-    @media(max-width:700px){.card{flex-direction:column-reverse;text-align:center}}
+    @media(max-width:700px){
+      header{padding:1rem .85rem}
+      .logo{max-height:84px}
+      main{padding:1rem .85rem}
+      .tabs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch}
+      .tab-btn{flex:0 0 auto}
+      .card{flex-direction:column-reverse;align-items:stretch;text-align:left;padding:.85rem}
+      .card img,.sem-foto{width:100%;height:190px}
+      ul.ordem li{align-items:flex-start}
+      #modal img{max-height:62vh}
+    }
   </style>
 </head>
 <body>

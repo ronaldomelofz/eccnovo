@@ -4,6 +4,12 @@ import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover' as const,
+}
+
 export const metadata: Metadata = {
   title: 'ECC Alimento do Amor',
   description: 'Site oficial do ECC Alimento do Amor — Encontros de Casais com Cristo. Galeria de fotos e agenda dos encontros.',

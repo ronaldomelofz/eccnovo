@@ -9,7 +9,7 @@ Leia **só este arquivo**. Abra **uma** nota da tabela se a tarefa exigir detalh
 
 ## Agora
 
-- Gestor **0.5.5** — `EXECUTAVEL/ECC-Gestor-Setup-0.5.5.exe`
+- Gestor **0.5.6** — `EXECUTAVEL/ECC-Gestor-Setup-0.5.6.exe`
 - Site planilha: https://eccalimentodoamor.netlify.app (push em `main`)
 - Dados do .exe: pasta userData do Electron (`dados/`), **não** `gestor/dados/`
 - Instalar por cima **não apaga** encontros já digitados no executável

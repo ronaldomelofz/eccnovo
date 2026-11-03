@@ -125,62 +125,33 @@ export default function Home() {
   }, [anos, activeTab])
 
   const renderEncontroCard = (encontro: Encontro, index: number) => (
-    <div key={`${encontro.ano}-${encontro.mes}-${encontro.dia}-${index}`} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-      <div className="hidden md:flex items-center justify-between">
-        <div className="encontro-info flex-1">
-          <h3 className="text-xl lg:text-2xl font-semibold mb-3 text-pink-300">Encontro de {encontro.mes}</h3>
-          <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-          <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-          <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
-          {encontro.observacao ? (
-            <p className="text-amber-200 mt-2"><strong>Observação:</strong> {encontro.observacao}</p>
-          ) : null}
-        </div>
-        <div className="encontro-foto ml-8 flex-shrink-0">
-          {encontro.semFoto ? (
-            <div className="w-32 h-24 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-              <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-            </div>
-          ) : (
-            <Image
-              src={encontro.foto || ''}
-              alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-              width={128}
-              height={96}
-              className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md hover:shadow-lg"
-              onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-            />
-          )}
-        </div>
+    <article key={`${encontro.ano}-${encontro.mes}-${encontro.dia}-${index}`} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl overflow-hidden shadow-lg md:flex md:items-center md:gap-6 md:p-6">
+      <div className="md:order-2 md:w-40 md:flex-shrink-0">
+        {encontro.semFoto ? (
+          <div className="aspect-[16/10] md:aspect-auto md:h-28 bg-gray-800 flex items-center justify-center border-b md:border border-gray-600 md:rounded-lg">
+            <p className="text-gray-400 italic text-sm">SEM FOTO</p>
+          </div>
+        ) : (
+          <Image
+            src={encontro.foto || ''}
+            alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
+            width={640}
+            height={400}
+            className="w-full aspect-[16/10] object-cover md:aspect-auto md:h-28 md:w-40 md:rounded-lg cursor-pointer"
+            onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
+          />
+        )}
       </div>
-      <div className="md:hidden">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
-          <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
-          <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
-          <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
-          {encontro.observacao ? (
-            <p className="text-amber-200 text-sm mt-2"><strong>Observação:</strong> {encontro.observacao}</p>
-          ) : null}
-        </div>
-        <div className="flex justify-center">
-          {encontro.semFoto ? (
-            <div className="w-40 h-30 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-600">
-              <p className="text-gray-400 italic text-center text-sm">SEM FOTO</p>
-            </div>
-          ) : (
-            <Image
-              src={encontro.foto || ''}
-              alt={`Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`}
-              width={160}
-              height={120}
-              className="rounded-lg cursor-pointer hover:opacity-80 transition-all duration-300 shadow-md"
-              onClick={() => openModal(encontro.foto || '', `Encontro ${encontro.dia} de ${encontro.mes} de ${encontro.ano}`)}
-            />
-          )}
-        </div>
+      <div className="p-4 md:p-0 md:flex-1 min-w-0">
+        <h3 className="text-lg md:text-xl font-semibold mb-2 text-pink-300">Encontro de {encontro.mes}</h3>
+        <p className="mb-1 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
+        <p className="text-gray-200 break-words"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
+        <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
+        {encontro.observacao ? (
+          <p className="text-amber-200 mt-2 break-words"><strong>Observação:</strong> {encontro.observacao}</p>
+        ) : null}
       </div>
-    </div>
+    </article>
   )
 
   return (
@@ -229,68 +200,62 @@ export default function Home() {
 
         {/* Mobile/Tablet Layout */}
         <div className="lg:hidden">
-          <div className="container mx-auto px-4 py-6">
-            {/* Logo e Título */}
-            <div className="flex flex-col items-center text-center mb-6">
+          <div className="px-4 py-4">
+            <div className="flex items-center gap-3">
               <Image
                 src="/FOTOS/logo.jpeg"
                 alt="Logo ECC ALIMENTO DO AMOR"
-                width={100}
-                height={133}
-                className="rounded-lg shadow-lg mb-4"
+                width={72}
+                height={96}
+                className="rounded-lg shadow-lg w-16 h-auto flex-shrink-0"
               />
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-                ECC ALIMENTO DO AMOR
-              </h1>
-              
-              {/* Informações */}
-              <div className="bg-gray-800 text-white rounded-xl p-4 border-2 border-gray-600 shadow-lg w-full max-w-sm">
-                <p className="text-base sm:text-lg text-gray-200 font-medium">
+              <div className="min-w-0 text-left">
+                <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+                  ECC ALIMENTO DO AMOR
+                </h1>
+                <p className="text-sm text-gray-300 mt-1 leading-snug">
                   57º / 2023 - 28, 29 e 30 de Abril de 2023
                 </p>
               </div>
-
-              {/* Player de música centralizado */}
-              <div className="text-center mt-4">
-                <audio controls className="w-full max-w-sm h-12 rounded-lg shadow-lg">
-                  <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
-                  Seu navegador não suporta o elemento de áudio.
-                </audio>
-              </div>
             </div>
+            <audio controls className="w-full h-10 mt-3 rounded-lg">
+              <source src="/FOTOS/Algo Em Comum.mp3" type="audio/mpeg" />
+            </audio>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 lg:px-6 py-8 lg:py-12">
+      <main className="container mx-auto px-4 lg:px-6 py-5 lg:py-12">
         <section>
-          <h2 className="text-3xl lg:text-4xl font-bold text-center mb-8 text-white">ENCONTROS</h2>
+          <h2 className="text-2xl lg:text-4xl font-bold text-center mb-4 lg:mb-8 text-white">ENCONTROS</h2>
 
-          {/* Abas: ordem dos casais + anos */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10">
+          <div className="sticky top-0 z-30 -mx-4 px-4 py-2 mb-5 bg-gray-800/95 backdrop-blur">
+            <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:justify-center lg:overflow-visible">
             <button
               onClick={() => setActiveTab('ordem')}
-              className={`px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border-2 ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full font-semibold text-base border-2 ${
                 tabAtiva === 'ordem'
-                  ? 'bg-amber-600 border-amber-400 text-white shadow-lg scale-105'
-                  : 'bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600 hover:border-gray-400'
+                  ? 'bg-amber-600 border-amber-400 text-white'
+                  : 'bg-gray-700 border-gray-500 text-gray-300'
               }`}
             >
-              Ordem dos Casais
+              <span className="lg:hidden">Ordem</span>
+              <span className="hidden lg:inline">Ordem dos Casais</span>
             </button>
             {anos.map(ano => (
               <button
                 key={ano}
                 onClick={() => setActiveTab(ano)}
-                className={`px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border-2 ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full font-semibold text-base border-2 ${
                   tabAtiva === ano
-                    ? 'bg-pink-600 border-pink-400 text-white shadow-lg scale-105'
-                    : 'bg-gray-700 border-gray-500 text-gray-300 hover:bg-gray-600 hover:border-gray-400'
+                    ? 'bg-pink-600 border-pink-400 text-white'
+                    : 'bg-gray-700 border-gray-500 text-gray-300'
                 }`}
               >
                 {ano}
               </button>
             ))}
+            </div>
           </div>
 
           {tabAtiva === 'ordem' ? (
@@ -328,8 +293,8 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <div className="rounded-2xl border border-gray-600 bg-gray-700/70 p-5 mb-6">
-                    <div className="flex items-end justify-between gap-4 mb-3">
+                  <div className="rounded-2xl border border-gray-600 bg-gray-700/70 p-4 sm:p-5 mb-5">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between mb-3">
                       <p className="text-amber-300 text-2xl font-bold">
                         {rodada.completos} de {rodada.totalCasais}
                       </p>
@@ -355,9 +320,9 @@ export default function Home() {
                   </div>
 
                   {rodada.proximosNaOrdem[0] && (
-                    <div className="rounded-2xl border-2 border-pink-400 bg-pink-950/40 p-5 mb-6 text-center">
+                    <div className="rounded-2xl border-2 border-pink-400 bg-pink-950/40 p-4 sm:p-5 mb-5 text-center">
                       <p className="text-pink-200 text-sm font-semibold uppercase tracking-wide">Próximo encontro</p>
-                      <p className="text-2xl lg:text-3xl font-bold mt-1">{rodada.proximosNaOrdem[0].casal}</p>
+                      <p className="text-xl sm:text-3xl font-bold mt-1 break-words">{rodada.proximosNaOrdem[0].casal}</p>
                       <p className="text-pink-100 mt-1">{rodada.proximosNaOrdem[0].ordem}º na ordem oficial</p>
                     </div>
                   )}
@@ -392,13 +357,13 @@ export default function Home() {
                           .filter((item) => item.jaFoiAnfitriao)
                           .sort((a, b) => (b.numeroEncontro || 0) - (a.numeroEncontro || 0))
                           .map((item) => (
-                            <div key={item.casal} className="flex items-center gap-3 rounded-xl border border-green-700/70 bg-gray-700/80 p-4">
-                              <span className="w-9 h-9 rounded-full bg-green-600 text-white font-bold flex items-center justify-center">
+                            <div key={item.casal} className="flex items-start gap-3 rounded-xl border border-green-700/70 bg-gray-700/80 p-3 sm:p-4">
+                              <span className="w-9 h-9 flex-shrink-0 rounded-full bg-green-600 text-white font-bold flex items-center justify-center">
                                 {item.ordem}
                               </span>
                               <div className="min-w-0">
-                                <p className="font-semibold">{item.casal}</p>
-                                <p className="text-sm text-gray-300 truncate">
+                                <p className="font-semibold break-words">{item.casal}</p>
+                                <p className="text-sm text-gray-300 break-words">
                                   {item.numeroEncontro ? `${item.numeroEncontro}º encontro · ` : ''}
                                   {item.descricaoUltimoEncontro} — {item.dataUltimoEncontro}
                                 </p>
@@ -418,16 +383,18 @@ export default function Home() {
                         {sortEncontrosDesc(rodada.encontrosNaRodada).map((encontro) => (
                           <div
                             key={encontro.numero}
-                            className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border border-gray-600 bg-gray-800/80 px-4 py-3"
+                            className="rounded-lg border border-gray-600 bg-gray-800/80 px-4 py-3"
                           >
-                            <span className="text-amber-300 font-bold w-10">{encontro.numero}º</span>
-                            <span className="text-white font-medium">{encontro.anfitriao}</span>
-                            <span className="text-gray-400 text-sm">
+                            <div className="flex items-start justify-between gap-3">
+                              <span className="text-amber-300 font-bold">{encontro.numero}º</span>
+                              <span className="text-white font-medium text-right break-words">{encontro.anfitriao}</span>
+                            </div>
+                            <p className="text-gray-400 text-sm mt-1">
                               {encontro.dia} de {encontro.mes} de {encontro.ano}
-                            </span>
-                            <span className="text-pink-300 text-sm">{encontro.descricao}</span>
+                            </p>
+                            <p className="text-pink-300 text-sm">{encontro.descricao}</p>
                             {encontro.observacao ? (
-                              <span className="text-amber-200 text-sm">· {encontro.observacao}</span>
+                              <p className="text-amber-200 text-sm mt-1 break-words">{encontro.observacao}</p>
                             ) : null}
                           </div>
                         ))}
@@ -468,9 +435,9 @@ export default function Home() {
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col z-50" onClick={closeModal}>
           
-          <div className="flex justify-between items-center p-4 bg-gray-900 bg-opacity-75 lg:hidden">
-            <div className="flex-1 text-center">
-              <h3 className="text-white text-lg font-semibold">{currentCaption}</h3>
+          <div className="flex items-center gap-3 p-3 bg-gray-900 bg-opacity-75 lg:hidden">
+            <div className="flex-1 min-w-0 text-left">
+              <h3 className="text-white text-base font-semibold leading-tight">{currentCaption}</h3>
               {currentEncontroInfo && (
                 <div className="mt-2 space-y-1">
                   <p className="text-gray-300 text-sm font-medium">{currentEncontroInfo.data}</p>
@@ -507,7 +474,7 @@ export default function Home() {
           </div>
 
           
-          <div className="flex-1 flex items-center justify-center relative p-4 lg:p-8 pt-20 lg:pt-24">
+          <div className="flex-1 flex items-center justify-center relative p-3 lg:p-8 lg:pt-24 min-h-0">
             
             <button
               className="hidden lg:block absolute top-4 right-4 text-white text-3xl font-bold z-30 hover:text-red-400 transition-colors duration-200 bg-red-600 bg-opacity-80 rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl"
@@ -529,7 +496,7 @@ export default function Home() {
             )}
 
             {/* Imagem */}
-            <div className="relative w-full max-w-5xl h-[60vh] lg:h-[70vh] flex items-center justify-center">
+            <div className="relative w-full max-w-5xl h-[48vh] sm:h-[60vh] lg:h-[70vh] flex items-center justify-center">
               <Image
                 src={currentImage}
                 alt={currentEncontroInfo ? `${currentCaption} — ${currentEncontroInfo.anfitriao}` : currentCaption}
