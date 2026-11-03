@@ -1,8 +1,8 @@
 {
   "produto": "ECC Gestor",
-  "versao": "0.5.5",
-  "geradoEm": "2026-11-03T14:34:42.199Z",
-  "arquivoSetup": "ECC-Gestor-Setup-0.5.5.exe",
-  "arquivoDuploClique": "ECC-Gestor-Update-0.5.5.eccupdate",
+  "versao": "0.5.6",
+  "geradoEm": "2026-11-03T14:45:54.799Z",
+  "arquivoSetup": "ECC-Gestor-Setup-0.5.6.exe",
+  "arquivoDuploClique": "ECC-Gestor-Update-0.5.6.eccupdate",
   "instrucao": "No app: Localizar arquivo → Atualizar. Ou dê duplo clique no .eccupdate. O instalador informa que o sistema está em processo de atualização."
 }
