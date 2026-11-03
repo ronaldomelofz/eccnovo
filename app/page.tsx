@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { encontros, type Encontro } from './data/encontros'
-import { sortEncontrosAsc } from './data/ordenar'
+import { sortEncontrosAsc, sortEncontrosDesc } from './data/ordenar'
 import { calcularRodadaAtual } from './data/rodada'
 
 export default function Home() {
@@ -111,7 +111,7 @@ export default function Home() {
   const anos = Array.from(new Set(allEncontros.map(e => e.ano))).sort((a, b) => b - a)
 
   const encontrosPorAno = anos.reduce<Record<number, Encontro[]>>((acc, ano) => {
-    acc[ano] = sortEncontrosAsc(allEncontros.filter(e => e.ano === ano))
+    acc[ano] = sortEncontrosDesc(allEncontros.filter(e => e.ano === ano))
     return acc
   }, {})
 
@@ -376,7 +376,7 @@ export default function Home() {
                     Encontros desta rodada ({rodada.encontrosNaRodada.length})
                   </h4>
                   <ul className="space-y-2 text-gray-300 text-sm">
-                    {rodada.encontrosNaRodada.map((e, i) => (
+                    {sortEncontrosDesc(rodada.encontrosNaRodada).map((e, i) => (
                       <li key={`${e.ano}-${e.mes}-${e.dia}-${i}`} className="flex flex-wrap gap-x-2">
                         <span className="text-pink-300">{e.descricao}</span>
                         <span>—</span>

@@ -20,12 +20,19 @@ export interface EncontroOrdenavel {
   dia: string
 }
 
+function compararData(a: EncontroOrdenavel, b: EncontroOrdenavel) {
+  if (a.ano !== b.ano) return a.ano - b.ano
+  const mesA = MESES_ORDEM[a.mes] ?? 0
+  const mesB = MESES_ORDEM[b.mes] ?? 0
+  if (mesA !== mesB) return mesA - mesB
+  return parseInt(a.dia, 10) - parseInt(b.dia, 10)
+}
+
 export function sortEncontrosAsc<T extends EncontroOrdenavel>(items: T[]): T[] {
-  return [...items].sort((a, b) => {
-    if (a.ano !== b.ano) return a.ano - b.ano
-    const mesA = MESES_ORDEM[a.mes] ?? 0
-    const mesB = MESES_ORDEM[b.mes] ?? 0
-    if (mesA !== mesB) return mesA - mesB
-    return parseInt(a.dia, 10) - parseInt(b.dia, 10)
-  })
+  return [...items].sort(compararData)
+}
+
+/** Último encontro primeiro. */
+export function sortEncontrosDesc<T extends EncontroOrdenavel>(items: T[]): T[] {
+  return [...items].sort((a, b) => compararData(b, a))
 }
