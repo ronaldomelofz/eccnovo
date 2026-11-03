@@ -66,7 +66,7 @@ function buildHtml(grupo, encontros, rodada) {
     .map((ano, i) => {
       const cards = porAno[ano]
         .slice()
-        .sort((a, b) => a.data.localeCompare(b.data))
+        .sort((a, b) => b.data.localeCompare(a.data))
         .map((e) => {
           const { dia, mes } = parseData(e.data)
           const desc = descricaoEncontro(e)

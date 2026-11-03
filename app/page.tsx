@@ -294,98 +294,147 @@ export default function Home() {
           </div>
 
           {tabAtiva === 'ordem' ? (
-            <div className="mb-16 max-w-4xl mx-auto">
-              <h3 className="text-2xl lg:text-3xl font-semibold mb-4 text-gray-300 border-b-2 border-gray-600 pb-3 text-center">
-                Ordem dos Casais — {rodada.nomeRodada}
-                <span className="block text-lg font-normal text-gray-400 mt-1">
-                  Encontros {rodada.numeroInicioCiclo} a {rodada.numeroFimCiclo}
-                  {rodada.rodadaCompleta ? '' : ' · em andamento'}
-                </span>
+            <div className="mb-16 max-w-5xl mx-auto">
+              <h3 className="text-2xl lg:text-3xl font-semibold mb-2 text-white text-center">
+                {rodada.novaRodada ? 'Nova rodada iniciada' : rodada.nomeRodada}
               </h3>
+              <p className="text-center text-gray-400 mb-6">
+                Encontros {rodada.numeroInicioCiclo} a {rodada.numeroFimCiclo}
+                {rodada.novaRodada ? ' · todos os casais estão aptos' : ' · em andamento'}
+              </p>
 
-              <div className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 mb-8 text-center">
-                {rodada.rodadaCompleta ? (
-                  <p className="text-xl font-semibold text-amber-300 mb-2">
-                    Nova rodada iniciada. Os casais abaixo estão aptos para o próximo encontro.
-                  </p>
-                ) : (
-                  <p className="text-xl font-semibold text-amber-300 mb-2">
-                    {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
-                  </p>
-                )}
-                {rodada.pendentes.length > 0 && (
-                  <p className="text-gray-200">
-                    <strong className="text-red-300">Ainda faltam:</strong>{' '}
-                    {rodada.pendentes.map(p => p.casal).join(' · ')}
-                  </p>
-                )}
-                {rodada.repetidos.length > 0 && (
-                  <p className="text-amber-200 mt-2">
-                    <strong>Mais de uma hospedagem:</strong>{' '}
-                    {rodada.repetidos.map(r => `${r.casal} (${r.quantidade} vezes)`).join(' · ')}
-                  </p>
-                )}
-                {rodada.proximosNaOrdem[0] && (
-                  <p className="text-pink-300 mt-3 text-lg">
-                    Próximo na ordem: <strong>{rodada.proximosNaOrdem[0].casal}</strong>
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-3">
-                {rodada.statusCasais.map((item) => (
-                  <div
-                    key={item.casal}
-                    className={`flex items-center gap-4 rounded-xl border-2 p-4 lg:p-5 transition-all ${
-                      item.jaFoiAnfitriao
-                        ? 'bg-gray-700/80 border-green-600/60'
-                        : 'bg-red-950/40 border-red-500/70 shadow-md'
-                    }`}
-                  >
-                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-500 flex items-center justify-center font-bold text-lg">
-                      {item.ordem}
-                    </span>
-                    <span
-                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold ${
-                        item.jaFoiAnfitriao ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+              {rodada.novaRodada ? (
+                <div className="grid gap-3">
+                  {rodada.statusCasais.map((item, index) => (
+                    <div
+                      key={item.casal}
+                      className={`flex items-center gap-4 rounded-xl border-2 p-4 ${
+                        index === 0
+                          ? 'bg-pink-950/50 border-pink-400'
+                          : 'bg-sky-950/30 border-sky-600/70'
                       }`}
-                      title={item.jaFoiAnfitriao ? 'Já foi anfitrião nesta rodada' : 'Ainda não foi anfitrião nesta rodada'}
                     >
-                      {item.jaFoiAnfitriao ? '✓' : '!'}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-lg ${item.jaFoiAnfitriao ? 'text-gray-100' : 'text-red-200'}`}>
-                        {item.casal}
-                      </p>
-                      {item.jaFoiAnfitriao && item.dataUltimoEncontro && (
-                        <p className="text-sm text-gray-400 truncate">
-                          {item.descricaoUltimoEncontro} — {item.dataUltimoEncontro}
+                      <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-900 border border-gray-500 flex items-center justify-center font-bold">
+                        {item.ordem}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-lg">{item.casal}</p>
+                        <p className={`text-sm ${index === 0 ? 'text-pink-200' : 'text-sky-200'}`}>
+                          {index === 0 ? 'Próximo encontro' : 'Apto para a nova rodada'}
                         </p>
-                      )}
-                      {!item.jaFoiAnfitriao && (
-                        <p className="text-sm text-red-300/90">Aguardando vez na rodada atual</p>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {rodada.encontrosNaRodada.length > 0 && (
-                <div className="mt-10">
-                  <h4 className="text-xl font-semibold text-gray-400 mb-4 border-b border-gray-600 pb-2">
-                    Encontros desta rodada ({rodada.encontrosNaRodada.length})
-                  </h4>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    {sortEncontrosDesc(rodada.encontrosNaRodada).map((e, i) => (
-                      <li key={`${e.ano}-${e.mes}-${e.dia}-${i}`} className="flex flex-wrap gap-x-2">
-                        <span className="text-pink-300">{e.descricao}</span>
-                        <span>—</span>
-                        <span>{e.dia} de {e.mes} de {e.ano}</span>
-                        <span className="text-gray-400">({e.anfitriao})</span>
-                      </li>
-                    ))}
-                  </ul>
+                  ))}
                 </div>
+              ) : (
+                <>
+                  <div className="rounded-2xl border border-gray-600 bg-gray-700/70 p-5 mb-6">
+                    <div className="flex items-end justify-between gap-4 mb-3">
+                      <p className="text-amber-300 text-2xl font-bold">
+                        {rodada.completos} de {rodada.totalCasais}
+                      </p>
+                      <p className="text-gray-300 text-sm">casais já foram anfitriões</p>
+                    </div>
+                    <div className="h-3 rounded-full bg-gray-900 overflow-hidden">
+                      <div
+                        className="h-full bg-amber-400"
+                        style={{ width: `${rodada.totalCasais ? Math.round((rodada.completos / rodada.totalCasais) * 100) : 0}%` }}
+                      />
+                    </div>
+                    {rodada.repetidos.length > 0 && (
+                      <p className="text-amber-200 text-sm mt-3">
+                        Mais de uma hospedagem:{' '}
+                        {rodada.repetidos.map((r) => `${r.casal} (${r.quantidade})`).join(' · ')}
+                      </p>
+                    )}
+                    {rodada.foraDaOrdem.length > 0 && (
+                      <p className="text-amber-200 text-sm mt-2">
+                        Fora da ordem oficial: {rodada.foraDaOrdem.join(' · ')}
+                      </p>
+                    )}
+                  </div>
+
+                  {rodada.proximosNaOrdem[0] && (
+                    <div className="rounded-2xl border-2 border-pink-400 bg-pink-950/40 p-5 mb-6 text-center">
+                      <p className="text-pink-200 text-sm font-semibold uppercase tracking-wide">Próximo encontro</p>
+                      <p className="text-2xl lg:text-3xl font-bold mt-1">{rodada.proximosNaOrdem[0].casal}</p>
+                      <p className="text-pink-100 mt-1">{rodada.proximosNaOrdem[0].ordem}º na ordem oficial</p>
+                    </div>
+                  )}
+
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    <section>
+                      <h4 className="text-lg font-semibold text-red-200 mb-3">
+                        Ainda faltam ({rodada.pendentes.length})
+                      </h4>
+                      <div className="grid gap-3">
+                        {rodada.pendentes.map((item) => (
+                          <div key={item.casal} className="flex items-center gap-3 rounded-xl border-2 border-red-500/80 bg-red-950/40 p-4">
+                            <span className="w-9 h-9 rounded-full bg-red-600 text-white font-bold flex items-center justify-center">
+                              {item.ordem}
+                            </span>
+                            <div>
+                              <p className="font-semibold">{item.casal}</p>
+                              <p className="text-sm text-red-200">
+                                {item.casal === rodada.proximosNaOrdem[0]?.casal ? 'Próximo da ordem' : 'Aguardando a vez'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                    <section>
+                      <h4 className="text-lg font-semibold text-green-200 mb-3">
+                        Já receberam ({rodada.completos})
+                      </h4>
+                      <div className="grid gap-3">
+                        {rodada.statusCasais
+                          .filter((item) => item.jaFoiAnfitriao)
+                          .sort((a, b) => (b.numeroEncontro || 0) - (a.numeroEncontro || 0))
+                          .map((item) => (
+                            <div key={item.casal} className="flex items-center gap-3 rounded-xl border border-green-700/70 bg-gray-700/80 p-4">
+                              <span className="w-9 h-9 rounded-full bg-green-600 text-white font-bold flex items-center justify-center">
+                                {item.ordem}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="font-semibold">{item.casal}</p>
+                                <p className="text-sm text-gray-300 truncate">
+                                  {item.numeroEncontro ? `${item.numeroEncontro}º encontro · ` : ''}
+                                  {item.descricaoUltimoEncontro} — {item.dataUltimoEncontro}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </section>
+                  </div>
+
+                  {rodada.encontrosNaRodada.length > 0 && (
+                    <div className="mt-8">
+                      <h4 className="text-lg font-semibold text-gray-300 mb-3">
+                        Encontros desta rodada
+                      </h4>
+                      <div className="grid gap-2">
+                        {sortEncontrosDesc(rodada.encontrosNaRodada).map((encontro) => (
+                          <div
+                            key={encontro.numero}
+                            className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border border-gray-600 bg-gray-800/80 px-4 py-3"
+                          >
+                            <span className="text-amber-300 font-bold w-10">{encontro.numero}º</span>
+                            <span className="text-white font-medium">{encontro.anfitriao}</span>
+                            <span className="text-gray-400 text-sm">
+                              {encontro.dia} de {encontro.mes} de {encontro.ano}
+                            </span>
+                            <span className="text-pink-300 text-sm">{encontro.descricao}</span>
+                            {encontro.observacao ? (
+                              <span className="text-amber-200 text-sm">· {encontro.observacao}</span>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : (

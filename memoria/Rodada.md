@@ -10,7 +10,9 @@ A rodada segue o número global da planilha, não o número escrito no temário.
 - Encontros 1–9: formação inicial (9 casais; Mauro e Daliane entram no 10º).
 - Depois, blocos de 10: 10–19, 20–29, 30–39, 40–49…
 
-A 4ª rodada (40–49) está em andamento. Ainda faltam Ronald e Sara, Marcio e Fernanda e Mauro e Daliane.
+A 4ª rodada (40–49) está em andamento: 7 de 10. Ainda faltam Ronald e Sara, Marcio e Fernanda e Mauro e Daliane. O próximo da ordem é Ronald e Sara.
+
+Quando o bloco fecha sem ninguém faltando, a tela abre a rodada seguinte com todos aptos. O nome do casal é comparado sem acento e sem espaço duplicado.
 
 ## Enquanto a rodada está aberta
 

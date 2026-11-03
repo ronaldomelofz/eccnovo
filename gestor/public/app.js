@@ -289,10 +289,15 @@ function renderOrdem() {
       <p class="muted" style="margin-top:0.75rem">${p?.mensagem || ''}</p>
     `
 
-    lista.innerHTML = r.statusCasais
+    const ordenados = [...r.statusCasais].sort((a, b) => {
+      if (a.jaFoiAnfitriao !== b.jaFoiAnfitriao) return a.jaFoiAnfitriao ? 1 : -1
+      if (!a.jaFoiAnfitriao) return a.ordem - b.ordem
+      return (b.numeroEncontro || 0) - (a.numeroEncontro || 0)
+    })
+    lista.innerHTML = ordenados
       .map(
         (item) => `
-      <div class="ordem-item ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">
+      <div class="ordem-item ${item.jaFoiAnfitriao ? 'ok' : item.casal === r.pendentes[0]?.casal ? 'proximo' : 'pendente'}">
         <span class="ord">${item.ordem}</span>
         <span class="badge ${item.jaFoiAnfitriao ? 'ok' : 'pendente'}">${item.jaFoiAnfitriao ? '✓' : '!'}</span>
         <div>
@@ -309,7 +314,8 @@ function renderOrdem() {
   }
 
   enRodada.innerHTML = r.encontrosNaRodada.length
-    ? r.encontrosNaRodada
+    ? [...r.encontrosNaRodada]
+        .sort((a, b) => Number(b.ordem) - Number(a.ordem))
         .map(
           (e) =>
             `<li><span style="color:var(--pink)">${descricao(e)}</span> — ${fmtData(e.data)} (${e.anfitriao})</li>`
