@@ -5,7 +5,12 @@ atualizado: 2026-10-31
 
 # Rodada
 
-Uma rodada = um casal anfitrião por vez, até todos os casais da ordem terem recebido. O bloco é o número no temário: 1–N, N+1–2N…
+A rodada segue o número global da planilha, não o número escrito no temário.
+
+- Encontros 1–9: formação inicial (9 casais; Mauro e Daliane entram no 10º).
+- Depois, blocos de 10: 10–19, 20–29, 30–39, 40–49…
+
+A 4ª rodada (40–49) está em andamento. Ainda faltam Ronald e Sara, Marcio e Fernanda e Mauro e Daliane.
 
 ## Enquanto a rodada está aberta
 

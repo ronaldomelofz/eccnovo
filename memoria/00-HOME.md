@@ -30,7 +30,7 @@ Leia **só este arquivo**. Abra **uma** nota da tabela se a tarefa exigir detalh
 
 - Fontes do site público: `FOTOS/` e `AGENDA ENCONTROS.xlsx`. Depois `npm run sync`. Não editar `public/FOTOS/` nem `app/data/encontros.ts` à mão.
 - Nº no temário: o operador digita. O sistema só sugere.
-- Rodada = N encontros (N = quantidade de casais) no mesmo temário, pelo número no temário.
+- Rodada = sequência global da planilha: formação 1–9, depois blocos de 10 (10–19, 20–29…). Não usar o nº do temário para fechar a rodada.
 - Rodada completa → aviso **Nova rodada iniciada** e lista dos casais aptos, 1º da ordem em destaque.
 - Ao concluir alteração: commit + push em `main`, e novo .exe se o Gestor mudou.
 

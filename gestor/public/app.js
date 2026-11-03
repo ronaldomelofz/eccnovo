@@ -279,7 +279,7 @@ function renderOrdem() {
   } else {
     resumo.innerHTML = `
       <p class="destaque">${r.completos} de ${r.totalCasais} casais já foram anfitriões nesta rodada</p>
-      <p class="muted">${r.numeroInicioCiclo}º a ${r.numeroFimCiclo}º encontro no temário${r.temario ? ` · ${r.temario}º temário` : ''}</p>
+      <p class="muted">${r.nomeRodada || 'Rodada'} · encontros ${r.numeroInicioCiclo} a ${r.numeroFimCiclo}${r.rodadaCompleta ? '' : ' · em andamento'}</p>
       ${
         r.pendentes.length
           ? `<p><strong style="color:var(--red)">Ainda faltam:</strong> ${r.pendentes.map((x) => x.casal).join(' · ')}</p>`

@@ -53,6 +53,7 @@ function parseAgendaExcel(agendaPath = AGENDA_XLSX) {
       dia: String(row[2]).padStart(2, '0'),
       anfitriao: String(row[3]).trim(),
       descricao: String(row[4]).trim(),
+      observacao: String(row[5] || '').trim(),
       fotoStatus: String(row[6] || '').trim().toUpperCase(),
     })
   }

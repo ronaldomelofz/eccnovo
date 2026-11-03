@@ -1,6 +1,5 @@
 import type { Encontro } from './encontros'
 import { ORDEM_CASAIS } from './casais'
-import { sortEncontrosAsc } from './ordenar'
 
 export interface StatusCasalRodada {
   ordem: number
@@ -10,95 +9,94 @@ export interface StatusCasalRodada {
   descricaoUltimoEncontro: string | null
 }
 
+export interface RepeticaoRodada {
+  casal: string
+  quantidade: number
+}
+
 export interface RodadaAtual {
+  nomeRodada: string
   encontrosNaRodada: Encontro[]
   statusCasais: StatusCasalRodada[]
   pendentes: StatusCasalRodada[]
+  repetidos: RepeticaoRodada[]
   completos: number
   totalCasais: number
   proximosNaOrdem: StatusCasalRodada[]
   numeroInicioCiclo: number
   numeroFimCiclo: number
   temario: number | null
+  rodadaCompleta: boolean
 }
 
-function parseNumeroEncontro(descricao: string): number | null {
-  const match = descricao.match(/^(\d+)º ENCONTRO/)
-  return match ? Number.parseInt(match[1], 10) : null
+/**
+ * A formação inicial teve 9 encontros (o 10º casal entrou no 10º).
+ * Depois disso, cada rodada é um bloco de 10 encontros: 10–19, 20–29, 30–39, 40–49…
+ * O número usado é o da planilha (sequência global), não o “Nº no temário”.
+ */
+function faixaRodada(numero: number, totalCasais: number) {
+  const formacao = totalCasais === 10 ? 9 : 0
+  if (formacao && numero <= formacao) {
+    return { inicio: 1, fim: formacao, nome: 'Formação inicial', tamanho: formacao }
+  }
+  const base = formacao ? formacao + 1 : 1
+  const n = Math.max(numero, base)
+  const inicio = base + Math.floor((n - base) / totalCasais) * totalCasais
+  const indice = Math.floor((inicio - base) / totalCasais) + 1
+  return { inicio, fim: inicio + totalCasais - 1, nome: `${indice}ª rodada`, tamanho: totalCasais }
 }
 
-function parseTemario(descricao: string): number | null {
-  const match = descricao.match(/(\d+)º TEMÁRIO/)
-  return match ? Number.parseInt(match[1], 10) : null
+function numeroGlobal(encontro: Encontro, fallback: number) {
+  return encontro.numero > 0 ? encontro.numero : fallback
 }
 
-/** Rodada atual = bloco de 10 encontros (1–10, 11–20, 21–30…) do temário vigente */
 export function calcularRodadaAtual(encontros: Encontro[]): RodadaAtual {
-  const sorted = sortEncontrosAsc(encontros)
-  const comDescricao = sorted.filter(
-    (e) => parseNumeroEncontro(e.descricao) !== null && parseTemario(e.descricao) !== null
+  const total = ORDEM_CASAIS.length
+  const numbered = [...encontros]
+    .map((encontro, index) => ({ ...encontro, numero: numeroGlobal(encontro, index + 1) }))
+    .sort((a, b) => a.numero - b.numero)
+
+  const faixa = faixaRodada(numbered.at(-1)?.numero ?? 1, total)
+  const participantes = ORDEM_CASAIS.slice(0, faixa.tamanho)
+  const encontrosNaRodada = numbered.filter(
+    (encontro) => encontro.numero >= faixa.inicio && encontro.numero <= faixa.fim
   )
 
-  if (comDescricao.length === 0) {
-    return {
-      encontrosNaRodada: [],
-      statusCasais: ORDEM_CASAIS.map((casal, index) => ({
-        ordem: index + 1,
-        casal,
-        jaFoiAnfitriao: false,
-        dataUltimoEncontro: null,
-        descricaoUltimoEncontro: null,
-      })),
-      pendentes: [],
-      completos: 0,
-      totalCasais: ORDEM_CASAIS.length,
-      proximosNaOrdem: [],
-      numeroInicioCiclo: 1,
-      numeroFimCiclo: 10,
-      temario: null,
-    }
+  const contagem = new Map<string, number>()
+  for (const encontro of encontrosNaRodada) {
+    contagem.set(encontro.anfitriao, (contagem.get(encontro.anfitriao) || 0) + 1)
   }
+  const repetidos = Array.from(contagem.entries())
+    .filter(([, quantidade]) => quantidade > 1)
+    .map(([casal, quantidade]) => ({ casal, quantidade }))
 
-  const ultimo = comDescricao[comDescricao.length - 1]
-  const ultimoNumero = parseNumeroEncontro(ultimo.descricao)!
-  const temarioAtual = parseTemario(ultimo.descricao)!
-
-  const numeroInicioCiclo = Math.floor((ultimoNumero - 1) / 10) * 10 + 1
-  const numeroFimCiclo = numeroInicioCiclo + 9
-
-  const encontrosNaRodada = comDescricao.filter((e) => {
-    const numero = parseNumeroEncontro(e.descricao)!
-    const temario = parseTemario(e.descricao)!
-    return temario === temarioAtual && numero >= numeroInicioCiclo && numero <= numeroFimCiclo
-  })
-
-  const anfitrioesRodada = new Set(encontrosNaRodada.map((e) => e.anfitriao))
-
-  const statusCasais: StatusCasalRodada[] = ORDEM_CASAIS.map((casal, index) => {
-    const encontrosDoCasal = encontrosNaRodada.filter((e) => e.anfitriao === casal)
-    const ultimoEncontro = encontrosDoCasal[encontrosDoCasal.length - 1]
+  const statusCasais: StatusCasalRodada[] = participantes.map((casal, index) => {
+    const doCasal = encontrosNaRodada.filter((encontro) => encontro.anfitriao === casal)
+    const ultimo = doCasal.at(-1)
     return {
       ordem: index + 1,
       casal,
-      jaFoiAnfitriao: anfitrioesRodada.has(casal),
-      dataUltimoEncontro: ultimoEncontro
-        ? `${ultimoEncontro.dia} de ${ultimoEncontro.mes} de ${ultimoEncontro.ano}`
-        : null,
-      descricaoUltimoEncontro: ultimoEncontro?.descricao ?? null,
+      jaFoiAnfitriao: doCasal.length > 0,
+      dataUltimoEncontro: ultimo ? `${ultimo.dia} de ${ultimo.mes} de ${ultimo.ano}` : null,
+      descricaoUltimoEncontro: ultimo?.descricao ?? null,
     }
   })
 
-  const pendentes = statusCasais.filter((c) => !c.jaFoiAnfitriao)
+  const pendentes = statusCasais.filter((casal) => !casal.jaFoiAnfitriao)
+  const temarioMatch = numbered.at(-1)?.descricao.match(/(\d+)º TEMÁRIO/)
 
   return {
+    nomeRodada: faixa.nome,
     encontrosNaRodada,
     statusCasais,
     pendentes,
-    completos: statusCasais.filter((c) => c.jaFoiAnfitriao).length,
-    totalCasais: ORDEM_CASAIS.length,
+    repetidos,
+    completos: statusCasais.filter((casal) => casal.jaFoiAnfitriao).length,
+    totalCasais: participantes.length,
     proximosNaOrdem: pendentes,
-    numeroInicioCiclo,
-    numeroFimCiclo,
-    temario: temarioAtual,
+    numeroInicioCiclo: faixa.inicio,
+    numeroFimCiclo: faixa.fim,
+    temario: temarioMatch ? Number(temarioMatch[1]) : null,
+    rodadaCompleta: participantes.length > 0 && encontrosNaRodada.length > 0 && pendentes.length === 0,
   }
 }

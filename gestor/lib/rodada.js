@@ -40,19 +40,36 @@ function calcularRodada(casais, encontros) {
   }
 
   const ultimo = sorted[sorted.length - 1]
-  const n = Number(ultimo.numeroNoTemario) || sorted.length
   const temarioAtual = Number(ultimo.temario) || 1
-  const numeroInicioCiclo = Math.floor((n - 1) / total) * total + 1
-  const numeroFimCiclo = numeroInicioCiclo + total - 1
+  const formacao = total === 10 ? 9 : 0
+  const n = Number(ultimo.ordem) || sorted.length
+  let numeroInicioCiclo
+  let numeroFimCiclo
+  let nomeRodada
+  let participantes
+  if (formacao && n <= formacao) {
+    numeroInicioCiclo = 1
+    numeroFimCiclo = formacao
+    nomeRodada = 'Formação inicial'
+    participantes = ordemCasais.slice(0, formacao)
+  } else {
+    const base = formacao ? formacao + 1 : 1
+    const atual = Math.max(n, base)
+    numeroInicioCiclo = base + Math.floor((atual - base) / total) * total
+    numeroFimCiclo = numeroInicioCiclo + total - 1
+    const indice = Math.floor((numeroInicioCiclo - base) / total) + 1
+    nomeRodada = `${indice}ª rodada`
+    participantes = ordemCasais
+  }
 
   const encontrosNaRodada = sorted.filter((e) => {
-    const num = Number(e.numeroNoTemario)
-    return Number(e.temario) === temarioAtual && num >= numeroInicioCiclo && num <= numeroFimCiclo
+    const num = Number(e.ordem)
+    return num >= numeroInicioCiclo && num <= numeroFimCiclo
   })
 
   const anfitrioes = new Set(encontrosNaRodada.map((e) => e.anfitriao))
 
-  const statusCasais = ordemCasais.map((c) => {
+  const statusCasais = participantes.map((c) => {
     const doCasal = encontrosNaRodada.filter((e) => e.anfitriao === c.nome)
     const last = doCasal[doCasal.length - 1]
     return {
@@ -66,14 +83,15 @@ function calcularRodada(casais, encontros) {
 
   const pendentes = statusCasais.filter((c) => !c.jaFoiAnfitriao)
   const completos = statusCasais.filter((c) => c.jaFoiAnfitriao).length
-  const rodadaCompleta = ordemCasais.length > 0 && pendentes.length === 0
+  const rodadaCompleta = participantes.length > 0 && encontrosNaRodada.length > 0 && pendentes.length === 0
 
   return {
+    nomeRodada,
     encontrosNaRodada,
     statusCasais,
     pendentes,
     completos,
-    totalCasais: ordemCasais.length,
+    totalCasais: participantes.length,
     proximosNaOrdem: pendentes,
     numeroInicioCiclo,
     numeroFimCiclo,

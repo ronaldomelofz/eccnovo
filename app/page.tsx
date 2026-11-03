@@ -132,6 +132,9 @@ export default function Home() {
           <p className="mb-2 text-gray-200"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
           <p className="text-gray-200"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
           <p className="text-gray-200"><strong>Descrição:</strong> {encontro.descricao}</p>
+          {encontro.observacao ? (
+            <p className="text-amber-200 mt-2"><strong>Observação:</strong> {encontro.observacao}</p>
+          ) : null}
         </div>
         <div className="encontro-foto ml-8 flex-shrink-0">
           {encontro.semFoto ? (
@@ -156,6 +159,9 @@ export default function Home() {
           <p className="mb-1 text-gray-200 text-sm"><strong>Data:</strong> {encontro.dia} de {encontro.mes} de {encontro.ano}</p>
           <p className="text-gray-200 text-sm"><strong>Casal Anfitrião:</strong> {encontro.anfitriao}</p>
           <p className="text-gray-200 text-sm"><strong>Descrição:</strong> {encontro.descricao}</p>
+          {encontro.observacao ? (
+            <p className="text-amber-200 text-sm mt-2"><strong>Observação:</strong> {encontro.observacao}</p>
+          ) : null}
         </div>
         <div className="flex justify-center">
           {encontro.semFoto ? (
@@ -290,25 +296,34 @@ export default function Home() {
           {tabAtiva === 'ordem' ? (
             <div className="mb-16 max-w-4xl mx-auto">
               <h3 className="text-2xl lg:text-3xl font-semibold mb-4 text-gray-300 border-b-2 border-gray-600 pb-3 text-center">
-                Ordem dos Encontros — Rodada Atual
-                {rodada.temario !== null && (
-                  <span className="block text-lg font-normal text-gray-400 mt-1">
-                    {rodada.numeroInicioCiclo}º a {rodada.numeroFimCiclo}º encontro · {rodada.temario}º temário
-                  </span>
-                )}
+                Ordem dos Casais — {rodada.nomeRodada}
+                <span className="block text-lg font-normal text-gray-400 mt-1">
+                  Encontros {rodada.numeroInicioCiclo} a {rodada.numeroFimCiclo}
+                  {rodada.rodadaCompleta ? '' : ' · em andamento'}
+                </span>
               </h3>
 
               <div className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-xl p-6 mb-8 text-center">
-                <p className="text-xl font-semibold text-amber-300 mb-2">
-                  {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
-                </p>
-                {rodada.pendentes.length > 0 ? (
+                {rodada.rodadaCompleta ? (
+                  <p className="text-xl font-semibold text-amber-300 mb-2">
+                    Nova rodada iniciada. Os casais abaixo estão aptos para o próximo encontro.
+                  </p>
+                ) : (
+                  <p className="text-xl font-semibold text-amber-300 mb-2">
+                    {rodada.completos} de {rodada.totalCasais} casais já foram anfitriões nesta rodada
+                  </p>
+                )}
+                {rodada.pendentes.length > 0 && (
                   <p className="text-gray-200">
                     <strong className="text-red-300">Ainda faltam:</strong>{' '}
                     {rodada.pendentes.map(p => p.casal).join(' · ')}
                   </p>
-                ) : (
-                  <p className="text-green-300 font-medium">Rodada completa! Todos os 10 casais já receberam.</p>
+                )}
+                {rodada.repetidos.length > 0 && (
+                  <p className="text-amber-200 mt-2">
+                    <strong>Mais de uma hospedagem:</strong>{' '}
+                    {rodada.repetidos.map(r => `${r.casal} (${r.quantidade} vezes)`).join(' · ')}
+                  </p>
                 )}
                 {rodada.proximosNaOrdem[0] && (
                   <p className="text-pink-300 mt-3 text-lg">

@@ -14,7 +14,7 @@ function parseEncontrosTs() {
   const content = fs.readFileSync(ENCONTROS_TS, 'utf8')
   const blocks = [...content.matchAll(/\{[^}]+\}/g)].map((m) => m[0])
   return blocks
-    .filter((b) => b.includes('ano:'))
+    .filter((b) => /ano:\s*\d+/.test(b))
     .map((b) => {
       const get = (key) => {
         const m = b.match(new RegExp(`${key}:\\s*"([^"]+)"`))

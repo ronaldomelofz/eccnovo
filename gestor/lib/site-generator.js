@@ -117,7 +117,7 @@ function buildHtml(grupo, encontros, rodada) {
         <p>Estes ${casaisOrdem.length} casais estão aptos para o próximo encontro, nesta ordem.</p>
       </div>`
     : `<div class="resumo">
-        <p class="d">${rodada.completos} de ${rodada.totalCasais} casais já foram anfitriões nesta rodada</p>
+        <p class="d">${escapeHtml(rodada.nomeRodada || 'Rodada')} · ${rodada.completos} de ${rodada.totalCasais} casais já foram anfitriões nesta rodada</p>
         <p>${
           rodada.pendentes.length
             ? `Ainda faltam: ${rodada.pendentes.map((p) => escapeHtml(p.casal)).join(' · ')}`

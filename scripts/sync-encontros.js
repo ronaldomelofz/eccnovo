@@ -13,12 +13,17 @@ function findPhotoFile(num, fotosDir) {
   )
 }
 
+function jsString(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
 function buildEncontroLine(item, fotosDir) {
   const parts = [
+    `numero: ${item.num}`,
     `ano: ${item.ano}`,
     `mes: "${item.mes}"`,
     `dia: "${item.dia}"`,
-    `anfitriao: "${item.anfitriao}"`,
+    `anfitriao: "${jsString(item.anfitriao)}"`,
   ]
 
   const semFoto = item.fotoStatus === 'SEM FOTO'
@@ -35,7 +40,8 @@ function buildEncontroLine(item, fotosDir) {
     parts.push(`foto: "${FOTOS_WEB_PREFIX}/${photoFile}"`)
   }
 
-  parts.push(`descricao: "${item.descricao}"`)
+  parts.push(`descricao: "${jsString(item.descricao)}"`)
+  if (item.observacao) parts.push(`observacao: "${jsString(item.observacao)}"`)
   return `  { ${parts.join(', ')} },`
 }
 
@@ -56,6 +62,7 @@ function generateEncontrosTs(items, fotosDir) {
 // Atualizar: npm run sync
 
 export interface Encontro {
+  numero: number;
   ano: number;
   mes: string;
   dia: string;
@@ -63,6 +70,7 @@ export interface Encontro {
   foto?: string;
   semFoto?: boolean;
   descricao: string;
+  observacao?: string;
 }
 
 export const encontros: Encontro[] = [
