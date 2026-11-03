@@ -25,7 +25,7 @@ export const encontros: Encontro[] = [
   { numero: 7, ano: 2023, mes: "Setembro", dia: "28", anfitriao: "HUGO E YANE", foto: "/FOTOS/ENCONTRO-07-28-09-2023.jpeg", descricao: "7º ENCONTRO 1º TEMÁRIO" },
   { numero: 8, ano: 2023, mes: "Outubro", dia: "21", anfitriao: "RONALDO E SANDRA", foto: "/FOTOS/ENCONTRO-08-21-10-2023.jpeg", descricao: "8º ENCONTRO 1º TEMÁRIO" },
   { numero: 9, ano: 2023, mes: "Novembro", dia: "16", anfitriao: "MARCIO E FERNANDA", foto: "/FOTOS/ENCONTRO-09-16-11-2023.jpeg", descricao: "9º ENCONTRO 2º TEMÁRIO" },
-  { numero: 10, ano: 2023, mes: "Dezembro", dia: "08", anfitriao: "ROBERVAL E IARA", foto: "/FOTOS/ENCONTRO-10-08-12-2023.jpeg", descricao: "10º ENCONTRO 2º TEMÁRIO", observacao: "MAURO E DALIANE INICIARAM" },
+  { numero: 10, ano: 2023, mes: "Dezembro", dia: "08", anfitriao: "ROBERVAL E IARA", foto: "/FOTOS/ENCONTRO-10-08-12-2023.jpeg", descricao: "10º ENCONTRO 2º TEMÁRIO", observacao: "MAURO E DALIANE ENTRAM NO GRUPO" },
   // 2024
   { numero: 11, ano: 2024, mes: "Janeiro", dia: "25", anfitriao: "HUGO E YANE", foto: "/FOTOS/ENCONTRO-11-25-01-2024.jpeg", descricao: "11º ENCONTRO 2º TEMÁRIO" },
   { numero: 12, ano: 2024, mes: "Fevereiro", dia: "17", anfitriao: "JOÃO MAURICIO E FERNANDA", foto: "/FOTOS/ENCONTRO-12-17-02-2024.jpeg", descricao: "12º ENCONTRO 2º TEMÁRIO" },
@@ -60,9 +60,9 @@ export const encontros: Encontro[] = [
   { numero: 39, ano: 2026, mes: "Março", dia: "27", anfitriao: "MARCIO E FERNANDA", foto: "/FOTOS/ENCONTRO-39-27-03-2026.jpeg", descricao: "23º ENCONTRO 2º TEMÁRIO" },
   { numero: 40, ano: 2026, mes: "Abril", dia: "22", anfitriao: "JOÃO MAURICIO E FERNANDA", foto: "/FOTOS/ENCONTRO-40-22-04-2026.jpeg", descricao: "24º ENCONTRO 2º TEMÁRIO" },
   { numero: 41, ano: 2026, mes: "Maio", dia: "08", anfitriao: "RAULINO E NAIR", foto: "/FOTOS/ENCONTRO-41-08-05-2026.jpeg", descricao: "25º ENCONTRO 2º TEMÁRIO" },
-  { numero: 42, ano: 2026, mes: "Junho", dia: "20", anfitriao: "RIBINHA E ROSANA", foto: "/FOTOS/ENCONTRO-42-20-06-2026.jpeg", descricao: "26º ENCONTRO 2º TEMÁRIO", observacao: "HUGO E YANE ASSUMEM A COORDENAÇÃO" },
+  { numero: 42, ano: 2026, mes: "Junho", dia: "20", anfitriao: "RIBINHA E ROSANA", foto: "/FOTOS/ENCONTRO-42-20-06-2026.jpeg", descricao: "26º ENCONTRO 2º TEMÁRIO", observacao: "HUGO E YANE INICIAM COMO COORDENADORES" },
   { numero: 43, ano: 2026, mes: "Julho", dia: "16", anfitriao: "ROBERVAL E IARA", foto: "/FOTOS/ENCONTRO-43-16-07-2026.jpeg", descricao: "27º ENCONTRO 2º TEMÁRIO" },
   { numero: 44, ano: 2026, mes: "Agosto", dia: "27", anfitriao: "HUGO E YANE", foto: "/FOTOS/ENCONTRO-44-27-08-2026.jpeg", descricao: "28º ENCONTRO 2º TEMÁRIO" },
   { numero: 45, ano: 2026, mes: "Setembro", dia: "25", anfitriao: "RONALDO E SANDRA", foto: "/FOTOS/ENCONTRO-45-25-09-2026.jpeg", descricao: "29º ENCONTRO 2º TEMÁRIO" },
-  { numero: 46, ano: 2026, mes: "Outubro", dia: "30", anfitriao: "RUBENS E FERNANDA", foto: "/FOTOS/ENCONTRO-46-30-10-2026.jpeg", descricao: "30º ENCONTRO 2º TEMÁRIO", observacao: "RUBENS E FERNANDA ASSUMEM A COORDENAÇÃO" },
+  { numero: 46, ano: 2026, mes: "Outubro", dia: "30", anfitriao: "RUBENS E FERNANDA", foto: "/FOTOS/ENCONTRO-46-30-10-2026.jpeg", descricao: "30º ENCONTRO 2º TEMÁRIO", observacao: "RUBENS E FERNANDA INICIAM COMO COORDENADORES" },
 ];
