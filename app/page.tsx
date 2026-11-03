@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useState, useEffect, useCallback } from 'react'
 import { encontros, type Encontro } from './data/encontros'
 import { sortEncontrosAsc, sortEncontrosDesc } from './data/ordenar'
-import { calcularRodadaAtual } from './data/rodada'
+import { calcularRodadaAtual, listarRodadasConcluidas } from './data/rodada'
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -117,6 +117,7 @@ export default function Home() {
 
   const tabAtiva = activeTab ?? anos[0] ?? 'ordem'
   const rodada = calcularRodadaAtual(allEncontros)
+  const rodadasConcluidas = listarRodadasConcluidas(allEncontros)
 
   useEffect(() => {
     if (activeTab === null && anos.length > 0) {
@@ -402,6 +403,49 @@ export default function Home() {
                     </div>
                   )}
                 </>
+              )}
+
+              {rodadasConcluidas.length > 0 && (
+                <section className="mt-12 pt-8 border-t border-gray-600">
+                  <h4 className="text-xl lg:text-2xl font-semibold text-gray-200 mb-2 text-center">
+                    Rodadas concluídas
+                  </h4>
+                  <p className="text-center text-gray-400 text-sm mb-6">
+                    Histórico por encontro: data, casal anfitrião e temário
+                  </p>
+                  <div className="grid gap-8">
+                    {rodadasConcluidas.map((bloco) => (
+                      <div key={`${bloco.numeroInicioCiclo}-${bloco.numeroFimCiclo}`} className="rounded-2xl border border-gray-600 bg-gray-800/60 p-4 sm:p-5">
+                        <h5 className="text-lg font-semibold text-amber-300 mb-1">
+                          {bloco.nomeRodada}
+                        </h5>
+                        <p className="text-sm text-gray-400 mb-4">
+                          Encontros {bloco.numeroInicioCiclo} a {bloco.numeroFimCiclo} · {bloco.encontros.length} reuniões
+                        </p>
+                        <div className="grid gap-2">
+                          {sortEncontrosDesc(bloco.encontros).map((encontro) => (
+                            <div
+                              key={encontro.numero}
+                              className="rounded-lg border border-gray-700 bg-gray-900/50 px-3 py-2.5 sm:px-4 sm:py-3"
+                            >
+                              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+                                <span className="text-amber-300 font-bold text-sm">{encontro.numero}º encontro</span>
+                                <span className="text-gray-300 text-sm">
+                                  {encontro.dia} de {encontro.mes} de {encontro.ano}
+                                </span>
+                              </div>
+                              <p className="text-white font-medium mt-1 break-words">{encontro.anfitriao}</p>
+                              <p className="text-pink-300 text-sm">{encontro.descricao}</p>
+                              {encontro.observacao ? (
+                                <p className="text-amber-200 text-xs sm:text-sm mt-1 break-words">{encontro.observacao}</p>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               )}
             </div>
           ) : (

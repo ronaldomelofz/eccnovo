@@ -103,15 +103,69 @@ function avaliar(
   return { participantes, encontrosNaRodada, repetidos, foraDaOrdem, statusCasais, pendentes }
 }
 
-export function calcularRodadaAtual(encontros: Encontro[]): RodadaAtual {
-  const total = ORDEM_CASAIS.length
-  const numbered = sortEncontrosAsc(encontros)
+export interface RodadaConcluida {
+  nomeRodada: string
+  numeroInicioCiclo: number
+  numeroFimCiclo: number
+  encontros: Encontro[]
+}
+
+function faixasSequencia(maxNumero: number, totalCasais: number) {
+  const faixas: ReturnType<typeof faixaRodada>[] = []
+  let cursor = 1
+  while (cursor <= maxNumero) {
+    const faixa = faixaRodada(cursor, totalCasais)
+    if (faixas.some((f) => f.inicio === faixa.inicio)) break
+    faixas.push(faixa)
+    cursor = faixa.fim + 1
+  }
+  return faixas
+}
+
+function encontrosNumerados(encontros: Encontro[]) {
+  return sortEncontrosAsc(encontros)
     .map((encontro, index) => ({
       ...encontro,
       numero: encontro.numero > 0 ? encontro.numero : index + 1,
     }))
     .sort((a, b) => a.numero - b.numero)
+}
 
+/** Rodadas já fechadas (todos os casais da faixa já foram anfitriões). */
+export function listarRodadasConcluidas(encontros: Encontro[]): RodadaConcluida[] {
+  const total = ORDEM_CASAIS.length
+  const numbered = encontrosNumerados(encontros)
+  const maxNumero = numbered[numbered.length - 1]?.numero ?? 0
+  if (!maxNumero) return []
+
+  const atual = calcularRodadaAtual(encontros)
+  const historico: RodadaConcluida[] = []
+
+  for (const faixa of faixasSequencia(maxNumero, total)) {
+    const av = avaliar(faixa, numbered)
+    const fechada = av.pendentes.length === 0 && av.encontrosNaRodada.length > 0
+    if (!fechada) continue
+
+    const emAndamento =
+      !atual.novaRodada &&
+      faixa.inicio === atual.numeroInicioCiclo &&
+      faixa.fim === atual.numeroFimCiclo
+    if (emAndamento) continue
+
+    historico.push({
+      nomeRodada: faixa.nome,
+      numeroInicioCiclo: faixa.inicio,
+      numeroFimCiclo: faixa.fim,
+      encontros: sortEncontrosAsc(av.encontrosNaRodada),
+    })
+  }
+
+  return historico
+}
+
+export function calcularRodadaAtual(encontros: Encontro[]): RodadaAtual {
+  const total = ORDEM_CASAIS.length
+  const numbered = encontrosNumerados(encontros)
   const ultimoNumero = numbered[numbered.length - 1]?.numero ?? 1
   let faixa = faixaRodada(ultimoNumero, total)
   let avaliacao = avaliar(faixa, numbered)
