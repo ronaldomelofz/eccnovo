@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Comando ECC — Site Alimento do Amor</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Comando ECC</h1>
+      <p class="sub">Cadastro de encontros · planilha e fotos · deploy Netlify</p>
+    </div>
+    <div class="top-actions">
+      <a class="btn ghost" href="https://eccalimentodoamor.netlify.app" target="_blank" rel="noopener">Ver site</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>Novo / editar encontro</h2>
+      <p class="hint" id="statusProjeto">Carregando…</p>
+
+      <form id="formEncontro" class="grid-form">
+        <label>
+          Nº encontro (planilha)
+          <input type="number" name="num" id="num" min="1" required />
+        </label>
+        <label>
+          Ano
+          <input type="number" name="ano" id="ano" min="2023" max="2035" required />
+        </label>
+        <label>
+          Mês
+          <select name="mes" id="mes" required></select>
+        </label>
+        <label>
+          Dia
+          <input type="number" name="dia" id="dia" min="1" max="31" required />
+        </label>
+        <label class="span2">
+          Casal anfitrião
+          <select name="anfitriao" id="anfitriao" required></select>
+        </label>
+        <label class="span2">
+          Descrição (temário)
+          <input type="text" name="descricao" id="descricao" placeholder="Ex.: 31º ENCONTRO 2º TEMÁRIO" required />
+        </label>
+        <label class="span2">
+          Observações
+          <input type="text" name="observacao" id="observacao" placeholder="Opcional" />
+        </label>
+        <label class="span2">
+          Foto do encontro
+          <input type="file" name="foto" id="foto" accept="image/jpeg,image/png,image/webp" />
+        </label>
+        <label class="check span2">
+          <input type="checkbox" name="semFoto" id="semFoto" />
+          Sem foto (marca SEM FOTO na planilha)
+        </label>
+        <div class="actions span2">
+          <button type="submit" class="btn primary">Salvar na planilha e FOTOS/</button>
+          <button type="button" class="btn ghost" id="btnLimpar">Limpar formulário</button>
+        </div>
+      </form>
+      <pre id="msgSalvar" class="log" hidden></pre>
+    </section>
+
+    <section class="card">
+      <h2>Enviar para o site (deploy)</h2>
+      <p class="hint">
+        Sincroniza planilha + fotos, valida, faz commit e push em <code>main</code> → Netlify publica automaticamente.
+      </p>
+      <label class="span2 block">
+        Mensagem do commit (opcional)
+        <input type="text" id="msgCommit" placeholder="Atualiza encontros do ECC Alimento do Amor." />
+      </label>
+      <button type="button" class="btn deploy" id="btnDeploy">Publicar no site</button>
+      <pre id="msgDeploy" class="log" hidden></pre>
+    </section>
+
+    <section class="card span2">
+      <h2>Encontros na planilha</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nº</th>
+              <th>Data</th>
+              <th>Casal</th>
+              <th>Descrição</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabelaEncontros"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

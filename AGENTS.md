@@ -16,6 +16,10 @@ Referência no código: `scripts/fontes.js` e `app/data/fontes.config.ts`
 3. Executar `npm run sync`
 4. Não editar `encontros.ts` nem `public/FOTOS/` manualmente
 
+## Comando ECC (cadastro do site)
+
+Pasta `COMANDO/` — painel local para planilha + fotos + deploy: `npm run comando` (porta 3848). Teste: `npm run test:comando`.
+
 ## Deploy
 
 - Repositório: https://github.com/ronaldomelofz/eccnovo

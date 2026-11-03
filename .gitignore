@@ -58,6 +58,8 @@ setup-deploy.sh
 .vercel
 .tmp-nl/
 /dist-gestor/
+/COMANDO/dist-electron/
+/COMANDO/*.exe
 /EXECUTAVEL/*.exe
 /EXECUTAVEL/*.dmg
 /EXECUTAVEL/*.blockmap

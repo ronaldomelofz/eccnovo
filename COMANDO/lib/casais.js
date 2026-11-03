@@ -1,0 +1,13 @@
+/** Ordem oficial — igual ao site */
+module.exports.ORDEM_CASAIS = [
+  'ROBERVAL E IARA',
+  'JOÃO MAURICIO E FERNANDA',
+  'RIBINHA E ROSANA',
+  'RAULINO E NAIR',
+  'RUBENS E FERNANDA',
+  'RONALD E SARA',
+  'HUGO E YANE',
+  'RONALDO E SANDRA',
+  'MARCIO E FERNANDA',
+  'MAURO E DALIANE',
+]
