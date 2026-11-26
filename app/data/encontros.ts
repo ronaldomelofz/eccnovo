@@ -65,4 +65,5 @@ export const encontros: Encontro[] = [
   { numero: 44, ano: 2026, mes: "Agosto", dia: "27", anfitriao: "HUGO E YANE", foto: "/FOTOS/ENCONTRO-44-27-08-2026.jpeg", descricao: "28º ENCONTRO 2º TEMÁRIO" },
   { numero: 45, ano: 2026, mes: "Setembro", dia: "25", anfitriao: "RONALDO E SANDRA", foto: "/FOTOS/ENCONTRO-45-25-09-2026.jpeg", descricao: "29º ENCONTRO 2º TEMÁRIO" },
   { numero: 46, ano: 2026, mes: "Outubro", dia: "30", anfitriao: "RUBENS E FERNANDA", foto: "/FOTOS/ENCONTRO-46-30-10-2026.jpeg", descricao: "30º ENCONTRO 2º TEMÁRIO", observacao: "RUBENS E FERNANDA INICIAM COMO COORDENADORES" },
+  { numero: 47, ano: 2026, mes: "Novembro", dia: "25", anfitriao: "MARCIO E FERNANDA", foto: "/FOTOS/ENCONTRO-47-25-11-2026.jpeg", descricao: "31º ENCONTRO 2º TEMÁRIO" },
 ];
