@@ -6,7 +6,7 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const { getSiteRoot, assertSiteRoot } = require('./lib/paths')
-const { publicarSite } = require('./lib/deploy')
+const { publicarSite, executarPassoDeploy, PASSOS_ORDEM, PASSOS_LABEL } = require('./lib/deploy')
 const { ORDEM_CASAIS } = require('./lib/casais')
 const { parseAgendaExcel } = require('../scripts/lib/agenda')
 const { upsertEncontroPlanilha, nomeArquivoFoto } = require('../scripts/lib/agenda-write')
@@ -88,6 +88,27 @@ function startServer(port = PORT) {
       res.json({ ok: true, encontro: saved, fotoArquivo })
     } catch (err) {
       res.status(500).json({ erro: err.message || String(err) })
+    }
+  })
+
+  app.get('/api/deploy/passos', (_req, res) => {
+    res.json({
+      passos: PASSOS_ORDEM.map((id) => ({ id, label: PASSOS_LABEL[id] })),
+      pathsPublicados: require('./lib/deploy').GIT_PATHS,
+      nota: 'A planilha e FOTOS/ na raiz são fontes locais; o sync gera encontros.ts e public/FOTOS/.',
+    })
+  })
+
+  app.post('/api/deploy/passo', (req, res) => {
+    try {
+      const passo = req.body?.passo
+      if (!passo || !PASSOS_ORDEM.includes(passo)) {
+        return res.status(400).json({ ok: false, erro: 'Passo inválido.' })
+      }
+      const result = executarPassoDeploy(passo, root, { mensagem: req.body?.mensagem })
+      res.json({ ok: true, ...result })
+    } catch (err) {
+      res.status(500).json({ ok: false, erro: err.message || String(err) })
     }
   })
 

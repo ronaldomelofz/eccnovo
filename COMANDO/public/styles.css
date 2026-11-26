@@ -106,6 +106,52 @@ input, select {
 .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn.small { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
 
+.deploy-progress {
+  margin-top: 0.85rem;
+  padding: 0.85rem;
+  background: #0f172a;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+}
+.deploy-progress-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.deploy-track {
+  height: 0.45rem;
+  background: #334155;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.deploy-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green), #4ade80);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+.deploy-steps {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  font-size: 0.78rem;
+}
+.deploy-steps li {
+  padding: 0.2rem 0;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.deploy-steps li.done { color: var(--green); }
+.deploy-steps li.active { color: var(--amber); font-weight: 600; }
+.deploy-steps li.fail { color: #f87171; }
+.deploy-steps li.skip { color: var(--muted); opacity: 0.7; }
+
 .log {
   margin-top: 0.75rem;
   padding: 0.75rem;

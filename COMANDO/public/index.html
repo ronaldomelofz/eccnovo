@@ -77,6 +77,16 @@
         <input type="text" id="msgCommit" placeholder="Atualiza encontros do ECC Alimento do Amor." />
       </label>
       <button type="button" class="btn deploy" id="btnDeploy">Publicar no site</button>
+      <div id="deployProgress" class="deploy-progress" hidden aria-live="polite">
+        <div class="deploy-progress-head">
+          <span id="deployStepLabel">Preparando…</span>
+          <span id="deployPercent">0%</span>
+        </div>
+        <div class="deploy-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="deployBar" aria-valuenow="0">
+          <div class="deploy-fill" id="deployFill"></div>
+        </div>
+        <ul class="deploy-steps" id="deployStepsList"></ul>
+      </div>
       <pre id="msgDeploy" class="log" hidden></pre>
     </section>
 

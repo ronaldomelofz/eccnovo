@@ -19,7 +19,7 @@ Variável opcional: `ECC_SITE_ROOT` aponta para a raiz do projeto se não for o 
 ## Fluxo
 
 1. **Salvar** — grava linha em `AGENDA ENCONTROS.xlsx` e, se enviar arquivo, copia para `FOTOS/` com nome padrão do site.
-2. **Publicar no site** — `npm run sync`, `npm run validate`, commit e push em `main` (deploy automático Netlify).
+2. **Publicar no site** — sync, validate, `git add` em `app/data/encontros.ts` e `public/FOTOS/`, commit e push em `main` (planilha e `FOTOS/` ficam locais, no `.gitignore`).
 
 Fontes oficiais: planilha + `FOTOS/` na raiz. Não edite `app/data/encontros.ts` nem `public/FOTOS/` à mão.
 
