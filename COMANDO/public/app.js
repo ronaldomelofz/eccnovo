@@ -48,9 +48,16 @@ function setModoEdicao(num) {
   else $('#fotoAtual').hidden = true
 }
 
+let deployPorPassos = true
+
 async function carregarStatus() {
   const st = await api('/api/status')
-  $('#statusProjeto').textContent = `${st.totalEncontros} encontros · projeto: ${st.siteRoot} · próximo nº sugerido: ${st.proximoNumero}`
+  deployPorPassos = st.deployPorPassos !== false
+  let linha = `${st.totalEncontros} encontros · projeto: ${st.siteRoot} · próximo nº sugerido: ${st.proximoNumero}`
+  if (!deployPorPassos) {
+    linha += ' · ⚠ Servidor desatualizado: feche o terminal e rode npm run comando'
+  }
+  $('#statusProjeto').textContent = linha
   if (!$('#num').value) $('#num').value = st.proximoNumero
   if (!$('#ano').value && st.ultimo) $('#ano').value = st.ultimo.ano
 }
@@ -208,8 +215,22 @@ async function apiDeployPasso(passo, mensagem) {
     body: JSON.stringify({ passo, mensagem: mensagem || undefined }),
   })
   const data = await r.json().catch(() => ({}))
+  if (r.status === 404) {
+    throw new Error(
+      data.erro ||
+        'API de publicação não encontrada. Pare o Comando no terminal (Ctrl+C) e inicie de novo: npm run comando'
+    )
+  }
   if (!r.ok) throw new Error(data.erro || r.statusText)
   return data
+}
+
+async function publicarDeployLegado(mensagem) {
+  return api('/api/deploy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mensagem: mensagem || undefined }),
+  })
 }
 
 $('#btnDeploy').addEventListener('click', async () => {
@@ -251,22 +272,60 @@ $('#btnDeploy').addEventListener('click', async () => {
   }
 
   try {
-    for (const { id, label } of passosMeta) {
-      if (nadaAlterado && (id === 'commit' || id === 'push')) {
-        mark(id, 'skip')
-        continue
+  const deployEmUmPasso = !deployPorPassos
+
+    if (deployEmUmPasso) {
+      passosMeta.forEach((p) => mark(p.id, 'active'))
+      setDeployProgress(0, 1, 'Publicando (servidor em modo compatível)…', state)
+      const data = await publicarDeployLegado(mensagem)
+      nadaAlterado = Boolean(data.nadaAlterado)
+      passosMeta.forEach((p) => {
+        state[p.id] = nadaAlterado && (p.id === 'commit' || p.id === 'push') ? 'skip' : 'done'
+        mark(p.id, state[p.id])
+      })
+      if (data.log) logs.push(data.log)
+      done = passosMeta.length
+    } else {
+      for (const { id, label } of passosMeta) {
+        if (nadaAlterado && (id === 'commit' || id === 'push')) {
+          mark(id, 'skip')
+          continue
+        }
+        mark(id, 'active')
+        setDeployProgress(done, passosMeta.length, label, { ...state, [id]: 'active' })
+
+        let data
+        try {
+          data = await apiDeployPasso(id, mensagem)
+        } catch (err) {
+          if (err.message.includes('404') || err.message.includes('não encontrada') || err.message === 'Not Found') {
+            deployPorPassos = false
+            const legado = await publicarDeployLegado(mensagem)
+            nadaAlterado = Boolean(legado.nadaAlterado)
+            if (legado.log) logs.push(legado.log)
+            for (const p of passosMeta) {
+              if (nadaAlterado && (p.id === 'commit' || p.id === 'push')) {
+                mark(p.id, 'skip')
+                state[p.id] = 'skip'
+              } else {
+                mark(p.id, 'done')
+                state[p.id] = 'done'
+              }
+            }
+            done = passosMeta.length
+            break
+          }
+          throw err
+        }
+
+        if (data.log) logs.push(`=== ${label} ===\n${data.log}`)
+        if (id === 'stage' && data.nadaAlterado) nadaAlterado = true
+
+        state[id] = 'done'
+        mark(id, 'done')
+        done += 1
+        setDeployProgress(done, passosMeta.length, id === 'push' || nadaAlterado ? 'Concluído' : '…', { ...state })
       }
-      mark(id, 'active')
-      setDeployProgress(done, passosMeta.length, label, { ...state, [id]: 'active' })
-
-      const data = await apiDeployPasso(id, mensagem)
-      if (data.log) logs.push(`=== ${label} ===\n${data.log}`)
-      if (id === 'stage' && data.nadaAlterado) nadaAlterado = true
-
-      state[id] = 'done'
-      mark(id, 'done')
-      done += 1
-      setDeployProgress(done, passosMeta.length, id === 'push' || nadaAlterado ? 'Concluído' : '…', { ...state })
     }
 
     log.hidden = false

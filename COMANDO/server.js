@@ -18,6 +18,7 @@ const { findPhotoFile, removePhotoFiles } = require('../scripts/lib/foto-encontr
 const { FOTOS_DIR, AGENDA_XLSX } = require('../scripts/fontes')
 
 const PORT = Number(process.env.COMANDO_PORT) || 3848
+const COMANDO_API_VERSION = 3
 
 function resolveRoot() {
   const root = assertSiteRoot(getSiteRoot())
@@ -32,13 +33,14 @@ function startServer(port = PORT) {
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } })
 
   app.use(express.json({ limit: '2mb' }))
-  app.use(express.static(path.join(__dirname, 'public')))
 
   app.get('/api/status', (_req, res) => {
     const items = parseAgendaExcel(AGENDA_XLSX) || []
     const ultimo = items[items.length - 1]
     res.json({
       ok: true,
+      apiVersion: COMANDO_API_VERSION,
+      deployPorPassos: true,
       siteRoot: root,
       totalEncontros: items.length,
       proximoNumero: ultimo ? ultimo.num + 1 : 1,
@@ -152,9 +154,27 @@ function startServer(port = PORT) {
     }
   })
 
+  app.use('/api', (_req, res) => {
+    res.status(404).json({
+      erro: 'Rota de API não encontrada. Reinicie o Comando: pare o terminal e rode npm run comando.',
+    })
+  })
+
+  app.use(
+    express.static(path.join(__dirname, 'public'), {
+      etag: false,
+      lastModified: false,
+      setHeaders(res, filePath) {
+        if (/\.(html|js|css)$/i.test(filePath)) {
+          res.setHeader('Cache-Control', 'no-store')
+        }
+      },
+    })
+  )
+
   return new Promise((resolve, reject) => {
     const server = app.listen(port, () => {
-      console.log(`Comando ECC — http://localhost:${port}`)
+      console.log(`Comando ECC — http://localhost:${port} (API v${COMANDO_API_VERSION})`)
       console.log(`Projeto: ${root}`)
       resolve({ app, server, port })
     })
