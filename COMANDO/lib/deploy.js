@@ -1,4 +1,4 @@
-const { spawnSync } = require('child_process')
+const { spawn } = require('child_process')
 
 /** Artefatos que o sync gera e o Git publica (planilha e FOTOS/ ficam locais). */
 const GIT_PATHS = ['app/data/encontros.ts', 'public/FOTOS']
@@ -15,40 +15,49 @@ const PASSOS_LABEL = {
 
 function runStep(cwd, command, args) {
   const shell = process.platform === 'win32' && command !== 'git'
-  const r = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell,
-    env: process.env,
-    windowsHide: true,
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd,
+      shell,
+      env: process.env,
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let stdout = ''
+    let stderr = ''
+    child.stdout?.on('data', (d) => {
+      stdout += d.toString()
+    })
+    child.stderr?.on('data', (d) => {
+      stderr += d.toString()
+    })
+    child.on('error', reject)
+    child.on('close', (code) => {
+      const out = `${stdout}${stderr}`.trim()
+      if (code !== 0) {
+        const err = new Error(out || `Falha: ${command} ${args.join(' ')}`)
+        err.code = code
+        reject(err)
+      } else resolve(out)
+    })
   })
-  const out = `${r.stdout || ''}${r.stderr || ''}`.trim()
-  if (r.error) {
-    throw new Error(r.error.message || String(r.error))
-  }
-  if (r.status !== 0) {
-    const err = new Error(out || `Falha: ${command} ${args.join(' ')}`)
-    err.code = r.status
-    throw err
-  }
-  return out
 }
 
-function passoSync(root) {
-  const log = runStep(root, 'npm', ['run', 'sync'])
+async function passoSync(root) {
+  const log = await runStep(root, 'npm', ['run', 'sync'])
   return { passo: 'sync', ok: true, log }
 }
 
-function passoValidate(root) {
-  const log = runStep(root, 'npm', ['run', 'validate'])
+async function passoValidate(root) {
+  const log = await runStep(root, 'npm', ['run', 'validate'])
   return { passo: 'validate', ok: true, log }
 }
 
-function passoStage(root) {
+async function passoStage(root) {
   for (const p of GIT_PATHS) {
-    runStep(root, 'git', ['add', '--', p])
+    await runStep(root, 'git', ['add', '--', p])
   }
-  const status = runStep(root, 'git', ['status', '--porcelain'])
+  const status = await runStep(root, 'git', ['status', '--porcelain'])
   const hasChanges = Boolean(status)
   return {
     passo: 'stage',
@@ -59,21 +68,21 @@ function passoStage(root) {
   }
 }
 
-function passoCommit(root, mensagemCommit) {
+async function passoCommit(root, mensagemCommit) {
   const msg = mensagemCommit || 'Atualiza encontros e fotos do site via Comando ECC.'
-  const log = runStep(root, 'git', ['commit', '-m', msg])
+  const log = await runStep(root, 'git', ['commit', '-m', msg])
   return { passo: 'commit', ok: true, log }
 }
 
-function passoPush(root) {
-  const log = runStep(root, 'git', ['push', 'origin', 'main'])
+async function passoPush(root) {
+  const log = await runStep(root, 'git', ['push', 'origin', 'main'])
   return { passo: 'push', ok: true, log }
 }
 
 /**
  * @param {'sync'|'validate'|'stage'|'commit'|'push'} passo
  */
-function executarPassoDeploy(passo, root, opts = {}) {
+async function executarPassoDeploy(passo, root, opts = {}) {
   switch (passo) {
     case 'sync':
       return passoSync(root)
@@ -91,17 +100,17 @@ function executarPassoDeploy(passo, root, opts = {}) {
 }
 
 /** Uso legado — um único request. */
-function publicarSite(root, mensagemCommit) {
+async function publicarSite(root, mensagemCommit) {
   const log = []
-  log.push(passoSync(root).log)
-  log.push(passoValidate(root).log)
-  const staged = passoStage(root)
+  log.push((await passoSync(root)).log)
+  log.push((await passoValidate(root)).log)
+  const staged = await passoStage(root)
   if (staged.nadaAlterado) {
     return { ok: true, nadaAlterado: true, log: log.join('\n\n') }
   }
   log.push(staged.log)
-  log.push(passoCommit(root, mensagemCommit).log)
-  log.push(passoPush(root).log)
+  log.push((await passoCommit(root, mensagemCommit)).log)
+  log.push((await passoPush(root)).log)
   return { ok: true, nadaAlterado: false, log: log.join('\n\n') }
 }
 

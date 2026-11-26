@@ -104,7 +104,21 @@ input, select {
 .btn.primary { background: var(--accent); color: #fff; }
 .btn.deploy { background: var(--green); color: #052e16; width: 100%; margin-top: 0.5rem; }
 .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn.danger { background: #b91c1c; color: #fff; }
+.btn.danger:hover { filter: brightness(1.08); }
 .btn.small { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.edit-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--amber);
+}
+.row-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 
 .deploy-progress {
   margin-top: 0.85rem;

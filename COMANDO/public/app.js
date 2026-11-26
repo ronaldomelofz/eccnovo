@@ -16,10 +16,36 @@ MESES.forEach((m) => {
 })
 
 async function api(path, opts) {
-  const r = await fetch(path, opts)
+  let r
+  try {
+    r = await fetch(path, opts)
+  } catch {
+    throw new Error(
+      'Sem resposta do servidor. Verifique se o Comando está rodando (npm run comando) e se a planilha não está aberta no Excel.'
+    )
+  }
   const data = await r.json().catch(() => ({}))
   if (!r.ok) throw new Error(data.erro || r.statusText)
   return data
+}
+
+function ensureCasalOption(nome) {
+  if (!nome) return
+  const existe = [...anfSel.options].some((o) => o.value === nome)
+  if (!existe) {
+    const o = document.createElement('option')
+    o.value = nome
+    o.textContent = nome
+    anfSel.appendChild(o)
+  }
+}
+
+function setModoEdicao(num) {
+  const editando = Boolean(num)
+  $('#editBanner').hidden = !editando
+  $('#btnApagar').hidden = !editando
+  if (editando) $('#editBannerNum').textContent = String(num)
+  else $('#fotoAtual').hidden = true
 }
 
 async function carregarStatus() {
@@ -46,7 +72,10 @@ async function carregarTabela() {
       <td>${e.dia}/${e.mes}/${e.ano}</td>
       <td>${e.anfitriao}</td>
       <td>${e.descricao}${e.observacao ? `<small>${e.observacao}</small>` : ''}</td>
-      <td><button type="button" class="btn ghost small btn-edit" data-num="${e.num}">Editar</button></td>
+      <td class="row-actions">
+        <button type="button" class="btn ghost small btn-edit" data-num="${e.num}">Editar</button>
+        <button type="button" class="btn danger small btn-del" data-num="${e.num}">Apagar</button>
+      </td>
     </tr>`
     )
     .join('')
@@ -54,26 +83,68 @@ async function carregarTabela() {
   tbody.querySelectorAll('.btn-edit').forEach((btn) => {
     btn.addEventListener('click', () => editar(Number(btn.dataset.num)))
   })
+  tbody.querySelectorAll('.btn-del').forEach((btn) => {
+    btn.addEventListener('click', () => apagar(Number(btn.dataset.num)))
+  })
 }
 
 async function editar(num) {
-  const { encontro: e } = await api(`/api/encontros/${num}`)
+  const { encontro: e, fotoArquivo } = await api(`/api/encontros/${num}`)
   $('#num').value = e.num
   $('#ano').value = e.ano
   $('#mes').value = e.mes
   $('#dia').value = Number.parseInt(e.dia, 10)
+  ensureCasalOption(e.anfitriao)
   $('#anfitriao').value = e.anfitriao
   $('#descricao').value = e.descricao
   $('#observacao').value = e.observacao || ''
   $('#semFoto').checked = e.fotoStatus === 'SEM FOTO'
+  $('#foto').value = ''
+  const fotoHint = $('#fotoAtual')
+  if (fotoArquivo) {
+    fotoHint.hidden = false
+    fotoHint.textContent = `Foto atual em FOTOS/: ${fotoArquivo} (escolha outro arquivo só se quiser trocar)`
+  } else if (e.fotoStatus === 'SEM FOTO') {
+    fotoHint.hidden = false
+    fotoHint.textContent = 'Marcado como SEM FOTO na planilha.'
+  } else {
+    fotoHint.hidden = false
+    fotoHint.textContent = 'Nenhuma foto em FOTOS/ para este número — envie um arquivo ao salvar.'
+  }
+  setModoEdicao(e.num)
+  $('#msgSalvar').hidden = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+async function apagar(num) {
+  const ok = window.confirm(
+    `Apagar o encontro ${num} da planilha e remover foto(s) em FOTOS/?\n\nIsso não envia ao site até você publicar.`
+  )
+  if (!ok) return
+  const log = $('#msgSalvar')
+  log.hidden = false
+  log.textContent = 'Apagando…'
+  try {
+    const data = await api(`/api/encontros/${num}?apagarFoto=1`, { method: 'DELETE' })
+    log.textContent = data.fotosRemovidas?.length
+      ? `Encontro ${num} removido. Fotos apagadas: ${data.fotosRemovidas.join(', ')}`
+      : `Encontro ${num} removido da planilha.`
+    form.reset()
+    setModoEdicao(null)
+    await carregarTabela()
+    await carregarStatus()
+  } catch (err) {
+    log.textContent = err.message
+  }
 }
 
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault()
   const log = $('#msgSalvar')
+  const btn = $('#btnSalvar')
   log.hidden = false
   log.textContent = 'Salvando…'
+  btn.disabled = true
   try {
     const fd = new FormData(form)
     fd.set('semFoto', $('#semFoto').checked ? 'true' : 'false')
@@ -81,15 +152,25 @@ form.addEventListener('submit', async (ev) => {
     log.textContent = data.fotoArquivo
       ? `Salvo. Foto: FOTOS/${data.fotoArquivo}`
       : 'Salvo na planilha.'
+    setModoEdicao(Number($('#num').value))
     await carregarTabela()
     await carregarStatus()
   } catch (err) {
     log.textContent = err.message
+  } finally {
+    btn.disabled = false
   }
+})
+
+$('#btnApagar').addEventListener('click', () => {
+  const num = Number($('#num').value)
+  if (num) apagar(num)
 })
 
 $('#btnLimpar').addEventListener('click', () => {
   form.reset()
+  setModoEdicao(null)
+  $('#msgSalvar').hidden = true
   carregarStatus()
 })
 

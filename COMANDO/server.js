@@ -9,7 +9,12 @@ const { getSiteRoot, assertSiteRoot } = require('./lib/paths')
 const { publicarSite, executarPassoDeploy, PASSOS_ORDEM, PASSOS_LABEL } = require('./lib/deploy')
 const { ORDEM_CASAIS } = require('./lib/casais')
 const { parseAgendaExcel } = require('../scripts/lib/agenda')
-const { upsertEncontroPlanilha, nomeArquivoFoto } = require('../scripts/lib/agenda-write')
+const {
+  upsertEncontroPlanilha,
+  deleteEncontroPlanilha,
+  nomeArquivoFoto,
+} = require('../scripts/lib/agenda-write')
+const { findPhotoFile, removePhotoFiles } = require('../scripts/lib/foto-encontro')
 const { FOTOS_DIR, AGENDA_XLSX } = require('../scripts/fontes')
 
 const PORT = Number(process.env.COMANDO_PORT) || 3848
@@ -52,12 +57,35 @@ function startServer(port = PORT) {
 
   app.get('/api/encontros/:num', (req, res) => {
     const num = Number(req.params.num)
+    if (!num) return res.status(400).json({ erro: 'Número inválido.' })
     const item = (parseAgendaExcel(AGENDA_XLSX) || []).find((e) => e.num === num)
     if (!item) return res.status(404).json({ erro: 'Encontro não encontrado.' })
-    res.json({ encontro: item })
+    const fotoArquivo = item.fotoStatus === 'SEM FOTO' ? null : findPhotoFile(num, FOTOS_DIR)
+    res.json({ encontro: item, fotoArquivo })
   })
 
-  app.post('/api/encontros/salvar', upload.single('foto'), (req, res) => {
+  app.delete('/api/encontros/:num', (req, res) => {
+    try {
+      const num = Number(req.params.num)
+      if (!num) return res.status(400).json({ erro: 'Número inválido.' })
+      const apagarFoto = req.query.apagarFoto !== '0' && req.query.apagarFoto !== 'false'
+      deleteEncontroPlanilha(num, AGENDA_XLSX)
+      const fotosRemovidas = apagarFoto ? removePhotoFiles(num, FOTOS_DIR) : []
+      res.json({ ok: true, removido: num, fotosRemovidas })
+    } catch (err) {
+      res.status(500).json({ erro: err.message || String(err) })
+    }
+  })
+
+  app.post('/api/encontros/salvar', (req, res) => {
+    upload.single('foto')(req, res, (multerErr) => {
+      if (multerErr) {
+        const msg =
+          multerErr.code === 'LIMIT_FILE_SIZE'
+            ? 'Foto muito grande (máx. 25 MB).'
+            : multerErr.message || String(multerErr)
+        return res.status(400).json({ erro: msg })
+      }
     try {
       const body = req.body
       const num = Number(body.num)
@@ -85,10 +113,13 @@ function startServer(port = PORT) {
         fs.writeFileSync(path.join(FOTOS_DIR, fotoArquivo), req.file.buffer)
       }
 
-      res.json({ ok: true, encontro: saved, fotoArquivo })
+      const fotoAtual =
+        saved.fotoStatus === 'SEM FOTO' ? null : findPhotoFile(num, FOTOS_DIR) || fotoArquivo
+      res.json({ ok: true, encontro: saved, fotoArquivo: fotoArquivo || fotoAtual })
     } catch (err) {
       res.status(500).json({ erro: err.message || String(err) })
     }
+    })
   })
 
   app.get('/api/deploy/passos', (_req, res) => {
@@ -99,13 +130,13 @@ function startServer(port = PORT) {
     })
   })
 
-  app.post('/api/deploy/passo', (req, res) => {
+  app.post('/api/deploy/passo', async (req, res) => {
     try {
       const passo = req.body?.passo
       if (!passo || !PASSOS_ORDEM.includes(passo)) {
         return res.status(400).json({ ok: false, erro: 'Passo inválido.' })
       }
-      const result = executarPassoDeploy(passo, root, { mensagem: req.body?.mensagem })
+      const result = await executarPassoDeploy(passo, root, { mensagem: req.body?.mensagem })
       res.json({ ok: true, ...result })
     } catch (err) {
       res.status(500).json({ ok: false, erro: err.message || String(err) })
@@ -114,7 +145,7 @@ function startServer(port = PORT) {
 
   app.post('/api/deploy', async (req, res) => {
     try {
-      const result = publicarSite(root, req.body?.mensagem)
+      const result = await publicarSite(root, req.body?.mensagem)
       res.json(result)
     } catch (err) {
       res.status(500).json({ ok: false, erro: err.message || String(err) })

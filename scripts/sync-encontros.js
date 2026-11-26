@@ -2,16 +2,7 @@ const fs = require('fs')
 const { FOTOS_DIR, ENCONTROS_TS, FOTOS_WEB_PREFIX } = require('./fontes')
 const { parseAgendaExcel } = require('./lib/agenda')
 const { sortEncontrosAsc } = require('./lib/ordenar')
-
-function findPhotoFile(num, fotosDir) {
-  if (!fs.existsSync(fotosDir)) return null
-  const prefix = `ENCONTRO-${String(num).padStart(2, '0')}-`
-  return (
-    fs
-      .readdirSync(fotosDir)
-      .find((f) => f.toUpperCase().startsWith(prefix.toUpperCase())) || null
-  )
-}
+const { findPhotoFile } = require('./lib/foto-encontro')
 
 function jsString(value) {
   return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')

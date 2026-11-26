@@ -21,6 +21,8 @@
     <section class="card">
       <h2>Novo / editar encontro</h2>
       <p class="hint" id="statusProjeto">Carregando…</p>
+      <p class="edit-banner" id="editBanner" hidden>✎ Editando encontro <strong id="editBannerNum"></strong> — altere e clique em <strong>Salvar</strong>, ou <strong>Apagar</strong> para remover da planilha.</p>
+      <p class="hint" id="fotoAtual" hidden></p>
 
       <form id="formEncontro" class="grid-form">
         <label>
@@ -60,8 +62,9 @@
           Sem foto (marca SEM FOTO na planilha)
         </label>
         <div class="actions span2">
-          <button type="submit" class="btn primary">Salvar na planilha e FOTOS/</button>
-          <button type="button" class="btn ghost" id="btnLimpar">Limpar formulário</button>
+          <button type="submit" class="btn primary" id="btnSalvar">Salvar na planilha e FOTOS/</button>
+          <button type="button" class="btn danger" id="btnApagar" hidden>Apagar encontro</button>
+          <button type="button" class="btn ghost" id="btnLimpar">Limpar / novo</button>
         </div>
       </form>
       <pre id="msgSalvar" class="log" hidden></pre>

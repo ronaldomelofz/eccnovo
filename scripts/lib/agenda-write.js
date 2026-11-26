@@ -34,7 +34,36 @@ function writeSheet(agendaPath, wb, sheetName, rows) {
   const newSheet = XLSX.utils.aoa_to_sheet(rows)
   wb.Sheets[sheetName] = newSheet
   if (!wb.SheetNames.includes(sheetName)) wb.SheetNames.push(sheetName)
-  XLSX.writeFile(wb, agendaPath)
+  try {
+    XLSX.writeFile(wb, agendaPath)
+  } catch (err) {
+    const code = err.code || ''
+    if (code === 'EBUSY' || code === 'EPERM' || code === 'EACCES') {
+      throw new Error(
+        'Não foi possível gravar a planilha. Feche o arquivo AGENDA ENCONTROS.xlsx no Excel e tente de novo.'
+      )
+    }
+    throw err
+  }
+}
+
+function deleteEncontroPlanilha(num, agendaPath = AGENDA_XLSX) {
+  const n = Number(num)
+  if (!n || n < 1) throw new Error('Número do encontro inválido.')
+
+  const { wb, sheetName, rows } = readSheet(agendaPath)
+  let rowIndex = -1
+  for (let i = 0; i < rows.length; i++) {
+    if (Number(rows[i][0]) === n) {
+      rowIndex = i
+      break
+    }
+  }
+  if (rowIndex < 0) throw new Error(`Encontro ${n} não encontrado na planilha.`)
+
+  rows.splice(rowIndex, 1)
+  writeSheet(agendaPath, wb, sheetName, rows)
+  return { removido: n }
 }
 
 /**
@@ -116,6 +145,7 @@ function nomeArquivoFoto(item) {
 
 module.exports = {
   upsertEncontroPlanilha,
+  deleteEncontroPlanilha,
   nomeArquivoFoto,
   mesPlanilha,
 }

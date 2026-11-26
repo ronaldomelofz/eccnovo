@@ -34,6 +34,9 @@ Site: https://eccalimentodoamor.netlify.app
 | GET | `/api/encontros` | Planilha parseada |
 | GET | `/api/encontros/:num` | Um encontro |
 | POST | `/api/encontros/salvar` | multipart: campos + `foto` |
+| DELETE | `/api/encontros/:num` | Remove da planilha; `?apagarFoto=0` mantém FOTOS/ |
 | POST | `/api/deploy` | JSON `{ "mensagem": "..." }` opcional |
+
+Se **Salvar** der erro de rede, confira se o servidor está ativo e **feche a planilha no Excel** (arquivo bloqueado).
 
 Porta padrão: **3848** (`COMANDO_PORT`).
